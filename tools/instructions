@@ -1,0 +1,15 @@
+1) To make a new genome sequence, follow this format:
+
+	python3.6 makeGenome.py polidy genome_length > fileForGenome
+
+for example:
+
+	python3.6 makeGenome.py 3 50 > testGenome1
+
+2) To make a new read based off a genome, follow this format:
+
+	python3.6 makeReads.py fileWithGenome number_of_reads end_reads min_gap max_gap 0.01 > fileForReads
+
+for example:
+
+	python3.6 makeReads.py testGenome1 100 5 19 23 0.01 > testReads1
