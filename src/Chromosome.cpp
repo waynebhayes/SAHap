@@ -75,7 +75,7 @@ void Chromosome::add(ReadPair * rp) {
 }
 
 void Chromosome::remove(ReadPair * rp) {
-	if (!this->readPairs.contains(rp)) {
+	if (this->readPairs.find(rp) == this->readPairs.end()) {
 		throw "Chromosome does not contain read pair";
 	}
 
