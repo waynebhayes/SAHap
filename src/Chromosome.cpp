@@ -49,7 +49,7 @@ dnacnt_t Chromosome::mec() {
 }
 
 void Chromosome::add(ReadPair * rp) {
-	if (this->readPairs.contains(rp)) {
+	if (this->readPairs.find(rp) != this->readPairs.end()) {
 		throw "Chromosome already contains read pair";
 	}
 
