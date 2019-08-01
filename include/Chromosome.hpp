@@ -1,6 +1,7 @@
 #ifndef CHROMOSOME_HPP
 #define CHROMOSOME_HPP
 
+#include <algorithm>
 #include <vector>
 #include <unordered_set>
 #include <random>
@@ -13,6 +14,7 @@ namespace SAHap {
 class Chromosome {
 public:
 	Chromosome(dnapos_t length);
+	Chromosome(const Chromosome& ch);
 	~Chromosome();
 
 	/**

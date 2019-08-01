@@ -3,7 +3,7 @@
 namespace SAHap {
 
 Chromosome::Chromosome(dnapos_t length)
-	: length(length), vsum(0), imec(0), mecDirty(true)
+	: length(length), imec(0), mecDirty(true)
 {
 	this->solution = new DNAChar[this->length];
 	this->votes = new dnacnt_t*[this->length];
@@ -18,6 +18,22 @@ Chromosome::Chromosome(dnapos_t length)
 			this->votes[i][letter] = 0;
 		}
 	}
+}
+
+Chromosome::Chromosome(const Chromosome& ch)
+	: length(ch.length), imec(ch.imec), mecDirty(ch.mecDirty), readPairs(ch.readPairs)
+{
+	this->solution = new DNAChar[this->length];
+	this->votes = new dnacnt_t*[this->length];
+	this->vsum = new dnacnt_t[this->length];
+
+	for (dnapos_t i = 0; i < this->length; ++i) {
+		this->votes[i] = new dnacnt_t[DNAChar::LENGTH];
+		copy(ch.votes[i], ch.votes[i] + DNAChar::LENGTH, this->votes[i]);
+	}
+
+	copy(ch.solution, ch.solution + ch.length, this->solution);
+	copy(ch.vsum, ch.vsum + ch.length, this->vsum);
 }
 
 Chromosome::~Chromosome() {
