@@ -4,6 +4,14 @@ src = [
 	'DNAChar.cpp',
 	'Read.cpp',
 	'InputReader.cpp',
-	'main.cpp',
 ]
-executable('sahap', src, include_directories: inc)
+
+libsahap_static = static_library(
+	'sahap', src,
+	include_directories: inc,
+)
+
+libsahap_static_dep = declare_dependency(
+	link_with: libsahap_static,
+	include_directories: inc,
+)

@@ -4,5 +4,10 @@ project('sahap', 'cpp',
 
 inc = include_directories('include')
 
-subdir('src')
+subdir('src') # libsahap_static_dep
+subdir('tests')
+
+executable('sahap', 'main.cpp', dependencies: [
+  libsahap_static_dep,
+])
 
