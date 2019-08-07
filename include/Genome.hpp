@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <random>
 #include <sstream>
 #include <vector>
 #include "Chromosome.hpp"
@@ -17,13 +18,16 @@ namespace SAHap {
 class Genome {
 public:
 	Genome(ifstream& filename, dnapos_t length, size_t ploidy);
-	dnacnt_t get_mec();
-	void sim_ann(float temp, float minTemp, float decreaseFactor, int numiters);
+	~Genome();
+	dnacnt_t mec();
+	void optimize(float temp, float minTemp, float decreaseFactor, int numiters);
 
 protected:
-	vector<Chromosome> chrom_list;
-	vector<ReadPair *> read_pair_list;
+	vector<Chromosome> chromosomes;
+	vector<ReadPair *> readPairs;
+	mt19937 randomEngine;
 
+	void makeInitialState();
 	float score(float temp, dnacnt_t mec);
 	float chanceToKeepFunc(float curScore, float newScore, float temp);
 };
