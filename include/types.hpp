@@ -4,4 +4,7 @@ namespace SAHap {
 
 	// Read counts
 	typedef unsigned long dnacnt_t;
+
+	// Iterations
+	typedef unsigned long long iteration_t;
 }

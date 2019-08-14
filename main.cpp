@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	file.open(argv[1]);
 
 	Genome ge(file, 1000, 2);
-	ge.optimize(1, 0.0001, 0.9, 10000);
+	// ge.optimize();
 
 	return 0;
 }
