@@ -4,30 +4,27 @@ using namespace std;
 
 namespace SAHap {
 
-Genome::Genome(ifstream& file, dnapos_t length, size_t ploidy)
-	: chromosomes(vector<Chromosome>(ploidy, Chromosome(length)))
+Genome::Genome(InputFile file)
 {
 	random_device seed;
 	this->randomEngine = mt19937(seed());
-	this->readPairs = InputReader::read(file);
+	this->file = file;
+	this->chromosomes = vector<Chromosome>(this->file.ploidy, Chromosome(this->file.index.size()));
 	this->shuffle();
 }
 
 Genome::~Genome() {
-	for (auto& rp : this->readPairs) {
-		delete rp;
-	}
 }
 
-dnacnt_t Genome::mec() {
-	dnacnt_t out = 0;
+dnaweight_t Genome::mec() {
+	dnaweight_t out = 0;
 	for (size_t i = 0; i < chromosomes.size(); i++) {
 		out = out + chromosomes[i].mec();
 	}
 	return out;
 }
 
-float Genome::score(dnacnt_t mec) {
+float Genome::score(dnaweight_t mec) {
 	float maxMec = this->chromosomes.size() * this->chromosomes[0].size();
 	return mec / maxMec;
 }
@@ -48,8 +45,8 @@ void Genome::shuffle() {
 		this->chromosomes = vector<Chromosome>(ploidy, Chromosome(length));
 	}
 
-	for (auto& p : this->readPairs) {
-		this->chromosomes[distribution(this->randomEngine)].add(p);
+	for (auto& r : this->file.reads) {
+		this->chromosomes[distribution(this->randomEngine)].add(&r);
 	}
 
 	this->initialized = true;
@@ -59,10 +56,11 @@ void Genome::shuffle() {
 	// }
 }
 
-float Genome::acceptance(dnacnt_t newMec, dnacnt_t curMec) {
+float Genome::acceptance(dnaweight_t newMec, dnaweight_t curMec) {
 	if (newMec < curMec) return 1;
 	if (this->t == 0) return 0;
 	float energyDiff = this->score(curMec) - this->score(newMec);
+	// cout << "Acceptance(" << energyDiff << ") = " << exp(energyDiff / this->t) << endl;
 	return exp(energyDiff / this->t);
 }
 
@@ -89,19 +87,19 @@ void Genome::move() {
 	size_t moveOffset = rand() % ploidy;
 	size_t moveTo = (moveFrom + moveOffset) % ploidy;
 
-	ReadPair * rp = this->chromosomes[moveFrom].pick(this->randomEngine);
-	this->chromosomes[moveFrom].remove(rp);
-	this->chromosomes[moveTo].add(rp);
+	Read * r = this->chromosomes[moveFrom].pick(this->randomEngine);
+	this->chromosomes[moveFrom].remove(r);
+	this->chromosomes[moveTo].add(r);
 
 	this->lastMove.from = moveFrom;
 	this->lastMove.to = moveTo;
-	this->lastMove.rp = rp;
+	this->lastMove.read = r;
 }
 
 void Genome::revertMove() {
 	const auto& move = this->lastMove;
-	this->chromosomes[move.to].remove(move.rp);
-	this->chromosomes[move.from].add(move.rp);
+	this->chromosomes[move.to].remove(move.read);
+	this->chromosomes[move.from].add(move.read);
 }
 
 void Genome::iteration() {
@@ -118,6 +116,14 @@ void Genome::iteration() {
 		this->revertMove();
 	} else {
 		this->pbad.record(newMec > oldMec);
+		/*
+		uniform_real_distribution<float> d(0, 3);
+		if (d(this->randomEngine) <= 1) {
+			this->pbad.record(false);
+		} else {
+			this->pbad.record(true);
+		}
+		*/
 	}
 }
 

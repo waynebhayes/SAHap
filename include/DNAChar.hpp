@@ -8,7 +8,7 @@ using namespace std;
 
 namespace SAHap {
 
-enum DNAChar : unsigned char {
+enum class DNAChar : unsigned char {
 	BEGIN,
 	A = BEGIN,
 	C,
@@ -19,7 +19,7 @@ enum DNAChar : unsigned char {
 	UNKNOWN = END,
 };
 
-constexpr initializer_list<DNAChar> AllDNAChar = {A, C, G, T};
+constexpr initializer_list<DNAChar> AllDNAChar = {DNAChar::A, DNAChar::C, DNAChar::G, DNAChar::T};
 
 ostream & operator << (ostream& stream, const DNAChar& l);
 ostream & operator << (ostream& stream, const vector<DNAChar>& lv);

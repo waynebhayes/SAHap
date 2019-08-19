@@ -1,5 +1,5 @@
-#ifndef GENOME_HPP
-#define GENOME_HPP
+#ifndef SAHAP_GENOME_HPP
+#define SAHAP_GENOME_HPP
 
 #include <iostream>
 #include <fstream>
@@ -8,7 +8,6 @@
 #include <vector>
 #include "Chromosome.hpp"
 #include "InputReader.hpp"
-#include "Read.hpp"
 #include "types.hpp"
 
 using namespace std;
@@ -17,11 +16,11 @@ namespace SAHap {
 
 class Genome {
 public:
-	Genome(ifstream& filename, dnapos_t length, size_t ploidy);
+	Genome(InputFile file);
 	~Genome();
-	dnacnt_t mec();
+	dnaweight_t mec();
 	float score();
-	float score(dnacnt_t mec);
+	float score(dnaweight_t mec);
 
 	void shuffle();
 	bool done();
@@ -47,7 +46,7 @@ public:
 
 protected:
 	vector<Chromosome> chromosomes;
-	vector<ReadPair *> readPairs;
+	InputFile file;
 	mt19937 randomEngine;
 	bool initialized = false;
 
@@ -65,11 +64,11 @@ protected:
 	struct Move {
 		size_t from;
 		size_t to;
-		ReadPair * rp;
+		Read * read;
 	};
 	Move lastMove;
 
-	float acceptance(dnacnt_t newMec, dnacnt_t curMec);
+	float acceptance(dnaweight_t newMec, dnaweight_t curMec);
 	float getTemperature(iteration_t iteration);
 };
 

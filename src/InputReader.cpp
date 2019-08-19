@@ -4,46 +4,104 @@ using namespace std;
 
 namespace SAHap {
 
-vector<ReadPair *> InputReader::read(ifstream& file) {
-	vector<ReadPair *> result;
+InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
+	InputFile result;
 	string buf;
 
 	while (!file.eof()) {
 		getline(file, buf);
-		if (buf.find("#") == 0) continue;
-		result.push_back(InputReader::parseLine(buf));
+		if (buf.size() == 0 || buf.find("#") == 0) continue;
+
+		result.reads.push_back(WIFInputReader::parseRead(result.index, buf));
 	}
 
+	result.ploidy = ploidy;
 	return result;
 }
 
-ReadPair * InputReader::parseLine(string line) {
+void WIFInputReader::readGroundTruth(ifstream& file, InputFile parsed) {
+	string buf;
+	vector<vector<Allele>> truth;
+	truth.reserve(parsed.ploidy);
+
+	parsed.groundTruthNotCovered = 0;
+	while (!file.eof()) {
+		getline(file, buf);
+		vector<Allele> ch(parsed.index.size(), Allele::UNKNOWN);
+		for (size_t i = 0; i < buf.size(); ++i) {
+			char allele = buf[i];
+			dnapos_t pos = i + 1;
+			if (parsed.index.find(pos) != parsed.index.end()) {
+				dnapos_t matrixPos = parsed.index[pos];
+				if (allele == '0') ch[matrixPos] = Allele::REF;
+				else if (allele == '1') ch[matrixPos] = Allele::ALT;
+				else if (allele == 'X') ch[matrixPos] = Allele::UNKNOWN;
+				else throw "Invalid ground truth allele value";
+			} else {
+				parsed.groundTruthNotCovered++;
+			}
+		}
+		truth.push_back(ch);
+	}
+
+	if (truth.size() != parsed.ploidy) {
+		cerr << "Warning: Number of chromosomes in ground truth does not match ploidy! Results will be meaningless." << endl;
+	}
+
+	parsed.groundTruth = truth;
+}
+
+Site WIFInputReader::parseSNP(string snp) {
+	istringstream iss(snp);
+	Site s;
+	iss >> s.pos;
+
+	iss.ignore(256, ' ');
+	iss.ignore(256, ' ');
+
+	int weight, value;
+	iss >> value >> weight;
+
+	if (s.weight > 0 && s.weight <= 100) {
+		s.weight = (float)weight / 100;
+	} else {
+		throw "Invalid weight value";
+	}
+
+	if (value == 0) {
+		s.value = Allele::REF;
+	} else if (value == 1) {
+		s.value = Allele::ALT;
+	} else {
+		cout << value << endl;
+		throw "Invalid allele value";
+	}
+	return s;
+}
+
+Read WIFInputReader::parseRead(unordered_map<dnapos_t, dnapos_t>& index, string line) {
+	Read result;
 	istringstream iss(line);
-	dnapos_t pos1, pos2;
-	string seq1, seq2;
-	Read r1, r2;
+	string buf;
+	while (getline(iss, buf, ':')) {
+		istringstream siss(buf);
+		char a;
+		siss >> a;
+		if (a == '#') break;
 
-	iss >> pos1 >> seq1 >> pos2 >> seq2;
-	r1.pos = pos1;
-	r1.seq = InputReader::parseSeq(seq1);
-	r2.pos = pos2;
-	r2.seq = InputReader::parseSeq(seq2);
+		Site snp = WIFInputReader::parseSNP(buf);
+		if (index.find(snp.pos) == index.end()) {
+			// not a known site
+			dnapos_t matrixPos = index.size();
+			index.insert(make_pair(snp.pos, matrixPos));
+			snp.pos = matrixPos;
+		} else {
+			// known site
+			// index[actual pos] = matrix pos
+			snp.pos = index[snp.pos];
+		}
 
-	auto result = new ReadPair(r1, r2);
-
-	return result;
-}
-
-vector<DNAChar> InputReader::parseSeq(string seq) {
-	vector<DNAChar> result;
-	result.reserve(seq.length());
-
-	for (const char& c : seq) {
-		if (c == 'A' || c == 'a') result.push_back(DNAChar::A);
-		else if (c == 'C' || c == 'c') result.push_back(DNAChar::C);
-		else if (c == 'G' || c == 'g') result.push_back(DNAChar::G);
-		else if (c == 'T' || c == 't') result.push_back(DNAChar::T);
-		else throw "Invalid DNA letter";
+		result.sites.push_back(snp);
 	}
 
 	return result;

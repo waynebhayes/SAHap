@@ -15,8 +15,26 @@ int main(int argc, char *argv[]) {
 	ifstream file;
 	file.open(argv[1]);
 
-	Genome ge(file, 1000, 2);
+	try {
+		Genome ge(file, 2);
+		cout << "Loaded" << endl;
+		cout << ge.findPbad(pow(10, 10)) << endl;
+	} catch (const char* e) {
+		cout << e << endl;
+	}
 	// ge.optimize();
+
+	// /*
+	// for (float e = -10; e <= 10; ++e) {
+	// 	float temp = pow(10, e);
+	// 	cout << temp << ": " << ge.findPbad(temp) << endl;
+	// }
+	// */
+	// /*
+	// for (float i = 1; i > 0; i -= 0.1f) {
+	// 	cout << "pBad @ " << i << " = " << ge.findPbad(100) << endl;
+	// }
+	// */
 
 	return 0;
 }

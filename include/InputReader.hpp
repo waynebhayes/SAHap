@@ -1,23 +1,25 @@
-#ifndef INPUTREADER_HPP
-#define INPUTREADER_HPP
+#ifndef SAHAP_INPUTREADER_HPP
+#define SAHAP_INPUTREADER_HPP
 
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
 #include <utility>
-#include "DNAChar.hpp"
-#include "Read.hpp"
 #include "types.hpp"
 
 using namespace std;
 
 namespace SAHap {
 
-class InputReader {
+class WIFInputReader {
 public:
-	static vector<ReadPair *> read(ifstream& file);
-	static ReadPair * parseLine(string line);
-	static vector<DNAChar> parseSeq(string seq);
+	static InputFile read(ifstream& file, dnacnt_t ploidy);
+	static void readGroundTruth(ifstream& file, InputFile parsed);
+	static Site parseSNP(string snp);
+	// Map: actual pos -> matrix pos
+	static Read parseRead(unordered_map<dnapos_t, dnapos_t>& index, string line);
 };
 
 }

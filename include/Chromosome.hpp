@@ -1,12 +1,11 @@
-#ifndef CHROMOSOME_HPP
-#define CHROMOSOME_HPP
+#ifndef SAHAP_CHROMOSOME_HPP
+#define SAHAP_CHROMOSOME_HPP
 
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
 #include <random>
 #include "DNAChar.hpp"
-#include "Read.hpp"
 #include "types.hpp"
 
 namespace SAHap {
@@ -25,40 +24,50 @@ public:
 	/**
 	 * Compute the MEC
 	 */
-	dnacnt_t mec();
+	float mec();
 
 	/**
-	 * Add a read pair to a chromosome
+	 * Add a Read to a chromosome
 	 */
-	void add(ReadPair * rp);
+	void add(Read * r);
 
 	/**
-	 * Remove a read pair to a chromosome
+	 * Remove a Read to a chromosome
 	 */
-	void remove(ReadPair * rp);
+	void remove(Read * r);
 
 	/**
-	 * Randomly pick a ReadPair
+	 * Randomly pick a Read
 	 */
-	ReadPair * pick();
-	ReadPair * pick(mt19937& engine);
+	Read * pick();
+	Read * pick(mt19937& engine);
 
 	/**
 	 * Print chromosome
 	 */
 	void print(ostream& stream, bool verbose=false);
 
-	DNAChar * solution;
+	vector<Allele> solution;
 
 	friend ostream & operator << (ostream& stream, Chromosome& ch);
 
 protected:
+	struct VoteInfo {
+		dnacnt_t ref_c = 0;
+		dnacnt_t alt_c = 0;
+		float ref_w = 0;
+		float alt_w = 0;
+
+		dnacnt_t& vote(Allele allele);
+		float& weight(Allele allele);
+	};
+
 	dnapos_t length;
-	dnacnt_t ** votes; // [site][letter] = # votes
-	dnacnt_t * vsum; // sum of all votes
-	dnacnt_t imec; // cached MEC
+	vector<VoteInfo> votes;
+
+	float imec; // cached MEC
 	bool mecDirty;
-	unordered_set<ReadPair *> readPairs;
+	unordered_set<Read *> reads;
 
 	void tally(dnapos_t site);
 	void vote(const Read& read, bool retract=false);
