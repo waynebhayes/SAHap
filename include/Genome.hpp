@@ -25,6 +25,7 @@ public:
 	void shuffle();
 	bool done();
 	void setParameters(float tInitial, float tDecay, iteration_t maxIterations);
+	void setTemperature(float t);
 	void move();
 	void revertMove();
 	void iteration();
@@ -43,9 +44,13 @@ public:
 		float getAverage();
 	};
 	PbadBuffer pbad;
+	int totalBad = 0;
+	int totalBadAccepted = 0;
+	vector<Chromosome> chromosomes;
+	void generateOutput();
+	dnacnt_t compareGroundTruth();
 
 protected:
-	vector<Chromosome> chromosomes;
 	InputFile file;
 	mt19937 randomEngine;
 	bool initialized = false;
@@ -70,6 +75,7 @@ protected:
 
 	float acceptance(dnaweight_t newMec, dnaweight_t curMec);
 	float getTemperature(iteration_t iteration);
+	dnacnt_t compareGroundTruth(const Chromosome& ch, const vector<Allele>& truth);
 };
 
 }

@@ -2,10 +2,10 @@
 #define SAHAP_CHROMOSOME_HPP
 
 #include <algorithm>
+#include <array>
 #include <vector>
 #include <unordered_set>
 #include <random>
-#include "DNAChar.hpp"
 #include "types.hpp"
 
 namespace SAHap {
@@ -20,6 +20,11 @@ public:
 	 * Returns the size of the solution
 	 */
 	dnapos_t size() const;
+
+	/**
+	 * Returns the number of reads in the Chromosome
+	 */
+	size_t readSize() const;
 
 	/**
 	 * Compute the MEC
@@ -63,10 +68,10 @@ protected:
 	};
 
 	dnapos_t length;
-	vector<VoteInfo> votes;
+	// vector<VoteInfo> votes;
+	vector<array<dnacnt_t, 2>> weights;
 
 	float imec; // cached MEC
-	bool mecDirty;
 	unordered_set<Read *> reads;
 
 	void tally(dnapos_t site);

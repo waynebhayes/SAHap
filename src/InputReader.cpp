@@ -19,27 +19,32 @@ InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
 	return result;
 }
 
-void WIFInputReader::readGroundTruth(ifstream& file, InputFile parsed) {
+void WIFInputReader::readGroundTruth(ifstream& file, InputFile& parsed) {
+	// Obtain sorted list of sites covered
+	vector<dnapos_t> sites;
+	sites.reserve(parsed.index.size());
+	for (const auto& kv : parsed.index) {
+		sites.push_back(kv.first);
+	}
+	sort(sites.begin(), sites.end());
+	parsed.sites = sites;
+
 	string buf;
 	vector<vector<Allele>> truth;
 	truth.reserve(parsed.ploidy);
 
-	parsed.groundTruthNotCovered = 0;
 	while (!file.eof()) {
 		getline(file, buf);
+		if (buf.size() == 0) continue;
 		vector<Allele> ch(parsed.index.size(), Allele::UNKNOWN);
 		for (size_t i = 0; i < buf.size(); ++i) {
 			char allele = buf[i];
-			dnapos_t pos = i + 1;
-			if (parsed.index.find(pos) != parsed.index.end()) {
-				dnapos_t matrixPos = parsed.index[pos];
-				if (allele == '0') ch[matrixPos] = Allele::REF;
-				else if (allele == '1') ch[matrixPos] = Allele::ALT;
-				else if (allele == 'X') ch[matrixPos] = Allele::UNKNOWN;
-				else throw "Invalid ground truth allele value";
-			} else {
-				parsed.groundTruthNotCovered++;
-			}
+			dnapos_t pos = sites[i];
+			dnapos_t matrixPos = parsed.index[pos];
+			if (allele == '0') ch[matrixPos] = Allele::REF;
+			else if (allele == '1') ch[matrixPos] = Allele::ALT;
+			else if (allele == 'X') ch[matrixPos] = Allele::UNKNOWN;
+			else throw "Invalid ground truth allele value";
 		}
 		truth.push_back(ch);
 	}
@@ -49,6 +54,7 @@ void WIFInputReader::readGroundTruth(ifstream& file, InputFile parsed) {
 	}
 
 	parsed.groundTruth = truth;
+	parsed.hasGroundTruth = true;
 }
 
 Site WIFInputReader::parseSNP(string snp) {
@@ -67,6 +73,7 @@ Site WIFInputReader::parseSNP(string snp) {
 	} else {
 		throw "Invalid weight value";
 	}
+	s.weight = 1; // HACK
 
 	if (value == 0) {
 		s.value = Allele::REF;

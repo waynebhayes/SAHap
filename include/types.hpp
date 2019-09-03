@@ -37,6 +37,7 @@ struct Read {
 struct InputFile {
 	dnacnt_t ploidy;
 	unordered_map<dnapos_t, dnapos_t> index; // index[matrix pos] = genome pos
+	vector<dnapos_t> sites;
 	vector<Read> reads;
 	vector<Zygosity> zygosity;
 	vector<vector<Allele>> groundTruth;

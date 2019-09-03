@@ -14,11 +14,18 @@ int main(int argc, char *argv[]) {
 
 	ifstream file;
 	file.open(argv[1]);
+	auto parsed = WIFInputReader::read(file, 2);
 
 	try {
-		Genome ge(file, 2);
+		Genome ge(parsed);
 		cout << "Loaded" << endl;
-		cout << ge.findPbad(pow(10, 10)) << endl;
+		// cout << ge.chromosomes[0].percentAgree() << endl;
+		for (float e = -5; e <= 2; e += 0.1) {
+			float temp = pow(10, e);
+			auto pbad = ge.findPbad(temp);
+			cout << temp << " " << pbad << endl;
+		}
+
 	} catch (const char* e) {
 		cout << e << endl;
 	}

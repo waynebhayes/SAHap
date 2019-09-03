@@ -1,4 +1,7 @@
 #include "Genome.hpp"
+#include <csignal>
+
+#define SAHAP_GENOME_DEBUG 0
 
 using namespace std;
 
@@ -79,17 +82,42 @@ void Genome::setParameters(float tInitial, float tDecay, iteration_t maxIteratio
 	this->maxIterations = maxIterations;
 }
 
+void Genome::setTemperature(float t) {
+	this->t = t;
+}
+
 void Genome::move() {
 	// Perform a random move, saving enough information so we can revert later
 
 	auto ploidy = this->chromosomes.size();
 	size_t moveFrom = rand() % ploidy;
-	size_t moveOffset = rand() % ploidy;
-	size_t moveTo = (moveFrom + moveOffset) % ploidy;
+	size_t moveTo;
+
+	while (!this->chromosomes[moveFrom].readSize()) {
+		if (ploidy == 2) {
+			moveFrom = !moveFrom;
+		} else {
+			moveFrom = rand() % ploidy;
+		}
+	}
+
+	if (ploidy == 2) {
+		moveTo = !moveFrom;
+	} else {
+		size_t moveOffset = rand() % (ploidy - 1);
+		moveTo = moveFrom + moveOffset + 1;
+	}
 
 	Read * r = this->chromosomes[moveFrom].pick(this->randomEngine);
-	this->chromosomes[moveFrom].remove(r);
+#if SAHAP_GENOME_DEBUG
+	if (!r) {
+		cerr << "DEBUG: Chromosome " << moveFrom << " has no reads remaining" << endl;
+		std::raise(SIGINT);
+		r = this->chromosomes[moveFrom].pick(this->randomEngine);
+	}
+#endif
 	this->chromosomes[moveTo].add(r);
+	this->chromosomes[moveFrom].remove(r);
 
 	this->lastMove.from = moveFrom;
 	this->lastMove.to = moveTo;
@@ -112,19 +140,31 @@ void Genome::iteration() {
 	float chanceToKeep = this->acceptance(newMec, oldMec);
 	float randomIndex = distribution(this->randomEngine);
 
-	if (chanceToKeep <= randomIndex) {
-		this->revertMove();
-	} else {
-		this->pbad.record(newMec > oldMec);
-		/*
-		uniform_real_distribution<float> d(0, 3);
-		if (d(this->randomEngine) <= 1) {
-			this->pbad.record(false);
-		} else {
-			this->pbad.record(true);
+	bool isBad = newMec > oldMec;
+	bool accept = randomIndex <= chanceToKeep;
+
+	if (isBad) {
+		this->totalBad++;
+		if (accept) {
+			this->totalBadAccepted++;
 		}
-		*/
+		this->pbad.record(accept);
 	}
+
+	if (accept) {
+		// accept move
+	} else {
+		// reject move
+		this->revertMove();
+	}
+	/*
+	uniform_real_distribution<float> d(0, 3);
+	if (d(this->randomEngine) <= 1) {
+		this->pbad.record(false);
+	} else {
+		this->pbad.record(true);
+	}
+	*/
 }
 
 float Genome::getTemperature(iteration_t iteration) {
@@ -150,7 +190,10 @@ float Genome::findPbad(float temperature) {
 	this->pbad.pos = 0;
 	this->pbad.sum = 0;
 
-	for (size_t i = 0; i < 100000; ++i) {
+	this->totalBad = 0;
+	this->totalBadAccepted = 0;
+
+	for (size_t i = 0; i < 10000; ++i) {
 		this->iteration();
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
 	}
@@ -172,6 +215,30 @@ void Genome::PbadBuffer::record(bool bad) {
 
 float Genome::PbadBuffer::getAverage() {
 	return (float)this->sum / this->total;
+}
+
+dnacnt_t Genome::compareGroundTruth() {
+	auto l00 = this->compareGroundTruth(chromosomes[0], file.groundTruth[0]);
+	auto l11 = this->compareGroundTruth(chromosomes[1], file.groundTruth[1]);
+	auto la = l00 + l11;
+	// cout << "00: " << l00 << ", 11: " << l11 << ", total: " << la << endl;
+
+	auto l01 = this->compareGroundTruth(chromosomes[0], file.groundTruth[1]);
+	auto l10 = this->compareGroundTruth(chromosomes[1], file.groundTruth[0]);
+	auto lb = l01 + l10;
+	// cout << "01: " << l01 << ", 10: " << l10 << ", total: " << lb << endl;
+
+	return la < lb ? la : lb;
+}
+
+dnacnt_t Genome::compareGroundTruth(const Chromosome& ch, const vector<Allele>& truth) {
+	dnacnt_t loss = 0;
+	for (size_t i = 0; i < this->chromosomes[0].size(); ++i) {
+		if (ch.solution[i] != truth[i]) {
+			loss++;
+		}
+	}
+	return loss;
 }
 
 /*

@@ -2,8 +2,6 @@ src = [
 	'Chromosome.cpp',
 	'Genome.cpp',
 	'Allele.cpp',
-	#'DNAChar.cpp',
-	#'Read.cpp',
 	'InputReader.cpp',
 ]
 

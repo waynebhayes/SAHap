@@ -1,14 +1,22 @@
 #include "Chromosome.hpp"
 
+#define SAHAP_CHROMOSOME_DEBUG_MEC 0
+#if SAHAP_CHROMOSOME_DEBUG_MEC
+#include <csignal>
+#endif
+
 namespace SAHap {
 
 Chromosome::Chromosome(dnapos_t length)
-	: length(length), imec(0), mecDirty(true)
+	: length(length), imec(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
-	this->votes = vector<VoteInfo>(this->length);
+	this->weights = vector<array<dnacnt_t, 2>>(this->length);
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
+		this->solution[i] = Allele::UNKNOWN;
+		this->weights[i][0] = 0;
+		this->weights[i][1] = 0;
 	}
 }
 
@@ -16,9 +24,8 @@ Chromosome::Chromosome(const Chromosome& ch)
 	:
 		solution(ch.solution),
 		length(ch.length),
-		votes(ch.votes),
+		weights(ch.weights),
 		imec(ch.imec),
-		mecDirty(ch.mecDirty),
 		reads(ch.reads)
 {
 }
@@ -30,17 +37,25 @@ dnapos_t Chromosome::size() const {
 	return this->length;
 }
 
+size_t Chromosome::readSize() const {
+	return this->reads.size();
+}
+
 float Chromosome::mec() {
-	if (this->mecDirty) {
-		this->imec = 0;
-		for (dnapos_t i = 0; i < this->length; ++i) {
-			auto majority = this->solution[i];
-			if (majority != Allele::UNKNOWN) {
-				this->imec += this->votes[i].weight(majority);
-			}
+#if SAHAP_CHROMOSOME_DEBUG_MEC
+	float imec = 0;
+	for (dnapos_t i = 0; i < this->length; ++i) {
+		this->tally(i);
+		auto majority = this->solution[i];
+		if (majority != Allele::UNKNOWN) {
+			imec += this->weights[i][flip_allele_i(majority)];
 		}
-		this->mecDirty = false;
 	}
+	if (imec != this->imec) {
+		cerr << "DEBUG: Bad MEC value " << this->imec << ", should be " << imec << endl;
+		raise(SIGINT);
+	}
+#endif
 
 	return this->imec;
 }
@@ -56,6 +71,8 @@ void Chromosome::add(Read * r) {
 
 void Chromosome::remove(Read * r) {
 	if (this->reads.find(r) == this->reads.end()) {
+		cout << "Offending read is " << r << endl;
+		// cout << "Offending read has #sites=" << r->sites.size();
 		throw "Chromosome does not contain read";
 	}
 
@@ -85,26 +102,26 @@ void Chromosome::vote(const Read& read, bool retract) {
 		Allele majority = this->solution[i];
 
 		if (majority != Allele::UNKNOWN) {
-			this->imec -= this->votes[i].weight(flip_allele(this->solution[i]));
+			this->imec -= this->weights[i][flip_allele_i(this->solution[i])];
 		}
 
 		if (!retract) {
-			this->votes[i].vote(allele)++;
-			this->votes[i].weight(allele) += site.weight;
+			// enter
+			this->weights[i][allele_i(allele)] += site.weight;
 
 			if (
 				allele != majority &&
 				(
 					majority == Allele::UNKNOWN ||
-					this->votes[i].vote(allele) > this->votes[i].vote(flip_allele(allele))
+					this->weights[i][allele_i(allele)] > this->weights[i][flip_allele_i(allele)]
 				)
 			) {
 				majority = allele;
 				this->solution[i] = allele;
 			}
 		} else {
-			this->votes[i].vote(allele)--;
-			this->votes[i].weight(allele) -= site.weight;
+			// leave
+			this->weights[i][allele_i(allele)] -= site.weight;
 
 			if (allele == majority) {
 				this->tally(i);
@@ -113,16 +130,16 @@ void Chromosome::vote(const Read& read, bool retract) {
 		}
 
 		if (majority != Allele::UNKNOWN) {
-			this->imec += this->votes[i].weight(flip_allele(this->solution[i]));
+			this->imec += this->weights[i][flip_allele_i(this->solution[i])];
 		}
 	}
 }
 
 void Chromosome::tally(dnapos_t site) {
-	auto vote = this->votes[site];
-	if (vote.ref_c == 0 && vote.alt_c == 0) {
+	auto weights = this->weights[site];
+	if (weights[allele_i(Allele::REF)] == 0 && weights[allele_i(Allele::ALT)] == 0) {
 		this->solution[site] = Allele::UNKNOWN;
-	} else if (vote.ref_c >= vote.alt_c) {
+	} else if (weights[allele_i(Allele::REF)] >= weights[allele_i(Allele::ALT)]) {
 		this->solution[site] = Allele::REF;
 	} else {
 		this->solution[site] = Allele::ALT;
