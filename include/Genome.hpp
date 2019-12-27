@@ -19,18 +19,18 @@ public:
 	Genome(InputFile file);
 	~Genome();
 	dnaweight_t mec();
-	float score();
-	float score(dnaweight_t mec);
+	double score();
+	double score(dnaweight_t mec);
 
 	void shuffle();
 	bool done();
-	void setParameters(float tInitial, float tDecay, iteration_t maxIterations);
-	void setTemperature(float t);
+	void setParameters(double tInitial, double tEnd, iteration_t maxIterations);
+	void setTemperature(double t);
 	void move();
 	void revertMove();
 	void iteration();
-	void optimize();
-	float findPbad(float temperature);
+	void optimize(bool debug=false);
+	double findPbad(double temperature);
 
 	// pBad
 	struct PbadBuffer {
@@ -41,7 +41,7 @@ public:
 		size_t sum = 0;
 
 		void record(bool bad);
-		float getAverage();
+		double getAverage();
 	};
 	PbadBuffer pbad;
 	int totalBad = 0;
@@ -59,9 +59,9 @@ protected:
 	size_t lastMovesFront = 0;
 	size_t lastMovesBack = 0;
 
-	float t = 100000;
-	float tInitial = 100000;
-	float tDecay = 0.98;
+	double t = 100000;
+	double tInitial = 100000;
+	double tDecay = 0.000001;
 	iteration_t maxIterations = 0;
 	iteration_t curIteration = 0;
 
@@ -73,9 +73,11 @@ protected:
 	};
 	Move lastMove;
 
-	float acceptance(dnaweight_t newMec, dnaweight_t curMec);
-	float getTemperature(iteration_t iteration);
+	double acceptance(dnaweight_t newMec, dnaweight_t curMec);
+	double getTemperature(iteration_t iteration);
 	dnacnt_t compareGroundTruth(const Chromosome& ch, const vector<Allele>& truth);
+
+	friend ostream& operator << (ostream& stream, const Genome& ge);
 };
 
 }

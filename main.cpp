@@ -7,8 +7,8 @@ using namespace SAHap;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	if (argc <= 1) {
-		cerr << "Usage: " << argv[0] << " [reads]" << endl;
+	if (argc != 2 && argc != 3) {
+		cerr << "Usage: " << argv[0] << " [reads] [gt]" << endl;
 		return 0;
 	}
 
@@ -16,19 +16,38 @@ int main(int argc, char *argv[]) {
 	file.open(argv[1]);
 	auto parsed = WIFInputReader::read(file, 2);
 
+	if (argc == 3) {
+		ifstream gtruth;
+		gtruth.open(argv[2]);
+
+		WIFInputReader::readGroundTruth(gtruth, parsed);
+	}
+
 	try {
 		Genome ge(parsed);
-		cout << "Loaded" << endl;
+
+		ge.setParameters(10, 0.001, 500 * ge.chromosomes[0].size());
+
+		try {
+			ge.optimize(true);
+			cout << ge;
+		} catch (const char * e) {
+			cout << e << endl;
+		}
+
+		/*
 		// cout << ge.chromosomes[0].percentAgree() << endl;
 		for (float e = -5; e <= 2; e += 0.1) {
 			float temp = pow(10, e);
 			auto pbad = ge.findPbad(temp);
 			cout << temp << " " << pbad << endl;
 		}
+		*/
 
 	} catch (const char* e) {
 		cout << e << endl;
 	}
+
 	// ge.optimize();
 
 	// /*

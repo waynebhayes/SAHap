@@ -21,7 +21,7 @@ size_t flip_allele_i(Allele allele) {
 }
 
 ostream & operator << (ostream& stream, const Allele& l) {
-	if (l == Allele::UNKNOWN) stream << '-';
+	if (l == Allele::UNKNOWN) stream << 'X';
 	else stream << (int)l;
 
 	return stream;

@@ -29,7 +29,7 @@ public:
 	/**
 	 * Compute the MEC
 	 */
-	float mec();
+	double mec();
 
 	/**
 	 * Add a Read to a chromosome
@@ -60,18 +60,18 @@ protected:
 	struct VoteInfo {
 		dnacnt_t ref_c = 0;
 		dnacnt_t alt_c = 0;
-		float ref_w = 0;
-		float alt_w = 0;
+		double ref_w = 0;
+		double alt_w = 0;
 
 		dnacnt_t& vote(Allele allele);
-		float& weight(Allele allele);
+		double& weight(Allele allele);
 	};
 
 	dnapos_t length;
 	// vector<VoteInfo> votes;
 	vector<array<dnacnt_t, 2>> weights;
 
-	float imec; // cached MEC
+	double imec; // cached MEC
 	unordered_set<Read *> reads;
 
 	void tally(dnapos_t site);

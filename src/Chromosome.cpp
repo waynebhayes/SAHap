@@ -4,6 +4,7 @@
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 #include <csignal>
 #endif
+#define SAHAP_CHROMOSOME_ALT_MEC 0
 
 namespace SAHap {
 
@@ -41,9 +42,9 @@ size_t Chromosome::readSize() const {
 	return this->reads.size();
 }
 
-float Chromosome::mec() {
+double Chromosome::mec() {
 #if SAHAP_CHROMOSOME_DEBUG_MEC
-	float imec = 0;
+	double imec = 0;
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->tally(i);
 		auto majority = this->solution[i];
@@ -96,6 +97,9 @@ Read * Chromosome::pick(mt19937& engine) {
 }
 
 void Chromosome::vote(const Read& read, bool retract) {
+#if SAHAP_CHROMOSOME_ALT_MEC
+	// TODO: Alternative MEC
+#else
 	for (const Site& site : read.sites) {
 		dnapos_t i = site.pos;
 		Allele allele = site.value;
@@ -133,6 +137,7 @@ void Chromosome::vote(const Read& read, bool retract) {
 			this->imec += this->weights[i][flip_allele_i(this->solution[i])];
 		}
 	}
+#endif
 }
 
 void Chromosome::tally(dnapos_t site) {
@@ -155,7 +160,7 @@ dnacnt_t& Chromosome::VoteInfo::vote(Allele allele) {
 	throw "vote: Invalid allele value";
 }
 
-float& Chromosome::VoteInfo::weight(Allele allele) {
+double& Chromosome::VoteInfo::weight(Allele allele) {
 	if (allele == Allele::REF) {
 		return this->ref_w;
 	} else if (allele == Allele::ALT) {

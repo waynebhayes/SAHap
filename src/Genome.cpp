@@ -1,5 +1,6 @@
 #include "Genome.hpp"
 #include <csignal>
+#include <cassert>
 
 #define SAHAP_GENOME_DEBUG 0
 
@@ -27,12 +28,12 @@ dnaweight_t Genome::mec() {
 	return out;
 }
 
-float Genome::score(dnaweight_t mec) {
-	float maxMec = this->chromosomes.size() * this->chromosomes[0].size();
+double Genome::score(dnaweight_t mec) {
+	double maxMec = this->chromosomes.size() * this->chromosomes[0].size();
 	return mec / maxMec;
 }
 
-float Genome::score() {
+double Genome::score() {
 	return this->score(this->mec());
 }
 
@@ -59,30 +60,34 @@ void Genome::shuffle() {
 	// }
 }
 
-float Genome::acceptance(dnaweight_t newMec, dnaweight_t curMec) {
+double Genome::acceptance(dnaweight_t newMec, dnaweight_t curMec) {
 	if (newMec < curMec) return 1;
 	if (this->t == 0) return 0;
-	float energyDiff = this->score(curMec) - this->score(newMec);
+	double energyDiff = this->score(curMec) - this->score(newMec);
 	// cout << "Acceptance(" << energyDiff << ") = " << exp(energyDiff / this->t) << endl;
 	return exp(energyDiff / this->t);
 }
 
 bool Genome::done() {
 	// Are we tired yet?
+	// return this->pbad.getAverage() == 0 || this->t <= 1e-5;
 	return this->curIteration >= this->maxIterations;
 }
 
-void Genome::setParameters(float tInitial, float tDecay, iteration_t maxIterations) {
+void Genome::setParameters(double tInitial, double tEnd, iteration_t maxIterations) {
 	if (this->curIteration) {
 		// Probably warn the user in some way that the simulation is in process
 	}
 
 	this->tInitial = tInitial;
-	this->tDecay = tDecay;
+	// this->tEnd = tEnd;
+	this->tDecay = -log(tEnd / this->tInitial);
 	this->maxIterations = maxIterations;
+
+	cout << "decay is " << this->tDecay << endl;
 }
 
-void Genome::setTemperature(float t) {
+void Genome::setTemperature(double t) {
 	this->t = t;
 }
 
@@ -136,14 +141,22 @@ void Genome::iteration() {
 	this->move();
 	auto newMec = this->mec();
 
-	uniform_real_distribution<float> distribution(0, 1);
-	float chanceToKeep = this->acceptance(newMec, oldMec);
-	float randomIndex = distribution(this->randomEngine);
+	uniform_real_distribution<double> distribution(0, 1);
+	double chanceToKeep = this->acceptance(newMec, oldMec);
+	double randomIndex = distribution(this->randomEngine);
 
-	bool isBad = newMec > oldMec;
+	bool isGood = oldMec > newMec;
 	bool accept = randomIndex <= chanceToKeep;
+	assert(!isGood || accept);
 
-	if (isBad) {
+	if (isGood || accept) {
+		// always accept
+	} else {
+		// reject
+		this->revertMove();
+	}
+
+	if (!isGood) {
 		this->totalBad++;
 		if (accept) {
 			this->totalBadAccepted++;
@@ -151,14 +164,8 @@ void Genome::iteration() {
 		this->pbad.record(accept);
 	}
 
-	if (accept) {
-		// accept move
-	} else {
-		// reject move
-		this->revertMove();
-	}
 	/*
-	uniform_real_distribution<float> d(0, 3);
+	uniform_real_distribution<double> d(0, 3);
 	if (d(this->randomEngine) <= 1) {
 		this->pbad.record(false);
 	} else {
@@ -167,22 +174,36 @@ void Genome::iteration() {
 	*/
 }
 
-float Genome::getTemperature(iteration_t iteration) {
-	float temp = this->tInitial * pow(this->tDecay, iteration);
-	cout << iteration << ": " << temp << endl;
+double Genome::getTemperature(iteration_t iteration) {
+	double s = iteration / (double)this->maxIterations;
+	double temp = (double)this->tInitial * exp(-this->tDecay * s);
+
+	// cout << iteration << ": " << temp << endl;
 	return temp;
 }
 
-void Genome::optimize() {
+void Genome::optimize(bool debug) {
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
 		this->curIteration++;
-		cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
+
+		if (debug && curIteration % 1000 == 0) {
+			cout << "[simann] sites=" << this->chromosomes[0].size() << ", temp=" << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
+
+			if (this->file.hasGroundTruth) {
+				auto gt = this->compareGroundTruth();
+				double he = (double)gt / (this->chromosomes.size() * this->chromosomes[0].size());
+
+				cout << ", gt=" << gt << ", he=" << he * 100 << endl;
+			} else {
+				cout << endl;
+			}
+		}
 	}
 }
 
-float Genome::findPbad(float temperature) {
+double Genome::findPbad(double temperature) {
 	this->shuffle();
 
 	this->t = temperature;
@@ -213,20 +234,18 @@ void Genome::PbadBuffer::record(bool bad) {
 	this->sum += bad;
 }
 
-float Genome::PbadBuffer::getAverage() {
-	return (float)this->sum / this->total;
+double Genome::PbadBuffer::getAverage() {
+	return (double)this->sum / this->total;
 }
 
 dnacnt_t Genome::compareGroundTruth() {
 	auto l00 = this->compareGroundTruth(chromosomes[0], file.groundTruth[0]);
 	auto l11 = this->compareGroundTruth(chromosomes[1], file.groundTruth[1]);
 	auto la = l00 + l11;
-	// cout << "00: " << l00 << ", 11: " << l11 << ", total: " << la << endl;
 
 	auto l01 = this->compareGroundTruth(chromosomes[0], file.groundTruth[1]);
 	auto l10 = this->compareGroundTruth(chromosomes[1], file.groundTruth[0]);
 	auto lb = l01 + l10;
-	// cout << "01: " << l01 << ", 10: " << l10 << ", total: " << lb << endl;
 
 	return la < lb ? la : lb;
 }
@@ -241,8 +260,18 @@ dnacnt_t Genome::compareGroundTruth(const Chromosome& ch, const vector<Allele>& 
 	return loss;
 }
 
+ostream& operator << (ostream& stream, const Genome& ge) {
+	for (size_t i = 0; i < ge.chromosomes.size(); ++i) {
+		for (size_t j = 0; j < ge.chromosomes[i].size(); ++j) {
+			stream << ge.chromosomes[i].solution[j];
+		}
+		stream << endl;
+	}
+	return stream;
+}
+
 /*
-void Genome::optimize(float temp, float minTemp, float decreaseFactor, int numiters) {
+void Genome::optimize(double temp, double minTemp, double decreaseFactor, int numiters) {
 	bool just_reverted = false;
 	auto ploidy = this->chromosomes.size();
 	// main sim_annealing loop
@@ -267,9 +296,9 @@ void Genome::optimize(float temp, float minTemp, float decreaseFactor, int numit
 			auto scoreOfCurrent = score(temp, currentMEC);
 			auto scoreOfNew = score(temp, newMEC);
 			// use the scores to caculate the chance we keep this new solution, if it is bad
-			float chanceToKeep = acceptance(scoreOfCurrent, scoreOfNew, temp);
-			float randomIndex = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			//if the solution is bad, AND we do not choose a float below the chance to keep, we revert to the old solution
+			double chanceToKeep = acceptance(scoreOfCurrent, scoreOfNew, temp);
+			double randomIndex = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+			//if the solution is bad, AND we do not choose a double below the chance to keep, we revert to the old solution
 			if (chanceToKeep <= randomIndex && newMEC > currentMEC) {
 				chromosomes[moveTo].remove(rp);
 				chromosomes[moveFrom].add(rp);

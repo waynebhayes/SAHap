@@ -13,7 +13,7 @@ typedef unsigned long dnapos_t;
 typedef unsigned long dnacnt_t;
 
 // Weight
-typedef float dnaweight_t;
+typedef double dnaweight_t;
 
 // Iterations
 typedef unsigned long long iteration_t;
@@ -21,7 +21,7 @@ typedef unsigned long long iteration_t;
 struct Site {
 	Allele value = Allele::UNKNOWN;
 	dnapos_t pos;
-	float weight = 1;
+	double weight = 1;
 };
 
 enum class Zygosity {
