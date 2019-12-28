@@ -12,4 +12,4 @@ src/Genome.o: src/Genome.cpp
 src/InputReader.o: src/InputReader.cpp
 
 clean:
-	/bin/rm *.o */*.o
+	/bin/rm -f *.o */*.o
