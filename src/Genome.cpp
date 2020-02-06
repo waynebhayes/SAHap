@@ -156,12 +156,12 @@ void Genome::iteration() {
 		this->revertMove();
 	}
 
-	if (!isGood) {
+	if (!(isGood || oldMec == newMec)) {
 		this->totalBad++;
 		if (accept) {
 			this->totalBadAccepted++;
 		}
-		this->pbad.record(accept);
+		this->pbad.record(chanceToKeep);
 	}
 
 	/*
@@ -189,7 +189,7 @@ void Genome::optimize(bool debug) {
 		this->curIteration++;
 
 		if (debug && curIteration % 1000 == 0) {
-			cout << "[simann] sites=" << this->chromosomes[0].size() << ", temp=" << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
+			cout << "[simann] sites=" << this->chromosomes[0].size() << ", temp=" << setprecision(7) << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
 
 			if (this->file.hasGroundTruth) {
 				auto gt = this->compareGroundTruth();
@@ -203,7 +203,7 @@ void Genome::optimize(bool debug) {
 	}
 }
 
-double Genome::findPbad(double temperature) {
+double Genome::findPbad(double temperature, iteration_t iterations, milliseconds * ms) {
 	this->shuffle();
 
 	this->t = temperature;
@@ -214,28 +214,70 @@ double Genome::findPbad(double temperature) {
 	this->totalBad = 0;
 	this->totalBadAccepted = 0;
 
-	for (size_t i = 0; i < 10000; ++i) {
+	milliseconds begin = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+	for (iteration_t i = 0; i < iterations; ++i) {
 		this->iteration();
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
+	}
+	milliseconds end = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+
+	if (ms != NULL) {
+		*ms = end - begin;
 	}
 
 	return this->pbad.getAverage();
 }
 
-void Genome::PbadBuffer::record(bool bad) {
+void Genome::autoSchedule(long runtime) {
+	cout << "Finding optimal temperature schedule..." << endl;
+
+	milliseconds t1, t2, t3;
+	double tInitial = 1;
+	while (this->findPbad(tInitial, 10000, &t1) > .99) {
+		tInitial /= 2;
+	}
+	while (this->findPbad(tInitial, 10000, &t2) < .99) {
+		tInitial *= 1.2;
+	}
+
+	iteration_t testiter = 20000;
+	double tEnd = tInitial;
+	while (true) {
+		double pbad = this->findPbad(tEnd, 10000, &t3);
+		testiter += 10000;
+
+		if (pbad <= pow(10, -10)) {
+			break;
+		}
+
+		tEnd /= 10;
+	}
+
+	iteration_t iterpersec = testiter / duration_cast<seconds>(t1 + t2 + t3).count();
+	iteration_t iterations = iterpersec * runtime;
+
+	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;
+	cout << "Avg " << iterpersec << " iterations / sec" << endl;
+	cout << "Will run " << iterations << " iterations" << endl;
+
+	this->setParameters(tInitial, tEnd, iterations);
+}
+
+void Genome::PbadBuffer::record(double acceptance) {
 	size_t next = this->pos == LENGTH - 1 ? 0 : this->pos + 1;
+	assert(acceptance >= 0.0 && acceptance <= 1.0);
 	if (this->total == LENGTH) {
 		this->sum -= this->buffer[next]; // the next one is the first one
 	} else {
 		this->total++;
 	}
 	this->pos = next;
-	this->buffer[next] = bad;
-	this->sum += bad;
+	this->buffer[next] = acceptance;
+	this->sum += acceptance;
 }
 
 double Genome::PbadBuffer::getAverage() {
-	return (double)this->sum / this->total;
+	return this->sum / (double)this->total;
 }
 
 dnacnt_t Genome::compareGroundTruth() {

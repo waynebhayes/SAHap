@@ -6,11 +6,14 @@
 #include <random>
 #include <sstream>
 #include <vector>
+#include <chrono>
+#include <iomanip>
 #include "Chromosome.hpp"
 #include "InputReader.hpp"
 #include "types.hpp"
 
 using namespace std;
+using namespace std::chrono;
 
 namespace SAHap {
 
@@ -30,17 +33,18 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug=false);
-	double findPbad(double temperature);
+	double findPbad(double temperature, iteration_t iterations = 10000, milliseconds * ms = NULL);
+	void autoSchedule(long runtime = 60);
 
 	// pBad
 	struct PbadBuffer {
 		static constexpr int LENGTH = 10000;
-		bool buffer[LENGTH];
+		double buffer[LENGTH];
 		size_t total = 0;
 		size_t pos = 0;
-		size_t sum = 0;
+		double sum = 0.0;
 
-		void record(bool bad);
+		void record(double acceptance);
 		double getAverage();
 	};
 	PbadBuffer pbad;

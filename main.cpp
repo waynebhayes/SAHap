@@ -25,8 +25,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 		Genome ge(parsed);
-
-		ge.setParameters(10, 0.001, 500 * ge.chromosomes[0].size());
+		ge.autoSchedule(60);
 
 		try {
 			ge.optimize(true);
