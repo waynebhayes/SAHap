@@ -50,7 +50,7 @@ void WIFInputReader::readGroundTruth(ifstream& file, InputFile& parsed) {
 	}
 
 	if (truth.size() != parsed.ploidy) {
-		cerr << "Warning: Number of chromosomes in ground truth does not match ploidy! Results will be meaningless." << endl;
+		cerr << "Warning: Number of haplotypes in ground truth does not match ploidy! Results will be meaningless." << endl;
 	}
 
 	parsed.groundTruth = truth;

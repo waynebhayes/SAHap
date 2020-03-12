@@ -8,7 +8,7 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
-#include "Chromosome.hpp"
+#include "Haplotype.hpp"
 #include "InputReader.hpp"
 #include "types.hpp"
 
@@ -21,7 +21,9 @@ class Genome {
 public:
 	Genome(InputFile file);
 	~Genome();
-	dnaweight_t mec();
+	dnacnt_t mec();
+	double mecScore();
+	double siteCostScore();
 	double score();
 	double score(dnaweight_t mec);
 
@@ -50,7 +52,7 @@ public:
 	PbadBuffer pbad;
 	int totalBad = 0;
 	int totalBadAccepted = 0;
-	vector<Chromosome> chromosomes;
+	vector<Haplotype> haplotypes;
 	void generateOutput();
 	dnacnt_t compareGroundTruth();
 
@@ -77,9 +79,9 @@ protected:
 	};
 	Move lastMove;
 
-	double acceptance(dnaweight_t newMec, dnaweight_t curMec);
+	double acceptance(double newScore, double curScore);
 	double getTemperature(iteration_t iteration);
-	dnacnt_t compareGroundTruth(const Chromosome& ch, const vector<Allele>& truth);
+	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth);
 
 	friend ostream& operator << (ostream& stream, const Genome& ge);
 };

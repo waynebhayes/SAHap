@@ -1,4 +1,4 @@
-#include "Chromosome.hpp"
+#include "Haplotype.hpp"
 
 #define SAHAP_CHROMOSOME_DEBUG_MEC 0
 #if SAHAP_CHROMOSOME_DEBUG_MEC
@@ -8,41 +8,44 @@
 
 namespace SAHap {
 
-Chromosome::Chromosome(dnapos_t length)
-	: length(length), imec(0)
+Haplotype::Haplotype(dnapos_t length)
+	: length(length), imec(0), isitecost(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
 	this->weights = vector<array<dnacnt_t, 2>>(this->length);
+	this->siteCoverages = vector<dnacnt_t>(this->length);
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->solution[i] = Allele::UNKNOWN;
 		this->weights[i][0] = 0;
 		this->weights[i][1] = 0;
+		this->siteCoverages[i] = 0;
 	}
 }
 
-Chromosome::Chromosome(const Chromosome& ch)
+Haplotype::Haplotype(const Haplotype& ch)
 	:
 		solution(ch.solution),
 		length(ch.length),
 		weights(ch.weights),
+		siteCoverages(ch.siteCoverages),
 		imec(ch.imec),
 		reads(ch.reads)
 {
 }
 
-Chromosome::~Chromosome() {
+Haplotype::~Haplotype() {
 }
 
-dnapos_t Chromosome::size() const {
+dnapos_t Haplotype::size() const {
 	return this->length;
 }
 
-size_t Chromosome::readSize() const {
+size_t Haplotype::readSize() const {
 	return this->reads.size();
 }
 
-double Chromosome::mec() {
+double Haplotype::mec() {
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 	double imec = 0;
 	for (dnapos_t i = 0; i < this->length; ++i) {
@@ -61,34 +64,38 @@ double Chromosome::mec() {
 	return this->imec;
 }
 
-void Chromosome::add(Read * r) {
+double Haplotype::siteCost() {
+	return this->isitecost;
+}
+
+void Haplotype::add(Read * r) {
 	if (this->reads.find(r) != this->reads.end()) {
-		throw "Chromosome already contains read";
+		throw "Haplotype already contains read";
 	}
 
 	this->reads.insert(r);
 	this->vote(*r);
 }
 
-void Chromosome::remove(Read * r) {
+void Haplotype::remove(Read * r) {
 	if (this->reads.find(r) == this->reads.end()) {
 		cout << "Offending read is " << r << endl;
 		// cout << "Offending read has #sites=" << r->sites.size();
-		throw "Chromosome does not contain read";
+		throw "Haplotype does not contain read";
 	}
 
 	this->reads.erase(r);
 	this->vote(*r, true);
 }
 
-Read * Chromosome::pick() {
+Read * Haplotype::pick() {
 	random_device seed;
 	mt19937 engine(seed());
 
 	return this->pick(engine);
 }
 
-Read * Chromosome::pick(mt19937& engine) {
+Read * Haplotype::pick(mt19937& engine) {
 	if (!this->reads.size()) return nullptr;
 
 	uniform_int_distribution<size_t> distribution(0, this->reads.size() - 1);
@@ -96,7 +103,7 @@ Read * Chromosome::pick(mt19937& engine) {
 	return *next(begin(this->reads), rd);
 }
 
-void Chromosome::vote(const Read& read, bool retract) {
+void Haplotype::vote(Read& read, bool retract) {
 #if SAHAP_CHROMOSOME_ALT_MEC
 	// TODO: Alternative MEC
 #else
@@ -106,7 +113,10 @@ void Chromosome::vote(const Read& read, bool retract) {
 		Allele majority = this->solution[i];
 
 		if (majority != Allele::UNKNOWN) {
-			this->imec -= this->weights[i][flip_allele_i(this->solution[i])];
+			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
+			this->imec -= mec;
+			// FIXME
+			this->isitecost -= -log_poisson_1_cdf(0.15 * this->siteCoverages[i], mec);
 		}
 
 		if (!retract) {
@@ -123,6 +133,8 @@ void Chromosome::vote(const Read& read, bool retract) {
 				majority = allele;
 				this->solution[i] = allele;
 			}
+
+			this->siteCoverages[i]++;
 		} else {
 			// leave
 			this->weights[i][allele_i(allele)] -= site.weight;
@@ -131,16 +143,21 @@ void Chromosome::vote(const Read& read, bool retract) {
 				this->tally(i);
 				majority = this->solution[i];
 			}
+
+			this->siteCoverages[i]--;
 		}
 
 		if (majority != Allele::UNKNOWN) {
-			this->imec += this->weights[i][flip_allele_i(this->solution[i])];
+			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
+			this->imec += mec;
+			// FIXME
+			this->isitecost += -log_poisson_1_cdf(0.15 * this->siteCoverages[i], mec);
 		}
 	}
 #endif
 }
 
-void Chromosome::tally(dnapos_t site) {
+void Haplotype::tally(dnapos_t site) {
 	auto weights = this->weights[site];
 	if (weights[allele_i(Allele::REF)] == 0 && weights[allele_i(Allele::ALT)] == 0) {
 		this->solution[site] = Allele::UNKNOWN;
@@ -151,7 +168,7 @@ void Chromosome::tally(dnapos_t site) {
 	}
 }
 
-dnacnt_t& Chromosome::VoteInfo::vote(Allele allele) {
+dnacnt_t& Haplotype::VoteInfo::vote(Allele allele) {
 	if (allele == Allele::REF) {
 		return this->ref_c;
 	} else if (allele == Allele::ALT) {
@@ -160,7 +177,7 @@ dnacnt_t& Chromosome::VoteInfo::vote(Allele allele) {
 	throw "vote: Invalid allele value";
 }
 
-double& Chromosome::VoteInfo::weight(Allele allele) {
+double& Haplotype::VoteInfo::weight(Allele allele) {
 	if (allele == Allele::REF) {
 		return this->ref_w;
 	} else if (allele == Allele::ALT) {
@@ -169,7 +186,7 @@ double& Chromosome::VoteInfo::weight(Allele allele) {
 	throw "weight: Invalid allele value";
 }
 	
-ostream & operator << (ostream& stream, Chromosome& ch) {
+ostream & operator << (ostream& stream, Haplotype& ch) {
 	stream << "ch[";
 	stream << "m=" << ch.length << ", ";
 	stream << "n=" << ch.reads.size() << ", ";
