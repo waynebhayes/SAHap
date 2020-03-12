@@ -32,6 +32,7 @@ enum class Zygosity {
 
 struct Read {
 	vector<Site> sites;
+	double cost = 0; // read-based cost (-log T_p(E_r, k_r))
 };
 
 struct InputFile {

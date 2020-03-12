@@ -1,5 +1,5 @@
-#ifndef SAHAP_CHROMOSOME_HPP
-#define SAHAP_CHROMOSOME_HPP
+#ifndef SAHAP_HAPLOTYPE_HPP
+#define SAHAP_HAPLOTYPE_HPP
 
 #include <algorithm>
 #include <array>
@@ -7,14 +7,15 @@
 #include <unordered_set>
 #include <random>
 #include "types.hpp"
+#include "utils.hpp"
 
 namespace SAHap {
 
-class Chromosome {
+class Haplotype {
 public:
-	Chromosome(dnapos_t length);
-	Chromosome(const Chromosome& ch);
-	~Chromosome();
+	Haplotype(dnapos_t length);
+	Haplotype(const Haplotype& ch);
+	~Haplotype();
 
 	/**
 	 * Returns the size of the solution
@@ -22,7 +23,7 @@ public:
 	dnapos_t size() const;
 
 	/**
-	 * Returns the number of reads in the Chromosome
+	 * Returns the number of reads in the Haplotype
 	 */
 	size_t readSize() const;
 
@@ -30,6 +31,11 @@ public:
 	 * Compute the MEC
 	 */
 	double mec();
+
+	/**
+	 * Compute the site-based cost
+	 */
+	double siteCost();
 
 	/**
 	 * Add a Read to a chromosome
@@ -54,7 +60,7 @@ public:
 
 	vector<Allele> solution;
 
-	friend ostream & operator << (ostream& stream, Chromosome& ch);
+	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 protected:
 	struct VoteInfo {
@@ -70,15 +76,17 @@ protected:
 	dnapos_t length;
 	// vector<VoteInfo> votes;
 	vector<array<dnacnt_t, 2>> weights;
+	vector<dnacnt_t> siteCoverages;
 
-	double imec; // cached MEC
+	double imec = 0; // cached MEC
+	double isitecost = 0; // cached site-based cost
 	unordered_set<Read *> reads;
 
 	void tally(dnapos_t site);
-	void vote(const Read& read, bool retract=false);
+	void vote(Read& read, bool retract=false);
 };
 
-ostream & operator << (ostream& stream, Chromosome& ch);
+ostream & operator << (ostream& stream, Haplotype& ch);
 
 }
 

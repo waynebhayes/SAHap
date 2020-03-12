@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 		Genome ge(parsed);
-		ge.autoSchedule(60);
+		ge.autoSchedule(600);
 
 		try {
 			ge.optimize(true);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/*
-		// cout << ge.chromosomes[0].percentAgree() << endl;
+		// cout << ge.haplotypes[0].percentAgree() << endl;
 		for (float e = -5; e <= 2; e += 0.1) {
 			float temp = pow(10, e);
 			auto pbad = ge.findPbad(temp);

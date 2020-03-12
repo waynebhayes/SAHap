@@ -13,23 +13,43 @@ Genome::Genome(InputFile file)
 	random_device seed;
 	this->randomEngine = mt19937(seed());
 	this->file = file;
-	this->chromosomes = vector<Chromosome>(this->file.ploidy, Chromosome(this->file.index.size()));
+	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size()));
 	this->shuffle();
 }
 
 Genome::~Genome() {
 }
 
-dnaweight_t Genome::mec() {
+dnacnt_t Genome::mec() {
 	dnaweight_t out = 0;
-	for (size_t i = 0; i < chromosomes.size(); i++) {
-		out = out + chromosomes[i].mec();
+	for (size_t i = 0; i < haplotypes.size(); i++) {
+		out = out + haplotypes[i].mec();
 	}
+
 	return out;
 }
 
+double Genome::mecScore() {
+	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * 60;
+	return this->mec() / maxMec;
+}
+
+double Genome::siteCostScore() {
+	double out = 0;
+
+	for (size_t i = 0; i < haplotypes.size(); i++) {
+		// -logT_p(lambda_i, k_i)
+		out = out + haplotypes[i].siteCost();
+	}
+
+	// cout << "siteCost: " << out << endl;
+
+	double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
+	return out / maxCost;
+}
+
 double Genome::score(dnaweight_t mec) {
-	double maxMec = this->chromosomes.size() * this->chromosomes[0].size();
+	double maxMec = this->haplotypes.size() * this->haplotypes[0].size();
 	return mec / maxMec;
 }
 
@@ -38,33 +58,35 @@ double Genome::score() {
 }
 
 void Genome::shuffle() {
-	uniform_int_distribution<size_t> distribution(0, this->chromosomes.size() - 1);
+	uniform_int_distribution<size_t> distribution(0, this->haplotypes.size() - 1);
 
-	this->maxIterations = this->chromosomes[0].size() * 100;
+	this->maxIterations = this->haplotypes[0].size() * 100;
 
 	if (this->initialized) {
-		auto ploidy = this->chromosomes.size();
-		auto length = this->chromosomes[0].size();
-		this->chromosomes.clear();
-		this->chromosomes = vector<Chromosome>(ploidy, Chromosome(length));
+		auto ploidy = this->haplotypes.size();
+		auto length = this->haplotypes[0].size();
+		this->haplotypes.clear();
+		this->haplotypes = vector<Haplotype>(ploidy, Haplotype(length));
 	}
 
 	for (auto& r : this->file.reads) {
-		this->chromosomes[distribution(this->randomEngine)].add(&r);
+		this->haplotypes[distribution(this->randomEngine)].add(&r);
 	}
 
 	this->initialized = true;
 
-	// for (auto& ch : this->chromosomes) {
+	// for (auto& ch : this->haplotypes) {
 	// 	cout << ch << endl;
 	// }
 }
 
-double Genome::acceptance(dnaweight_t newMec, dnaweight_t curMec) {
-	if (newMec < curMec) return 1;
+double Genome::acceptance(double newScore, double curScore) {
+	if (newScore < curScore) return 1;
 	if (this->t == 0) return 0;
-	double energyDiff = this->score(curMec) - this->score(newMec);
+	double energyDiff = curScore - newScore;
 	// cout << "Acceptance(" << energyDiff << ") = " << exp(energyDiff / this->t) << endl;
+
+	// cout << "newScore: " << newScore << ", energyDiff: " << energyDiff << ", acceptance: " << exp(energyDiff / this->t) << endl;
 	return exp(energyDiff / this->t);
 }
 
@@ -94,11 +116,11 @@ void Genome::setTemperature(double t) {
 void Genome::move() {
 	// Perform a random move, saving enough information so we can revert later
 
-	auto ploidy = this->chromosomes.size();
+	auto ploidy = this->haplotypes.size();
 	size_t moveFrom = rand() % ploidy;
 	size_t moveTo;
 
-	while (!this->chromosomes[moveFrom].readSize()) {
+	while (!this->haplotypes[moveFrom].readSize()) {
 		if (ploidy == 2) {
 			moveFrom = !moveFrom;
 		} else {
@@ -113,16 +135,16 @@ void Genome::move() {
 		moveTo = moveFrom + moveOffset + 1;
 	}
 
-	Read * r = this->chromosomes[moveFrom].pick(this->randomEngine);
+	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
-		cerr << "DEBUG: Chromosome " << moveFrom << " has no reads remaining" << endl;
+		cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
 		std::raise(SIGINT);
-		r = this->chromosomes[moveFrom].pick(this->randomEngine);
+		r = this->haplotypes[moveFrom].pick(this->randomEngine);
 	}
 #endif
-	this->chromosomes[moveTo].add(r);
-	this->chromosomes[moveFrom].remove(r);
+	this->haplotypes[moveTo].add(r);
+	this->haplotypes[moveFrom].remove(r);
 
 	this->lastMove.from = moveFrom;
 	this->lastMove.to = moveTo;
@@ -131,21 +153,21 @@ void Genome::move() {
 
 void Genome::revertMove() {
 	const auto& move = this->lastMove;
-	this->chromosomes[move.to].remove(move.read);
-	this->chromosomes[move.from].add(move.read);
+	this->haplotypes[move.to].remove(move.read);
+	this->haplotypes[move.from].add(move.read);
 }
 
 void Genome::iteration() {
 	// Run an iteration
-	auto oldMec = this->mec();
+	auto oldScore = this->siteCostScore();
 	this->move();
-	auto newMec = this->mec();
+	auto newScore = this->siteCostScore();
 
 	uniform_real_distribution<double> distribution(0, 1);
-	double chanceToKeep = this->acceptance(newMec, oldMec);
+	double chanceToKeep = this->acceptance(newScore, oldScore);
 	double randomIndex = distribution(this->randomEngine);
 
-	bool isGood = oldMec > newMec;
+	bool isGood = oldScore > newScore;
 	bool accept = randomIndex <= chanceToKeep;
 	assert(!isGood || accept);
 
@@ -156,7 +178,7 @@ void Genome::iteration() {
 		this->revertMove();
 	}
 
-	if (!(isGood || oldMec == newMec)) {
+	if (!(isGood || oldScore == newScore)) {
 		this->totalBad++;
 		if (accept) {
 			this->totalBadAccepted++;
@@ -183,22 +205,25 @@ double Genome::getTemperature(iteration_t iteration) {
 }
 
 void Genome::optimize(bool debug) {
+	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
+
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
 		this->curIteration++;
 
-		if (debug && curIteration % 1000 == 0) {
-			cout << "[simann] sites=" << this->chromosomes[0].size() << ", temp=" << setprecision(7) << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
+		if (debug && curIteration % 10000 == 0) {
+			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
+
+			cout << "[simann] sites=" << this->haplotypes[0].size() << ", temp=" << setprecision(7) << fixed << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
 
 			if (this->file.hasGroundTruth) {
 				auto gt = this->compareGroundTruth();
-				double he = (double)gt / (this->chromosomes.size() * this->chromosomes[0].size());
+				double he = (double)gt / (this->haplotypes.size() * this->haplotypes[0].size());
 
-				cout << ", gt=" << gt << ", he=" << he * 100 << endl;
-			} else {
-				cout << endl;
+				cout << ", gt=" << gt << ", he=" << he * 100;
 			}
+			cout << ", wt=" << (now_time - start_time).count() << endl;
 		}
 	}
 }
@@ -225,6 +250,8 @@ double Genome::findPbad(double temperature, iteration_t iterations, milliseconds
 		*ms = end - begin;
 	}
 
+	cout << "done: " << this->pbad.getAverage() << endl;
+
 	return this->pbad.getAverage();
 }
 
@@ -235,11 +262,14 @@ void Genome::autoSchedule(long runtime) {
 	double tInitial = 1;
 	while (this->findPbad(tInitial, 10000, &t1) > .99) {
 		tInitial /= 2;
+		cout << "down" << endl;
 	}
 	while (this->findPbad(tInitial, 10000, &t2) < .99) {
 		tInitial *= 1.2;
+		cout << "up" << endl;
 	}
 
+	cout << "tInitial found: " << tInitial << endl;
 	iteration_t testiter = 20000;
 	double tEnd = tInitial;
 	while (true) {
@@ -253,7 +283,13 @@ void Genome::autoSchedule(long runtime) {
 		tEnd /= 10;
 	}
 
-	iteration_t iterpersec = testiter / duration_cast<seconds>(t1 + t2 + t3).count();
+	auto time_taken = duration_cast<seconds>(t1 + t2 + t3).count();
+
+	if (time_taken == 0) {
+		time_taken = 1;
+	}
+
+	iteration_t iterpersec = testiter / time_taken;
 	iteration_t iterations = iterpersec * runtime;
 
 	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;
@@ -281,20 +317,20 @@ double Genome::PbadBuffer::getAverage() {
 }
 
 dnacnt_t Genome::compareGroundTruth() {
-	auto l00 = this->compareGroundTruth(chromosomes[0], file.groundTruth[0]);
-	auto l11 = this->compareGroundTruth(chromosomes[1], file.groundTruth[1]);
+	auto l00 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
+	auto l11 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
 	auto la = l00 + l11;
 
-	auto l01 = this->compareGroundTruth(chromosomes[0], file.groundTruth[1]);
-	auto l10 = this->compareGroundTruth(chromosomes[1], file.groundTruth[0]);
+	auto l01 = this->compareGroundTruth(haplotypes[0], file.groundTruth[1]);
+	auto l10 = this->compareGroundTruth(haplotypes[1], file.groundTruth[0]);
 	auto lb = l01 + l10;
 
 	return la < lb ? la : lb;
 }
 
-dnacnt_t Genome::compareGroundTruth(const Chromosome& ch, const vector<Allele>& truth) {
+dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth) {
 	dnacnt_t loss = 0;
-	for (size_t i = 0; i < this->chromosomes[0].size(); ++i) {
+	for (size_t i = 0; i < ch.size(); ++i) {
 		if (ch.solution[i] != truth[i]) {
 			loss++;
 		}
@@ -303,9 +339,9 @@ dnacnt_t Genome::compareGroundTruth(const Chromosome& ch, const vector<Allele>& 
 }
 
 ostream& operator << (ostream& stream, const Genome& ge) {
-	for (size_t i = 0; i < ge.chromosomes.size(); ++i) {
-		for (size_t j = 0; j < ge.chromosomes[i].size(); ++j) {
-			stream << ge.chromosomes[i].solution[j];
+	for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
+		for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
+			stream << ge.haplotypes[i].solution[j];
 		}
 		stream << endl;
 	}
@@ -315,23 +351,23 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 /*
 void Genome::optimize(double temp, double minTemp, double decreaseFactor, int numiters) {
 	bool just_reverted = false;
-	auto ploidy = this->chromosomes.size();
+	auto ploidy = this->haplotypes.size();
 	// main sim_annealing loop
 	auto currentMEC = this->mec();
 
 	while (temp > minTemp) {
 		for (int i = 0; i < numiters; i++) {
-			// calculate the MEC for the current chromosomes (unless we have just reverted, in which case we do not need to)
+			// calculate the MEC for the current haplotypes (unless we have just reverted, in which case we do not need to)
 			if (!just_reverted) {
 				currentMEC = this->mec();
 			}
 			// choose a pair read to remove and add to another chromosome
 			int moveFrom = rand()%ploidy;
-			ReadPair * rp = chromosomes[moveFrom].pick(this->randomEngine);
-			chromosomes[moveFrom].remove(rp);
+			ReadPair * rp = haplotypes[moveFrom].pick(this->randomEngine);
+			haplotypes[moveFrom].remove(rp);
 			int moveOffset = rand() % ploidy;
 			int moveTo = (moveFrom + moveOffset) % ploidy;
-			chromosomes[moveTo].add(rp);
+			haplotypes[moveTo].add(rp);
 			// now, calculate the new MEC score
 			auto newMEC = this->mec();
 			// calculate the score of the old solution and the new solution
@@ -342,8 +378,8 @@ void Genome::optimize(double temp, double minTemp, double decreaseFactor, int nu
 			double randomIndex = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 			//if the solution is bad, AND we do not choose a double below the chance to keep, we revert to the old solution
 			if (chanceToKeep <= randomIndex && newMEC > currentMEC) {
-				chromosomes[moveTo].remove(rp);
-				chromosomes[moveFrom].add(rp);
+				haplotypes[moveTo].remove(rp);
+				haplotypes[moveFrom].add(rp);
 			}
 
 			cout << "[simann] temp=" << temp << ", mec=" << newMEC << endl;

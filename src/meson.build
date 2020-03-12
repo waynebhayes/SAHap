@@ -1,8 +1,9 @@
 src = [
-	'Chromosome.cpp',
+	'Haplotype.cpp',
 	'Genome.cpp',
 	'Allele.cpp',
 	'InputReader.cpp',
+	'utils.cpp',
 ]
 
 eigen_dep = dependency('eigen', fallback: ['eigen', 'eigen_dep'])
