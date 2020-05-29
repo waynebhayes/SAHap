@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CXXFLAGS = -I"include" -Wall -std=c++11 -O3 #-ggdb -pg
+CXXFLAGS = -g -I"include" -Wall -std=c++11 -O3 #-ggdb -pg
 
 sahap: main.o src/Allele.o src/Haplotype.o src/Genome.o src/InputReader.o src/utils.o
 	g++ -std=c++11 -o sahap *.o src/*.o
