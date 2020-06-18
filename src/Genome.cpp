@@ -205,6 +205,15 @@ double Genome::getTemperature(iteration_t iteration) {
 }
 
 void Genome::optimize(bool debug) {
+	// Reset state
+	this->t = this->tInitial;
+	this->pbad.total = 0;
+	this->pbad.pos = 0;
+	this->pbad.sum = 0;
+
+	this->totalBad = 0;
+	this->totalBadAccepted = 0;
+
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 
 	while (!this->done()) {
@@ -228,7 +237,7 @@ void Genome::optimize(bool debug) {
 	}
 }
 
-double Genome::findPbad(double temperature, iteration_t iterations, milliseconds * ms) {
+double Genome::findPbad(double temperature, iteration_t iterations) {
 	this->shuffle();
 
 	this->t = temperature;
@@ -239,15 +248,9 @@ double Genome::findPbad(double temperature, iteration_t iterations, milliseconds
 	this->totalBad = 0;
 	this->totalBadAccepted = 0;
 
-	milliseconds begin = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	for (iteration_t i = 0; i < iterations; ++i) {
 		this->iteration();
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
-	}
-	milliseconds end = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-
-	if (ms != NULL) {
-		*ms = end - begin;
 	}
 
 	cout << "done: " << this->pbad.getAverage() << endl;
@@ -255,16 +258,15 @@ double Genome::findPbad(double temperature, iteration_t iterations, milliseconds
 	return this->pbad.getAverage();
 }
 
-void Genome::autoSchedule(long runtime) {
+void Genome::autoSchedule(iteration_t iterations) {
 	cout << "Finding optimal temperature schedule..." << endl;
 
-	milliseconds t1, t2, t3;
 	double tInitial = 1;
-	while (this->findPbad(tInitial, 10000, &t1) > .99) {
+	while (this->findPbad(tInitial, 10000) > .99) {
 		tInitial /= 2;
 		cout << "down" << endl;
 	}
-	while (this->findPbad(tInitial, 10000, &t2) < .99) {
+	while (this->findPbad(tInitial, 10000) < .99) {
 		tInitial *= 1.2;
 		cout << "up" << endl;
 	}
@@ -273,7 +275,7 @@ void Genome::autoSchedule(long runtime) {
 	iteration_t testiter = 20000;
 	double tEnd = tInitial;
 	while (true) {
-		double pbad = this->findPbad(tEnd, 10000, &t3);
+		double pbad = this->findPbad(tEnd, 10000);
 		testiter += 10000;
 
 		if (pbad <= pow(10, -10)) {
@@ -283,18 +285,7 @@ void Genome::autoSchedule(long runtime) {
 		tEnd /= 10;
 	}
 
-	auto time_taken = duration_cast<seconds>(t1 + t2 + t3).count();
-
-	if (time_taken == 0) {
-		time_taken = 1;
-	}
-
-	iteration_t iterpersec = testiter / time_taken;
-	iteration_t iterations = iterpersec * runtime;
-
 	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;
-	cout << "Avg " << iterpersec << " iterations / sec" << endl;
-	cout << "Will run " << iterations << " iterations" << endl;
 
 	this->setParameters(tInitial, tEnd, iterations);
 }

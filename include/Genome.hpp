@@ -35,8 +35,8 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug=false);
-	double findPbad(double temperature, iteration_t iterations = 10000, milliseconds * ms = NULL);
-	void autoSchedule(long runtime = 60);
+	double findPbad(double temperature, iteration_t iterations = 10000);
+	void autoSchedule(iteration_t iterations);
 
 	// pBad
 	struct PbadBuffer {
