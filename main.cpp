@@ -8,9 +8,9 @@ using namespace SAHap;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	if (argc < 2 && argc > 4) {
+	if (argc < 2 || argc > 4) {
 		cerr << "Usage: " << argv[0] << " <reads> [gt] [millions of iterations = 10]" << endl;
-		return 0;
+		return 1;
 	}
 
 	ifstream file;
