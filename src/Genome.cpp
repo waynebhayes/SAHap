@@ -3,6 +3,7 @@
 #include <cassert>
 
 #define SAHAP_GENOME_DEBUG 0
+#define POISSON 0 // set to zero to use MEC, 1 to use POISSON
 
 using namespace std;
 
@@ -39,7 +40,12 @@ double Genome::siteCostScore() {
 
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
+#if POISSON
 		out = out + haplotypes[i].siteCost();
+#else
+		out = out + haplotypes[i].mec();
+#endif
+
 	}
 
 	// cout << "siteCost: " << out << endl;
@@ -215,7 +221,8 @@ void Genome::optimize(bool debug) {
 	this->totalBadAccepted = 0;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-
+	printf("Optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), POISSON ? "Poisson" : "MEC");
+	cout << "Sites " << this->haplotypes[0].size() << endl;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
@@ -223,18 +230,18 @@ void Genome::optimize(bool debug) {
 
 		if (debug && curIteration % 10000 == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-
-			cout << "[simann] sites=" << this->haplotypes[0].size() << ", temp=" << setprecision(7) << fixed << this->t << ", mec=" << this->mec() << ", pbad=" << this->pbad.getAverage() << ", it=" << this->curIteration;
-
+			printf("%dk (%.1f%%,%ds)  T %.3g  pBad %.3g  MEC %d", (int)this->curIteration/1000,
+			    this->curIteration*100.0/this->maxIterations, (int)(now_time - start_time).count(),
+			    this->t, this->pbad.getAverage(), (int)this->mec());
 			if (this->file.hasGroundTruth) {
 				auto gt = this->compareGroundTruth();
 				double he = (double)gt / (this->haplotypes.size() * this->haplotypes[0].size());
-
-				cout << ", gt=" << gt << ", he=" << he * 100;
+				printf("  (Err-vs-truth %d = %g%%)", (int)gt, 100*he);
 			}
-			cout << ", wt=" << (now_time - start_time).count() << endl;
+			printf("\n");
 		}
 	}
+	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), POISSON ? "Poisson" : "MEC");
 }
 
 double Genome::findPbad(double temperature, iteration_t iterations) {
@@ -253,7 +260,7 @@ double Genome::findPbad(double temperature, iteration_t iterations) {
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
 	}
 
-	cout << "done: " << this->pbad.getAverage() << endl;
+	cout << "temperature " << temperature << " gives Pbad " << this->pbad.getAverage() << endl;
 
 	return this->pbad.getAverage();
 }
@@ -268,7 +275,7 @@ void Genome::autoSchedule(iteration_t iterations) {
 	}
 	while (this->findPbad(tInitial, 10000) < .99) {
 		tInitial *= 1.2;
-		cout << "up" << endl;
+		//cout << "up" << endl;
 	}
 
 	cout << "tInitial found: " << tInitial << endl;
@@ -301,6 +308,7 @@ void Genome::PbadBuffer::record(double acceptance) {
 	this->pos = next;
 	this->buffer[next] = acceptance;
 	this->sum += acceptance;
+	if(this->sum < 0) this->sum = 0;
 }
 
 double Genome::PbadBuffer::getAverage() {
