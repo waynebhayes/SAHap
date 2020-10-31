@@ -13,4 +13,4 @@ src/InputReader.o: src/InputReader.cpp
 src/utils.o: src/utils.cpp
 
 clean:
-	/bin/rm -f *.o */*.o
+	/bin/rm -f *.o */*.o sahap sahap.exe
