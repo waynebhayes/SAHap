@@ -89,8 +89,9 @@ void Haplotype::remove(Read * r) {
 }
 
 Read * Haplotype::pick() {
-	random_device seed;
-	mt19937 engine(seed());
+	long int seed = GetFancySeed(true);
+	cout << "Haplotype seed " << seed << endl;
+	mt19937 engine(seed);
 
 	return this->pick(engine);
 }
