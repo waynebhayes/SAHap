@@ -1,5 +1,14 @@
 #include "utils.hpp"
 #include <unistd.h>
+#include <string.h>
+
+#if defined(__WATCOMC__) || defined(__MINGW32__) || defined(__CYGWIN__)
+#define POPEN 0
+#else
+#define POPEN 1
+#endif
+
+extern "C" {
 
 /*
 function LogPoissonPMF(l,k, pr,r,i){
@@ -68,6 +77,27 @@ double log_poisson_1_cdf(double l, unsigned k) {
   return r;
 }
 
+void Fatal(const char *fmt, const char *msg) { fprintf(stderr, fmt, msg); exit(1);}
+
+FILE *Popen(const char *cmd, const char *mode) {
+#if POPEN
+    return popen(cmd, mode);
+#else
+    char CMD[strlen(cmd) + 100], TMP[100];
+    sprintf(TMP, "/tmp/Popen.%d",getpid());
+    sprintf(CMD, "(%s) > %s; (sleep 10; /bin/rm %s) &",cmd, TMP,TMP);
+    system(CMD);
+    return fopen(TMP,mode);
+#endif
+}
+void  Pclose(FILE *fp) {
+#if POPEN
+    pclose(fp);
+#else
+    fclose(fp);
+#endif
+}
+
 /* From Libwayne:
 ** Try to compute a seed that will be different for all processes even if they're all started at
 ** the same time, on the same or different servers. We use the host's IPv4 address, the time
@@ -76,16 +106,15 @@ double log_poisson_1_cdf(double l, unsigned k) {
 ** same. But since you should *never* seed twice within the same code, that's your problem.
 ** (This problem can be offset by setting "trulyRandom" to true.)
 */
-void Fatal(const char *fmt, const char *msg) { fprintf(stderr, fmt, msg); exit(1);}
-
 unsigned long GetFancySeed(Boolean trulyRandom)
 {
     unsigned long seed = 0;
     const char *cmd = "hostname -i | awk '{for(i=1;i<=NF;i++)if(match($i,\"^[0-9]*\\\\.[0-9]*\\\\.[0-9]*\\\\.[0-9]*$\")){IP=$i;exit}}END{if(!IP)IP=\"127.0.0.1\"; print IP}'";
-    FILE *fp=popen(cmd,"r");
+
+    FILE *fp=Popen(cmd,"r");
     int i, ip[4], host_ip=0;
     if(4!=fscanf(fp," %d.%d.%d.%d ", ip, ip+1, ip+2, ip+3)) Fatal("Attempt to get IPv4 address failed:\n%s\n",cmd);
-    pclose(fp);
+    Pclose(fp);
     for(i=0;i<4;i++) host_ip = 256*host_ip + ip[i];
     unsigned long dev_random=0;
     if(trulyRandom) {
@@ -98,7 +127,7 @@ unsigned long GetFancySeed(Boolean trulyRandom)
 	else
 	{
 	    // Use a bunch of hard-to-predict commands with nondeterministic output, then md5sum it.
-	    fp = popen("(who; w; uptime; ipconfig /all; ifconfig -a) 2>/dev/null | md5sum","r");
+	    fp = Popen("(who; w; uptime; ipconfig /all; ifconfig -a) 2>/dev/null | md5sum","r");
 	    unsigned char c;
 	    while((c=fgetc(fp)) > 0 && c != ' ' && c != '\t') {
 		unsigned int hex;
@@ -110,6 +139,7 @@ unsigned long GetFancySeed(Boolean trulyRandom)
 		}
 		dev_random = 16*dev_random + hex;
 	    }
+	    Pclose(fp);
 	}
     }
     seed = host_ip + time(0) + getppid() + getpid() + dev_random;
@@ -120,3 +150,5 @@ unsigned long GetFancySeed(Boolean trulyRandom)
 #endif
     return seed;
 }
+
+} // extern "C"

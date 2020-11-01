@@ -8,11 +8,12 @@
 
 using namespace std;
 
-double log_poisson_pmf(double l, unsigned k);
-double log_poisson_1_cdf(double l, unsigned k);
+extern "C" {
+    double log_poisson_pmf(double l, unsigned k);
+    double log_poisson_1_cdf(double l, unsigned k);
 
-typedef char Boolean;
-void Fatal(const char *fmt, const char *msg);
-unsigned long GetFancySeed(Boolean trulyRandom);
-
+    typedef char Boolean;
+    void Fatal(const char *fmt, const char *msg);
+    unsigned long GetFancySeed(Boolean trulyRandom);
+}
 #endif
