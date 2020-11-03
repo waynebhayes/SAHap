@@ -290,13 +290,15 @@ void Genome::autoSchedule(iteration_t iterations) {
 	cout << "Finding optimal temperature schedule..." << endl;
 
 	double tInitial = 1;
-	while (this->findPbad(tInitial, 10000) > .99) {
-		tInitial /= 2;
-		cout << "down" << endl;
+	while (this->findPbad(tInitial, 10000) < .80) {
+		tInitial *= 2;
 	}
-	while (this->findPbad(tInitial, 10000) < .99) {
+
+	while (this->findPbad(tInitial, 10000) > .80) {
+		tInitial /= 2;
+	}
+	while (this->findPbad(tInitial, 10000) < .80) {
 		tInitial *= 1.2;
-		//cout << "up" << endl;
 	}
 
 	cout << "tInitial found: " << tInitial << endl;
@@ -306,11 +308,11 @@ void Genome::autoSchedule(iteration_t iterations) {
 		double pbad = this->findPbad(tEnd, 10000);
 		testiter += 10000;
 
-		if (pbad <= pow(10, -10)) {
+		if (pbad < 1e-3) {
 			break;
 		}
 
-		tEnd /= 10;
+		tEnd /= 2;
 	}
 
 	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;

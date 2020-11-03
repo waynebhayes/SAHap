@@ -2,14 +2,15 @@
 REG_DIR=${REG_DIR:?"needs to be set"}
 
 TRIES=0
-NUM_FAILS=1
-while [ $NUM_FAILS -ne 0 -a $TRIES -lt 10 ]; do
-    for OBJ in MEC Poisson; do
+NEED='MEC Poisson'
+while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
+    echo "Before try #$TRIES, need '$NEED'"
+    for OBJ in $NEED; do
 	echo "./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out"
     done | tee /dev/tty | parallel $CORES
 
     NUM_FAILS=0
-    for OBJ in MEC Poisson; do
+    for OBJ in $NEED; do
 	echo --- $REG_DIR/$OBJ.out ---
 	fgrep '(100.0000%' $REG_DIR/$OBJ.out |
 	    awk 'BEGIN{
@@ -31,9 +32,13 @@ while [ $NUM_FAILS -ne 0 -a $TRIES -lt 10 ]; do
 		exit(NUM_FAILS);
 	    }'
 	NEW_FAILS=$?
-	(( NUM_FAILS+=$NEW_FAILS ))
+	if [ $NEW_FAILS -eq 0 ]; then
+	    NEED=`echo $NEED | newlines | grep -v $OBJ`
+	else
+	    (( NUM_FAILS+=$NEW_FAILS ))
+	fi
     done
-    echo "Try #$TRIES, NUM_FAILS is $NUM_FAILS"
+    echo "After try #$TRIES, NUM_FAILS is $NUM_FAILS, still need '$NEED'"
     (( ++TRIES ))
 done
 exit $NUM_FAILS
