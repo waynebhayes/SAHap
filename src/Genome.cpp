@@ -11,7 +11,16 @@
 #include <string>
 
 #define SAHAP_GENOME_DEBUG 0
-#define POISSON 0 // set to zero to use MEC, 1 to use POISSON
+
+enum _objectives        { NONE,   MEC,   Poisson };
+const char *objName[] = {"NONE", "MEC", "Poisson"};
+
+#ifndef OBJECTIVE
+#define OBJECTIVE MEC // choices for now are MEC and Poisson
+#endif
+#if (OBJECTIVE != MEC && OBJECTIVE != Poisson)
+#error "invalid objective"
+#endif
 
 using namespace std;
 
@@ -49,10 +58,12 @@ double Genome::siteCostScore() {
 
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
-#if POISSON
+#if OBJECTIVE == MEC
+		out = out + haplotypes[i].mec();
+#elif OBJECTIVE == Poisson
 		out = out + haplotypes[i].siteCost();
 #else
-		out = out + haplotypes[i].mec();
+#error "No objective chosen"
 #endif
 
 	}
@@ -230,7 +241,8 @@ void Genome::optimize(bool debug) {
 	this->totalBadAccepted = 0;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-	printf("Optimizing %d sites using %s cost function for %ldM iterations\n", (int)this->haplotypes[0].size(), POISSON ? "Poisson" : "MEC", (long)(this->maxIterations/1000000));
+	printf("Optimizing %d sites using %s cost function for %ldM iterations\n",
+	    (int)this->haplotypes[0].size(), objName[OBJECTIVE], (long)(this->maxIterations/1000000));
 	cout << "Sites " << this->haplotypes[0].size() << endl;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
@@ -245,12 +257,12 @@ void Genome::optimize(bool debug) {
 			if (this->file.hasGroundTruth) {
 				auto gt = this->compareGroundTruth();
 				double he = (double)gt / (this->haplotypes.size() * this->haplotypes[0].size());
-				printf("  (Err-vs-truth %d = %g%%)", (int)gt, 100*he);
+				printf("  ( Err_vs_truth %d Err_Pct %g%% )", (int)gt, 100*he);
 			}
 			printf("\n");
 		}
 	}
-	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), POISSON ? "Poisson" : "MEC");
+	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
 }
 
 double Genome::findPbad(double temperature, iteration_t iterations) {
