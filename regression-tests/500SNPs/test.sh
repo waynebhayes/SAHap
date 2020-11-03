@@ -3,7 +3,7 @@ REG_DIR=${REG_DIR:?"needs to be set"}
 
 for OBJ in MEC Poisson; do
     echo "./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out"
-done | tee /dev/tty | ./parallel $CORES
+done | tee /dev/tty | parallel $CORES
 
 NUM_FAILS=0
 for OBJ in MEC Poisson; do
