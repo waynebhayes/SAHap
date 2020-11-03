@@ -1,18 +1,12 @@
 #!/bin/sh
 REG_DIR=${REG_DIR:?"needs to be set"}
 
-<<<<<<< HEAD
 TRIES=0
 NUM_FAILS=1
 while [ $NUM_FAILS -ne 0 -a $TRIES -lt 10 ]; do
     for OBJ in MEC Poisson; do
 	echo "./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out"
     done | tee /dev/tty | parallel $CORES
-=======
-for OBJ in MEC Poisson; do
-    echo "./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out"
-done | tee /dev/tty | parallel $CORES
->>>>>>> aeccd44aa969a7c45afca0e337169a81d14ce9ac
 
     NUM_FAILS=0
     for OBJ in MEC Poisson; do
