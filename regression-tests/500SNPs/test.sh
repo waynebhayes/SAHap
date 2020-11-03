@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 REG_DIR=${REG_DIR:?"needs to be set"}
 
 TRIES=0
