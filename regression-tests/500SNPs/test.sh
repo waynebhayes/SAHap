@@ -41,4 +41,6 @@ while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     echo "After try #$TRIES, NUM_FAILS is $NUM_FAILS, still need '$NEED'"
     (( ++TRIES ))
 done
+echo "Needed a total of $TRIES attempts to get all regressions to pass"
+[ "$TRIES" -gt 1 ] && warn "Still need to get Simulated Annealing more reliable!"
 exit $NUM_FAILS
