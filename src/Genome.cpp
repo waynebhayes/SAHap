@@ -246,6 +246,26 @@ void Genome::optimize(bool debug) {
 	cout << "Sites " << this->haplotypes[0].size() << endl;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
+#define HACK 1
+#if HACK
+		double pBad = this->pbad.getAverage();
+		double frac = this->curIteration*1.0/this->maxIterations;
+		int MEC = (int)this->mec();
+		if(frac > 0.5 && pBad < 0.01 && MEC < 80) {
+		    this->curIteration = this->maxIterations-1; // basically done
+		    printf("Good enough\n");
+		}
+		static int when;
+		++when;
+		if(when % 10000 == 0 &&
+		    (
+			((frac > 0.3 || pBad < .2) && MEC >  600)
+		    ||  ((frac > 0.5 || pBad < .1) && MEC >  300)
+		    )) {
+		    this->curIteration-=0.01 * this->maxIterations; // go back 1%
+		    cout << "Retreat to "  << this->curIteration * 100.0 / this->maxIterations << "%" << endl; // go back 1%
+		}
+#endif
 		this->iteration();
 		this->curIteration++;
 
@@ -258,8 +278,11 @@ void Genome::optimize(bool debug) {
 				auto gt = this->compareGroundTruth();
 				double he = (double)gt / (this->haplotypes.size() * this->haplotypes[0].size());
 				printf("  ( Err_vs_truth %d Err_Pct %g%% )", (int)gt, 100*he);
+				if(frac > .99 && he > 0.01) printf("Fail!");
 			}
 			printf("\n");
+#if HACK
+#endif
 		}
 	}
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
