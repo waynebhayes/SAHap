@@ -1,5 +1,6 @@
 #include "Haplotype.hpp"
 
+#define READ_ERROR_RATE 0.01 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
 #define SAHAP_CHROMOSOME_DEBUG_MEC 0
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 #include <csignal>
@@ -117,7 +118,7 @@ void Haplotype::vote(Read& read, bool retract) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec -= mec;
 			// FIXME
-			this->isitecost -= -log_poisson_1_cdf(0.15 * this->siteCoverages[i], mec);
+			this->isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}
 
 		if (!retract) {
@@ -152,7 +153,7 @@ void Haplotype::vote(Read& read, bool retract) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec += mec;
 			// FIXME
-			this->isitecost += -log_poisson_1_cdf(0.15 * this->siteCoverages[i], mec);
+			this->isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}
 	}
 #endif
