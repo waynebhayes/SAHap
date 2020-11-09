@@ -26,6 +26,7 @@ public:
 	double siteCostScore();
 	double score();
 	double score(dnaweight_t mec);
+	double totalCoverage();
 
 	void shuffle();
 	bool done();
@@ -38,6 +39,20 @@ public:
 	double findPbad(double temperature, iteration_t iterations = 10000);
 	void autoSchedule(iteration_t iterations);
 
+	// fAccept = alpha = fraction of moves accepted "recently"
+	struct AcceptBuffer {
+		static constexpr int LENGTH = 10000;
+		char buffer[LENGTH];
+		size_t total = 0;
+		size_t pos = 0;
+		int sum = 0.0;
+
+		void record(char good);
+		double getAverage();
+	};
+	AcceptBuffer fAccept;
+	int totalGood = 0;
+
 	// pBad
 	struct PbadBuffer {
 		static constexpr int LENGTH = 10000;
@@ -49,9 +64,11 @@ public:
 		void record(double acceptance);
 		double getAverage();
 	};
-	PbadBuffer pbad;
+	PbadBuffer pBad;
 	int totalBad = 0;
 	int totalBadAccepted = 0;
+
+
 	vector<Haplotype> haplotypes;
 	void generateOutput();
 	dnacnt_t compareGroundTruth();

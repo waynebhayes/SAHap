@@ -17,6 +17,8 @@ public:
 	Haplotype(const Haplotype& ch);
 	~Haplotype();
 
+	double meanCoverage();
+
 	/**
 	 * Returns the size of the solution
 	 */

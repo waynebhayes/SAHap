@@ -1,6 +1,5 @@
 #include "Haplotype.hpp"
 
-#define READ_ERROR_RATE 0.01 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
 #define SAHAP_CHROMOSOME_DEBUG_MEC 0
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 #include <csignal>
@@ -36,6 +35,14 @@ Haplotype::Haplotype(const Haplotype& ch)
 }
 
 Haplotype::~Haplotype() {
+}
+
+double Haplotype::meanCoverage() {
+    double result = 0.0;
+    for (dnapos_t i = 0; i < this->length; ++i) {
+	result += this->siteCoverages[i];
+    }
+    return result/this->length;
 }
 
 dnapos_t Haplotype::size() const {

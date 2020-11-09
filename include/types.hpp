@@ -1,6 +1,8 @@
 #ifndef SAHAP_TYPES_HPP
 #define SAHAP_TYPES_HPP
 
+#define READ_ERROR_RATE 0.01 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
+
 #include "Allele.hpp"
 #include <unordered_map>
 

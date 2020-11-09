@@ -12,15 +12,25 @@
 
 #define SAHAP_GENOME_DEBUG 0
 
-enum _objectives        { NONE,   MEC,   Poisson };
-const char *objName[] = {"NONE", "MEC", "Poisson"};
-
+enum _objectives        { OBJ_NONE,   MEC,   Poisson };
+const char *objName[] = {"OBJ_NONE", "MEC", "Poisson"};
 #ifndef OBJECTIVE
 #define OBJECTIVE MEC // choices for now are MEC and Poisson
 #endif
 #if (OBJECTIVE != MEC && OBJECTIVE != Poisson)
 #error "invalid objective"
 #endif
+
+// How is the temperature schedule adjusted to be dynamic?
+enum _schedule            { SCHED_NONE,   RETREAT,   Betz };
+const char *schedName[] = {"SCHED_NONE", "RETREAT", "Betz"};
+#ifndef SCHEDULE
+#define SCHEDULE RETREAT // choices for now are RETREAT and Betz
+#endif
+#if (SCHEDULE != RETREAT && SCHEDULE != Betz)
+#error "invalid schedule"
+#endif
+
 
 using namespace std;
 
@@ -51,6 +61,13 @@ dnacnt_t Genome::mec() {
 double Genome::mecScore() {
 	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * 60;
 	return this->mec() / maxMec;
+}
+
+double Genome::totalCoverage() {
+    double coverage = 0;
+    for (size_t i = 0; i < haplotypes.size(); i++)
+	coverage += this->haplotypes[i].meanCoverage();
+    return coverage;
 }
 
 double Genome::siteCostScore() {
@@ -118,7 +135,7 @@ double Genome::acceptance(double newScore, double curScore) {
 
 bool Genome::done() {
 	// Are we tired yet?
-	// return this->pbad.getAverage() == 0 || this->t <= 1e-5;
+	// return this->pBad.getAverage() == 0 || this->t <= 1e-5;
 	return this->curIteration >= this->maxIterations;
 }
 
@@ -204,20 +221,22 @@ void Genome::iteration() {
 		this->revertMove();
 	}
 
+	this->fAccept.record(isGood);
+
 	if (!(isGood || oldScore == newScore)) {
 		this->totalBad++;
 		if (accept) {
 			this->totalBadAccepted++;
 		}
-		this->pbad.record(chanceToKeep);
+		this->pBad.record(chanceToKeep);
 	}
 
 	/*
 	uniform_real_distribution<double> d(0, 3);
 	if (d(this->randomEngine) <= 1) {
-		this->pbad.record(false);
+		this->pBad.record(false);
 	} else {
-		this->pbad.record(true);
+		this->pBad.record(true);
 	}
 	*/
 }
@@ -231,39 +250,52 @@ double Genome::getTemperature(iteration_t iteration) {
 }
 
 void Genome::optimize(bool debug) {
+	int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
-	this->pbad.total = 0;
-	this->pbad.pos = 0;
-	this->pbad.sum = 0;
+	this->pBad.total = this->fAccept.total = 0;
+	this->pBad.pos = this->fAccept.pos = 0;
+	this->pBad.sum = this->fAccept.sum = 0;
 
 	this->totalBad = 0;
-	this->totalBadAccepted = 0;
+	this->totalBadAccepted = this->totalGood = 0;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-	printf("Optimizing %d sites using %s cost function for %ldM iterations\n",
-	    (int)this->haplotypes[0].size(), objName[OBJECTIVE], (long)(this->maxIterations/1000000));
+	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
+	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
+	printf("Optimizing %d sites (coverage %g) using %s cost function for %ldM iterations on schedule %s, target MEC %d\n",
+	    (int)this->haplotypes[0].size(), this->totalCoverage(),
+	    objName[OBJECTIVE], (long)(this->maxIterations/1000000), schedName[SCHEDULE], TARGET_MEC);
 	cout << "Sites " << this->haplotypes[0].size() << endl;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
-#define HACK 1
-#if HACK
-		double pBad = this->pbad.getAverage();
-		double frac = this->curIteration*1.0/this->maxIterations;
+		double fracTime = this->curIteration*1.0/this->maxIterations;
+		double pBad = this->pBad.getAverage();
 		int MEC = (int)this->mec();
-		if(frac > 0.5 && pBad < 0.01 && MEC < 80) {
-		    this->curIteration = this->maxIterations-1; // basically done
-		    printf("Good enough\n");
-		}
+#if SCHEDULE==RETREAT
 		static int when;
 		++when;
-		if(when % 10000 == 0 &&
-		    (
-			((frac > 0.3 || pBad < .2) && MEC >  600)
-		    ||  ((frac > 0.5 || pBad < .1) && MEC >  300)
-		    )) {
-		    this->curIteration-=0.01 * this->maxIterations; // go back 1%
-		    cout << "Retreat to "  << this->curIteration * 100.0 / this->maxIterations << "%" << endl; // go back 1%
+		double retreat = 0.0; // percent
+		if(when % 10000 == 0) {
+		    if(((fracTime>0.3||pBad<.2) && MEC > 8*TARGET_MEC) || ((fracTime>0.5||pBad<.1) && MEC > 4*TARGET_MEC))
+			retreat = 0.01;
+		    if((fracTime>0.95) && MEC > 1.3*TARGET_MEC) retreat = fracTime; // 100% retreat
+		    if(retreat) {
+			cout << "Retreat " << 100*retreat << "%, from " << this->curIteration * 100.0 / this->maxIterations;
+			this->curIteration -= retreat * this->maxIterations;
+			cout << "% to "  << this->curIteration * 100.0 / this->maxIterations << "%" << endl;
+		    }
+		}
+#elif SCHEDULE==Betz
+		static double computedTdecay, LOWER=atof(getenv("LOWER")),
+		    ACCEPT_TARGET=atof(getenv("ACCEPT_TARGET")), PBAD_TARGET=atof(getenv("PBAD_TARGET"));
+		if(!computedTdecay){
+		    computedTdecay = this->tDecay;
+		    printf("Betz values: LOWER %g ACCEPT_TARGET %g PBAD_TARGET %g\n",LOWER,ACCEPT_TARGET,PBAD_TARGET);
+		}
+		if(this->curIteration > this->fAccept.LENGTH) {
+		    this->tDecay = computedTdecay * (LOWER +
+			min(fabs(ACCEPT_TARGET-this->fAccept.getAverage()), fabs(PBAD_TARGET-this->pBad.getAverage())));
 		}
 #endif
 		this->iteration();
@@ -271,18 +303,22 @@ void Genome::optimize(bool debug) {
 
 		if (debug && curIteration % 10000 == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-			printf("%dk (%.4f%%,%ds)  T %.3g  pBad %.3g  MEC %d", (int)this->curIteration/1000,
+			printf("%dk (%.4f%%,%ds)  T %.3g  fA %.3g  pBad %.3g  MEC %d", (int)this->curIteration/1000,
 			    this->curIteration*100.0/this->maxIterations, (int)(now_time - start_time).count(),
-			    this->t, this->pbad.getAverage(), (int)this->mec());
+			    this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->mec());
 			if (this->file.hasGroundTruth) {
 				auto gt = this->compareGroundTruth();
-				double he = (double)gt / (this->haplotypes.size() * this->haplotypes[0].size());
-				printf("  ( Err_vs_truth %d Err_Pct %g%% )", (int)gt, 100*he);
-				if(frac > .99 && he > 0.01) printf("Fail!");
+				int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
+				assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
+				double he = (double)gt / this->haplotypes[0].size();
+				printf("  ( Err_vs_truth %d Err_Pct %g%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
+				if(fracTime > .99 && he > 0.01) printf("Fail!");
 			}
 			printf("\n");
-#if HACK
-#endif
+			if(fracTime > 0.5 && pBad < 0.01 && MEC <= TARGET_MEC) {
+			    this->curIteration = this->maxIterations; // basically done
+			    printf("Good enough\n");
+			}
 		}
 	}
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
@@ -292,9 +328,9 @@ double Genome::findPbad(double temperature, iteration_t iterations) {
 	this->shuffle();
 
 	this->t = temperature;
-	this->pbad.total = 0;
-	this->pbad.pos = 0;
-	this->pbad.sum = 0;
+	this->pBad.total = 0;
+	this->pBad.pos = 0;
+	this->pBad.sum = 0;
 
 	this->totalBad = 0;
 	this->totalBadAccepted = 0;
@@ -304,22 +340,24 @@ double Genome::findPbad(double temperature, iteration_t iterations) {
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
 	}
 
-	cout << "temperature " << temperature << " gives Pbad " << this->pbad.getAverage() << endl;
+	cout << "temperature " << temperature << " gives Pbad " << this->pBad.getAverage() << endl;
 
-	return this->pbad.getAverage();
+	return this->pBad.getAverage();
 }
 
+#define TARGET_PBAD_START 0.8
+#define TARGET_PBAD_END 1e-3
 void Genome::autoSchedule(iteration_t iterations) {
 	cout << "Finding optimal temperature schedule..." << endl;
 
 	double tInitial = 1;
-	while (this->findPbad(tInitial, 10000) < .80) tInitial *= 2;
-	while (this->findPbad(tInitial, 10000) > .80) tInitial /= 2;
-	while (this->findPbad(tInitial, 10000) < .80) tInitial *= 1.2;
+	while (this->findPbad(tInitial, 10000) < TARGET_PBAD_START) tInitial *= 2;
+	while (this->findPbad(tInitial, 10000) > TARGET_PBAD_START) tInitial /= 2;
+	while (this->findPbad(tInitial, 10000) < TARGET_PBAD_START) tInitial *= 1.2;
 	cout << "tInitial found: " << tInitial << endl;
 	double tEnd = tInitial;
-	while (this->findPbad(tEnd, 10000) > 1e-3) tEnd /= 2;
-	while (this->findPbad(tEnd, 10000) < 1e-3) tEnd *= 1.2;
+	while (this->findPbad(tEnd, 10000) > TARGET_PBAD_END) tEnd /= 2;
+	while (this->findPbad(tEnd, 10000) < TARGET_PBAD_END) tEnd *= 1.2;
 
 	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;
 
@@ -341,6 +379,23 @@ void Genome::PbadBuffer::record(double acceptance) {
 }
 
 double Genome::PbadBuffer::getAverage() {
+	return this->sum / (double)this->total;
+}
+
+void Genome::AcceptBuffer::record(char good) {
+	size_t next = this->pos == LENGTH - 1 ? 0 : this->pos + 1;
+	assert(good == 0 || good == 1);
+	if (this->total == LENGTH) {
+		this->sum -= this->buffer[next]; // the next one is the first one
+	} else {
+		this->total++;
+	}
+	this->pos = next;
+	this->buffer[next] = good;
+	this->sum += good;
+}
+
+double Genome::AcceptBuffer::getAverage() {
 	return this->sum / (double)this->total;
 }
 
