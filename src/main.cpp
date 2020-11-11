@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 		WIFInputReader::readGroundTruth(gtruth, parsed);
 	}
 
-	iteration_t iterations = argc == 4 ? atoi(argv[3]) * 1000000 : 1000000 * 10;
+	iteration_t iterations = argc == 4 ? atoi(argv[3]) * META_ITER : META_ITER;
 
 	try {
 		Genome ge(parsed);

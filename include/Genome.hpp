@@ -12,6 +12,9 @@
 #include "InputReader.hpp"
 #include "types.hpp"
 
+#define META_ITER 10000 // how many iterations per integer on the command line? 1M? 100k?
+#define REPORT_INTERVAL (META_ITER/10)
+
 using namespace std;
 using namespace std::chrono;
 
@@ -36,12 +39,12 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug=false);
-	double findPbad(double temperature, iteration_t iterations = 10000);
+	double findPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
 	void autoSchedule(iteration_t iterations);
 
 	// fAccept = alpha = fraction of moves accepted "recently"
 	struct AcceptBuffer {
-		static constexpr int LENGTH = 10000;
+		static constexpr int LENGTH = REPORT_INTERVAL;
 		char buffer[LENGTH];
 		size_t total = 0;
 		size_t pos = 0;
@@ -55,7 +58,7 @@ public:
 
 	// pBad
 	struct PbadBuffer {
-		static constexpr int LENGTH = 10000;
+		static constexpr int LENGTH = REPORT_INTERVAL;
 		double buffer[LENGTH];
 		size_t total = 0;
 		size_t pos = 0;

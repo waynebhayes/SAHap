@@ -263,10 +263,10 @@ void Genome::optimize(bool debug) {
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
-	printf("Optimizing %d sites (coverage %g) using %s cost function for %ldM iterations on schedule %s, target MEC %d\n",
-	    (int)this->haplotypes[0].size(), this->totalCoverage(),
-	    objName[OBJECTIVE], (long)(this->maxIterations/1000000), schedName[SCHEDULE], TARGET_MEC);
-	cout << "Sites " << this->haplotypes[0].size() << endl;
+	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
+	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
+	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
+	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), TARGET_MEC);
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		double fracTime = this->curIteration*1.0/this->maxIterations;
@@ -276,7 +276,7 @@ void Genome::optimize(bool debug) {
 		static int when;
 		++when;
 		double retreat = 0.0; // percent
-		if(when % 10000 == 0) {
+		if(when % (REPORT_INTERVAL/10) == 0) {
 		    if(((fracTime>0.3||pBad<.2) && MEC > 8*TARGET_MEC) || ((fracTime>0.5||pBad<.1) && MEC > 4*TARGET_MEC))
 			retreat = 0.01;
 		    if((fracTime>0.95) && MEC > 1.3*TARGET_MEC) retreat = fracTime; // 100% retreat
@@ -301,7 +301,7 @@ void Genome::optimize(bool debug) {
 		this->iteration();
 		this->curIteration++;
 
-		if (debug && curIteration % 10000 == 0) {
+		if (debug && curIteration % REPORT_INTERVAL == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 			printf("%dk (%.4f%%,%ds)  T %.3g  fA %.3g  pBad %.3g  MEC %d", (int)this->curIteration/1000,
 			    this->curIteration*100.0/this->maxIterations, (int)(now_time - start_time).count(),
@@ -351,13 +351,13 @@ void Genome::autoSchedule(iteration_t iterations) {
 	cout << "Finding optimal temperature schedule..." << endl;
 
 	double tInitial = 1;
-	while (this->findPbad(tInitial, 10000) < TARGET_PBAD_START) tInitial *= 2;
-	while (this->findPbad(tInitial, 10000) > TARGET_PBAD_START) tInitial /= 2;
-	while (this->findPbad(tInitial, 10000) < TARGET_PBAD_START) tInitial *= 1.2;
+	while (this->findPbad(tInitial) < TARGET_PBAD_START) tInitial *= 2;
+	while (this->findPbad(tInitial) > TARGET_PBAD_START) tInitial /= 2;
+	while (this->findPbad(tInitial) < TARGET_PBAD_START) tInitial *= 1.2;
 	cout << "tInitial found: " << tInitial << endl;
 	double tEnd = tInitial;
-	while (this->findPbad(tEnd, 10000) > TARGET_PBAD_END) tEnd /= 2;
-	while (this->findPbad(tEnd, 10000) < TARGET_PBAD_END) tEnd *= 1.2;
+	while (this->findPbad(tEnd) > TARGET_PBAD_END) tEnd /= 2;
+	while (this->findPbad(tEnd) < TARGET_PBAD_END) tEnd *= 1.2;
 
 	cout << "tInitial = " << tInitial << ", tEnd = " << tEnd << endl;
 
