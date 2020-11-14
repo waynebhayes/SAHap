@@ -12,7 +12,10 @@ if which parallel >/dev/null; then
 	PARALLEL="parallel $CORES"
     fi
 fi
-if echo "$PARALLEL" | fgrep -q bash; then CORES=1; fi
+if echo "$PARALLEL" | fgrep -q bash; then
+    warn "No parallel available; using only 1 core"
+    CORES=1
+fi
 
 TRIES=1
 NEED='MEC Poisson'
@@ -20,7 +23,7 @@ echo "Running tests in parallel with $CORES cores"
 while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     echo "Before try #$TRIES, need '$NEED'"
     for OBJ in $NEED; do
-	echo "./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out"
+	echo "/bin/time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out 2>&1"
     done | eval $PARALLEL
 
     NUM_FAILS=0
@@ -56,5 +59,5 @@ while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     (( ++TRIES ))
 done
 echo "Needed a total of $TRIES attempts to get all regressions to pass"
-[ "$TRIES" -gt 1 ] && warn "Still need to get Simulated Annealing more reliable!"
+[ "$TRIES" -gt 1 ] && warn "Needed more than one try??"
 exit $NUM_FAILS
