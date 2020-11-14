@@ -17,7 +17,7 @@ if echo "$PARALLEL" | fgrep -q bash; then
     CORES=1
 fi
 
-TRIES=1
+TRIES=0
 NEED='MEC Poisson'
 echo "Running tests in parallel with $CORES cores"
 while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
