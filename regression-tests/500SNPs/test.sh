@@ -1,15 +1,25 @@
 #!/bin/bash
 USAGE=' '
-source ~/bin/misc.sh
 REG_DIR=${REG_DIR:?"needs to be set"}
 
+# Temporary Filename + Directory (both, you can use either, note they'll have different random stuff in the XXXXXX part)
+TMP=`mktemp /tmp/$BASENAME.XXXXXX`
+TMPDIR=`mktemp -d /tmp/$BASENAME.XXXXXX`
+trap "/bin/rm -rf $TMP $TMPDIR; exit" 0 1 2 3 15 # call trap "" N to remove the trap for signal N
+
+warn(){ echo "WARNING: $@" >&2;}
+newlines(){ awk '{for(i=1; i<=NF;i++)print $i}' "$@";}
+
 PARALLEL="awk '{printf "'"(%s)\n",$0}'"' | bash" # in case there's no parallel
-if which parallel >/dev/null; then
+if [ -x ./parallel ]; then
     CORES=${CORES:?"needs to be set to the number of cores (cpus) you want to use in parallel"}
     echo | awk 'BEGIN{for(i=0;i<2;i++)printf "hello %d\n",i}' > $TMPDIR/correct
-    echo | awk 'BEGIN{for(i=0;i<2;i++)printf "sleep %d; echo hello %d\n",i,i}' | parallel 2 > $TMPDIR/parallel
+    echo | awk 'BEGIN{for(i=0;i<2;i++)printf "sleep %d; echo hello %d\n",i,i}' | ./parallel 2 > $TMPDIR/parallel
     if cmp $TMPDIR/*; then
-	PARALLEL="parallel $CORES"
+	PARALLEL="./parallel $CORES"
+    else
+	warn "./parallel 2 gave wrong output:"
+	set -x; diff $TMPDIR/*; set +x
     fi
 fi
 if echo "$PARALLEL" | fgrep -q bash; then

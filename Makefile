@@ -15,11 +15,11 @@ sahap.$(OBJECTIVE): src/main.o src/Allele.o src/Haplotype.o src/Genome.o src/Inp
 	g++ -std=c++11 -o sahap.$(OBJECTIVE) src/*.o
 
 MEC:
-	make clean
+	rm -f *.o */*.o
 	$(MAKE) 'OBJECTIVE=MEC'
 
 Poisson:
-	make clean
+	rm -f *.o */*.o
 	$(MAKE) 'OBJECTIVE=Poisson'
 
 src/main.o: src/main.cpp
@@ -29,5 +29,8 @@ src/Genome.o: src/Genome.cpp
 src/InputReader.o: src/InputReader.cpp
 src/utils.o: src/utils.cpp
 
+parallel: src/parallel.c
+	gcc -o parallel src/parallel.c
+
 clean:
-	/bin/rm -f *.o */*.o
+	/bin/rm -f parallel sahap.MEC sahap.Poisson *.o */*.o *.exe
