@@ -33,8 +33,9 @@ echo "Running tests in parallel with $CORES cores"
 while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     echo "Before try #$TRIES, need '$NEED'"
     for OBJ in $NEED; do
-	echo "/bin/time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1 > $REG_DIR/$OBJ.out 2>&1"
+	echo "(time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1) > $REG_DIR/$OBJ.out 2>&1"
     done | eval $PARALLEL
+    (( NUM_FAILS+=$? ))
 
     NUM_FAILS=0
     for OBJ in $NEED; do

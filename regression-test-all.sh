@@ -69,7 +69,7 @@ export EXE CORES MAKE_CORES
 
 NUM_FAILS=0
 EXECS="parallel MEC Poisson"
-make clean
+$MAKE && make clean
 for EXE in $EXECS; do
     if $MAKE ; then
 	if not make -k -j$MAKE_CORES $EXE; then # "-k" mean "keep going even if some targets fail"
