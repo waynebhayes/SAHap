@@ -9,17 +9,17 @@ else ifeq ($(OBJECTIVE),Poisson)
 else
     OBJECTIVE=MEC
 endif
-CXXFLAGS := $(CXXFLAGS) '-DOBJECTIVE=$(OBJECTIVE)'
+CXXFLAGS := $(CXXFLAGS) '-DOBJECTIVE=OBJ_$(OBJECTIVE)'
 
 sahap.$(OBJECTIVE): src/main.o src/Allele.o src/Haplotype.o src/Genome.o src/InputReader.o src/utils.o
 	g++ -std=c++11 -o sahap.$(OBJECTIVE) src/*.o
 
 MEC:
-	rm -f *.o */*.o
+	grep -q MEC .last-made || rm -f *.o */*.o && echo MEC > .last-made
 	$(MAKE) 'OBJECTIVE=MEC'
 
 Poisson:
-	rm -f *.o */*.o
+	grep -q Poisson .last-made || rm -f *.o */*.o && echo Poisson > .last-made
 	$(MAKE) 'OBJECTIVE=Poisson'
 
 src/main.o: src/main.cpp
