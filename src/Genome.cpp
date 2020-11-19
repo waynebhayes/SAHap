@@ -12,20 +12,22 @@
 
 #define SAHAP_GENOME_DEBUG 0
 
-enum _objectives        { OBJ_NONE,   MEC,   Poisson };
-const char *objName[] = {"OBJ_NONE", "MEC", "Poisson"};
+enum _objectives        { OBJ_NONE,   OBJ_MEC,   OBJ_Poisson };
+const char *objName[] = {"OBJ_NONE",     "MEC",     "Poisson"};
 #ifndef OBJECTIVE
-#define OBJECTIVE MEC // choices for now are MEC and Poisson
+#define OBJECTIVE OBJ_MEC // choices for now are MEC and Poisson
 #endif
-#if (OBJECTIVE != MEC && OBJECTIVE != Poisson)
+#if (OBJECTIVE != OBJ_MEC && OBJECTIVE != OBJ_Poisson)
 #error "invalid objective"
 #endif
 
+#define TARGET_PBAD_START 0.85
+#define TARGET_PBAD_END 1e-3
 // How is the temperature schedule adjusted to be dynamic?
-enum _schedule            { SCHED_NONE,   RETREAT,   Betz };
-const char *schedName[] = {"SCHED_NONE", "RETREAT", "Betz"};
+enum _schedule            { SCHED_NONE,   SCHED_RETREAT,   SCHED_Betz };
+const char *schedName[] = {"SCHED_NONE",       "RETREAT",       "Betz"};
 #ifndef SCHEDULE
-#define SCHEDULE RETREAT // choices for now are RETREAT and Betz
+#define SCHEDULE SCHED_RETREAT // choices for now are SCHED_RETREAT and SCHED_Betz
 #endif
 #if (SCHEDULE != RETREAT && SCHEDULE != Betz)
 #error "invalid schedule"
@@ -75,9 +77,9 @@ double Genome::siteCostScore() {
 
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
-#if OBJECTIVE == MEC
+#if OBJECTIVE == OBJ_MEC
 		out = out + haplotypes[i].mec();
-#elif OBJECTIVE == Poisson
+#elif OBJECTIVE == OBJ_Poisson
 		out = out + haplotypes[i].siteCost();
 #else
 #error "No objective chosen"
@@ -134,8 +136,6 @@ double Genome::acceptance(double newScore, double curScore) {
 }
 
 bool Genome::done() {
-	// Are we tired yet?
-	// return this->pBad.getAverage() == 0 || this->t <= 1e-5;
 	return this->curIteration >= this->maxIterations;
 }
 
@@ -249,16 +249,25 @@ double Genome::getTemperature(iteration_t iteration) {
 	return temp;
 }
 
+double Genome::fracTime() {
+    return this->curIteration*1.0/this->maxIterations;
+}
+
+void Genome::ResetBuffers() {
+    for (iteration_t i = 0; i < this->fAccept.LENGTH; ++i) this->fAccept.buffer[i]=0;
+    for (iteration_t i = 0; i < this->pBad.LENGTH; ++i) this->pBad.buffer[i]=0;
+    this->pBad.len = this->fAccept.len = 0;
+    this->pBad.pos = this->fAccept.pos = 0;
+    this->pBad.sum = this->fAccept.sum = 0;
+    this->totalBad = 0;
+    this->totalBadAccepted = this->totalGood = 0;
+}
+
 void Genome::optimize(bool debug) {
-	int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
+	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
-	this->pBad.total = this->fAccept.total = 0;
-	this->pBad.pos = this->fAccept.pos = 0;
-	this->pBad.sum = this->fAccept.sum = 0;
-
-	this->totalBad = 0;
-	this->totalBadAccepted = this->totalGood = 0;
+	ResetBuffers();
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
@@ -267,73 +276,53 @@ void Genome::optimize(bool debug) {
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
 	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
 	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), TARGET_MEC);
+
+	int cpuSeconds = 0;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
-		double fracTime = this->curIteration*1.0/this->maxIterations;
-		double pBad = this->pBad.getAverage();
-		int MEC = (int)this->mec();
-#if SCHEDULE==RETREAT
-		static int when;
-		++when;
-		double retreat = 0.0; // percent
-		if(when % (REPORT_INTERVAL/10) == 0) {
-		    if(((fracTime>0.3||pBad<.2) && MEC > 8*TARGET_MEC) || ((fracTime>0.5||pBad<.1) && MEC > 4*TARGET_MEC))
-			retreat = 0.01;
-		    if((fracTime>0.95) && MEC > 1.3*TARGET_MEC) retreat = fracTime; // 100% retreat
-		    if(retreat) {
-			cout << "Retreat " << 100*retreat << "%, from " << this->curIteration * 100.0 / this->maxIterations;
-			this->curIteration -= retreat * this->maxIterations;
-			cout << "% to "  << this->curIteration * 100.0 / this->maxIterations << "%" << endl;
-		    }
-		}
-#elif SCHEDULE==Betz
-		static double computedTdecay, LOWER=atof(getenv("LOWER")),
-		    ACCEPT_TARGET=atof(getenv("ACCEPT_TARGET")), PBAD_TARGET=atof(getenv("PBAD_TARGET"));
-		if(!computedTdecay){
-		    computedTdecay = this->tDecay;
-		    printf("Betz values: LOWER %g ACCEPT_TARGET %g PBAD_TARGET %g\n",LOWER,ACCEPT_TARGET,PBAD_TARGET);
-		}
-		if(this->curIteration > this->fAccept.LENGTH) {
-		    this->tDecay = computedTdecay * (LOWER +
-			min(fabs(ACCEPT_TARGET-this->fAccept.getAverage()), fabs(PBAD_TARGET-this->pBad.getAverage())));
-		}
-#endif
 		this->iteration();
 		this->curIteration++;
-
+		double pBad = this->pBad.getAverage();
+		DynamicSchedule(pBad, TARGET_MEC);
 		if (debug && curIteration % REPORT_INTERVAL == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-			printf("%dk (%.4f%%,%ds)  T %.3g  fA %.3g  pBad %.3g  MEC %d", (int)this->curIteration/1000,
-			    this->curIteration*100.0/this->maxIterations, (int)(now_time - start_time).count(),
-			    this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->mec());
-			if (this->file.hasGroundTruth) {
-				auto gt = this->compareGroundTruth();
-				int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
-				assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
-				double he = (double)gt / this->haplotypes[0].size();
-				printf("  ( Err_vs_truth %d Err_Pct %g%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
-				if(fracTime > .99 && he > 0.01) printf("Fail!");
-			}
-			printf("\n");
-			if(fracTime > 0.5 && pBad < 0.01 && MEC <= TARGET_MEC) {
+			cpuSeconds = (int)(now_time - start_time).count();
+			Report(cpuSeconds);
+			if(fracTime() > 0.5 && pBad < 0.01 && mec() <= TARGET_MEC) {
+			    printf("Exiting early because MEC %lu reached target\n", mec());
 			    this->curIteration = this->maxIterations; // basically done
-			    printf("Good enough\n");
 			}
 		}
 	}
+	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
+}
+
+
+
+void Genome::Report(int cpuSeconds, bool final) {
+    printf("%dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->mec());
+    if (this->file.hasGroundTruth) {
+	    auto gt = this->compareGroundTruth();
+	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
+	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
+	    double he = (double)gt / this->haplotypes[0].size();
+	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
+	    if(final) {
+		printf("\nEnding ground truth ");
+		if(he > 1.3 * READ_ERROR_RATE) printf("Fail!");
+		else printf("Good enough");
+	    }
+    }
+    printf("\n");
 }
 
 double Genome::findPbad(double temperature, iteration_t iterations) {
 	this->shuffle();
 
 	this->t = temperature;
-	this->pBad.total = 0;
-	this->pBad.pos = 0;
-	this->pBad.sum = 0;
-
-	this->totalBad = 0;
-	this->totalBadAccepted = 0;
+	this->ResetBuffers();
 
 	for (iteration_t i = 0; i < iterations; ++i) {
 		this->iteration();
@@ -345,8 +334,6 @@ double Genome::findPbad(double temperature, iteration_t iterations) {
 	return this->pBad.getAverage();
 }
 
-#define TARGET_PBAD_START 0.8
-#define TARGET_PBAD_END 1e-3
 void Genome::autoSchedule(iteration_t iterations) {
 	cout << "Finding optimal temperature schedule..." << endl;
 
@@ -367,10 +354,10 @@ void Genome::autoSchedule(iteration_t iterations) {
 void Genome::PbadBuffer::record(double acceptance) {
 	size_t next = this->pos == LENGTH - 1 ? 0 : this->pos + 1;
 	assert(acceptance >= 0.0 && acceptance <= 1.0);
-	if (this->total == LENGTH) {
+	if (this->len == LENGTH) {
 		this->sum -= this->buffer[next]; // the next one is the first one
 	} else {
-		this->total++;
+		this->len++;
 	}
 	this->pos = next;
 	this->buffer[next] = acceptance;
@@ -379,16 +366,17 @@ void Genome::PbadBuffer::record(double acceptance) {
 }
 
 double Genome::PbadBuffer::getAverage() {
-	return this->sum / (double)this->total;
+	if(this->len == 0) return 0.5;
+	return this->sum / (double)this->len;
 }
 
 void Genome::AcceptBuffer::record(char good) {
 	size_t next = this->pos == LENGTH - 1 ? 0 : this->pos + 1;
 	assert(good == 0 || good == 1);
-	if (this->total == LENGTH) {
+	if (this->len == LENGTH) {
 		this->sum -= this->buffer[next]; // the next one is the first one
 	} else {
-		this->total++;
+		this->len++;
 	}
 	this->pos = next;
 	this->buffer[next] = good;
@@ -396,7 +384,8 @@ void Genome::AcceptBuffer::record(char good) {
 }
 
 double Genome::AcceptBuffer::getAverage() {
-	return this->sum / (double)this->total;
+	if(this->len == 0 ) return 0.5;
+	return this->sum / (double)this->len;
 }
 
 dnacnt_t Genome::compareGroundTruth() {
@@ -431,45 +420,83 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 	return stream;
 }
 
+
+void Genome::DynamicSchedule(double pBad, int TARGET_MEC)
+{
+    //printf("pBad %ld %g\n", this->pBad.len, pBad);
+#if SCHEDULE==RETREAT
 /*
-void Genome::optimize(double temp, double minTemp, double decreaseFactor, int numiters) {
-	bool just_reverted = false;
-	auto ploidy = this->haplotypes.size();
-	// main sim_annealing loop
-	auto currentMEC = this->mec();
+This schedule seems to be about right... up to 1500 SNPs. Then it fails.  Observations:
+- There are a lot of magic numbers here. I think it may be possible to simplify. Ideas:
+- it looks like maintaing a ration of about 10x as many 1% retreats as 95% retreats; automating that may help.
+- the locations in time (fracTime and pBad) do NOT seem very flexible; you can play with what tolerances
+you want at those times/pBad's, but if you shift the times or pBads too much, it all falls apart.
+- decreasing the threshold (ie., tightening the tolerance) on the 1% retreats can reduce the 95% retreats,
+but if you tighten it too much it never gets past 30% fracTime.
+- having the first threhold too loose results in way to many 95% retreats. (ie complete restart)
+- oddly, increasing the number of meta-iterations on the command line does not always help; then the retreats
+are all mis-calibrated, and we never get past 30% fracTime. So again, something to automatically calibrate
+them seems necessary.
+- there doesn't seem to be much of a difference between optimizing MEC vs Possion. Poisson is a bit slower but
+doesn't seem to give any better aswers.
+- the dead-ends seem REALLY tight: sometimes you can still have 90% distance from ground truth even with the MEC
+being less than a factor for two from the TARGE_MEC!!! That seems *really* strange. Is that even possible?
+Perhaps the data is fucked up? It just seems so unlikely the MEC can be almost to the target while we're
+still TOTALLY wrong compared to ground truth. For example, optimizing 2100SNP case, target was 614:
+598k (93.4%,74s)  T 0.000  fA 0.004  pBad 0.001  MEC 850 ( Err_vs_truth 1955 Err_Pct 93.10% [2100 2100])
+599k (93.6%,74s)  T 0.000  fA 0.000  pBad 0.001  MEC 851 ( Err_vs_truth 1954 Err_Pct 93.05% [2100 2100])
+600k (93.8%,74s)  T 0.000  fA 0.000  pBad 0.001  MEC 852 ( Err_vs_truth 1956 Err_Pct 93.14% [2100 2100])
+601k (93.9%,74s)  T 0.000  fA 0.000  pBad 0.001  MEC 852 ( Err_vs_truth 1956 Err_Pct 93.14% [2100 2100])
+602k (94.1%,74s)  T 0.000  fA 0.001  pBad 0.001  MEC 852 ( Err_vs_truth 1954 Err_Pct 93.05% [2100 2100])
+Retreat 94% from 94.0625% to 0.0625% because MEC is 852, too big by factor of 1.38762
+We're only a factor of 1.387 above the target MEC and we're still 93% wrong compared to the ground truth??? WTF?
 
-	while (temp > minTemp) {
-		for (int i = 0; i < numiters; i++) {
-			// calculate the MEC for the current haplotypes (unless we have just reverted, in which case we do not need to)
-			if (!just_reverted) {
-				currentMEC = this->mec();
-			}
-			// choose a pair read to remove and add to another chromosome
-			int moveFrom = rand()%ploidy;
-			ReadPair * rp = haplotypes[moveFrom].pick(this->randomEngine);
-			haplotypes[moveFrom].remove(rp);
-			int moveOffset = rand() % ploidy;
-			int moveTo = (moveFrom + moveOffset) % ploidy;
-			haplotypes[moveTo].add(rp);
-			// now, calculate the new MEC score
-			auto newMEC = this->mec();
-			// calculate the score of the old solution and the new solution
-			auto scoreOfCurrent = score(temp, currentMEC);
-			auto scoreOfNew = score(temp, newMEC);
-			// use the scores to caculate the chance we keep this new solution, if it is bad
-			double chanceToKeep = acceptance(scoreOfCurrent, scoreOfNew, temp);
-			double randomIndex = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-			//if the solution is bad, AND we do not choose a double below the chance to keep, we revert to the old solution
-			if (chanceToKeep <= randomIndex && newMEC > currentMEC) {
-				haplotypes[moveTo].remove(rp);
-				haplotypes[moveFrom].add(rp);
-			}
-
-			cout << "[simann] temp=" << temp << ", mec=" << newMEC << endl;
-		}
-		temp = temp * decreaseFactor;
-	}
-}
+- again with ground truth... sometimes we converge to exactly the right ground truth yet the MEC is still large.
+Again, how is that possible?  For example, here's a sequence of final lines to a good solution: (target was 268)
+49k (61.3%,159s)  T 0.002  fA 0.009  pBad 0.011  MEC   264  ( Err_vs_truth     0 Err_Pct 0.00% [1000 1000])
+50k (62.5%,159s)  T 0.002  fA 0.015  pBad 0.015  MEC   272  ( Err_vs_truth     0 Err_Pct 0.00% [1000 1000])
+51k (63.7%,159s)  T 0.002  fA 0.011  pBad 0.009  MEC   260  ( Err_vs_truth     0 Err_Pct 0.00% [1000 1000])
+How can the MEC continue to decrease while the Err_vs_truth remains exactly zero? No fucking way. There is a
+unique solution---all the reads on the correct side. That solution has a fixed MEC. Can't have one change while
+the other remain constant.
 */
+    double retreat = 0.0;
+    static double prev_retreat_frac;
+    int num_meta_iters = this->maxIterations/META_ITER;
+#define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
+#define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
+    if(curIteration % (REPORT_INTERVAL/2) == 0) {
+	double factor = (double)mec()/TARGET_MEC;
+	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
+	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
+	     ((fracTime()>0.5||pBad<0.1) && factor >  8) )){  // quarter to half the above works well?
+	    retreat = factor * SMALL_RETREAT / totalCoverage() * log(num_meta_iters);
+	}
+	if(fracTime()>FULL_RETREAT && factor > 1.3){
+	    retreat = FULL_RETREAT;
+	    ResetBuffers();
+	}
+	if(retreat > 0.0) {
+	    cout << "Retreat " << 100*retreat << "% from " << 100 * fracTime();
+	    this->curIteration -= retreat * this->maxIterations;
+	    assert(this->curIteration>=0);
+	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << mec();
+	    cout << ", too big by a factor of " << factor << endl;
+	    prev_retreat_frac = fracTime();
+	}
+    }
+#elif SCHEDULE==Betz
+    static double computedTdecay, LOWER=atof(getenv("LOWER")),
+	ACCEPT_TARGET=atof(getenv("ACCEPT_TARGET")), PBAD_TARGET=atof(getenv("PBAD_TARGET"));
+    if(!computedTdecay){
+	computedTdecay = this->tDecay;
+	printf("Betz values: LOWER %g ACCEPT_TARGET %g PBAD_TARGET %g\n",LOWER,ACCEPT_TARGET,PBAD_TARGET);
+    }
+    if(this->curIteration > this->fAccept.LENGTH) {
+	this->tDecay = computedTdecay * (LOWER +
+	    min(fabs(ACCEPT_TARGET-this->fAccept.getAverage()), fabs(PBAD_TARGET-this->pBad.getAverage())));
+    }
+#endif
+}
 
 }

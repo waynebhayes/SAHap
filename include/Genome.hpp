@@ -30,6 +30,7 @@ public:
 	double score();
 	double score(dnaweight_t mec);
 	double totalCoverage();
+	double fracTime();
 
 	void shuffle();
 	bool done();
@@ -39,6 +40,9 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug=false);
+	void DynamicSchedule(double pBad, int TARGET_MEC);
+
+	void Report(int seconds, bool final=false);
 	double findPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
 	void autoSchedule(iteration_t iterations);
 
@@ -46,7 +50,7 @@ public:
 	struct AcceptBuffer {
 		static constexpr int LENGTH = REPORT_INTERVAL;
 		char buffer[LENGTH];
-		size_t total = 0;
+		size_t len = 0;
 		size_t pos = 0;
 		int sum = 0.0;
 
@@ -60,7 +64,7 @@ public:
 	struct PbadBuffer {
 		static constexpr int LENGTH = REPORT_INTERVAL;
 		double buffer[LENGTH];
-		size_t total = 0;
+		size_t len = 0;
 		size_t pos = 0;
 		double sum = 0.0;
 
@@ -70,6 +74,7 @@ public:
 	PbadBuffer pBad;
 	int totalBad = 0;
 	int totalBadAccepted = 0;
+	void ResetBuffers(); // Resets both buffers above
 
 
 	vector<Haplotype> haplotypes;
