@@ -307,7 +307,7 @@ void Genome::Report(int cpuSeconds, bool final) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
-	    double he = (double)gt / this->haplotypes[0].size();
+	    double he = (double)gt / (this->haplotypes[0].size() * haplotypes.size());
 	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
 	    if(final) {
 		printf("\nEnding ground truth ");
