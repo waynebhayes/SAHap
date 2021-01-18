@@ -52,23 +52,32 @@ haplotypes[1] = haplotypes[1][startidx:startidx + target_snps]
 cur_coverage = 0
 min_snp = target_snps
 max_snp = 0
+reads = {}
 while cur_coverage < target_coverage:
     K = np.random.poisson(50)
     L = np.random.randint(target_snps)
     while L+K/2 >= target_snps or L-K/2 < 0:
         L = np.random.randint(target_snps)
     
-    H = np.random.randint(2)
-    for i in range(L-K/2,L+K/2 + 1):
-        print("{} {} {} 61".format(chosen[i], letters[chosen[i]][H], haplotypes[H][i]), end=" : ")
-    print("# 60 : NA")
+    if reads.get(L-K/2, -1) == -1:
+        reads[L-K/2] = []
+    reads[L-K/2].append(L+K/2)
 
     cur_coverage += float(K) / target_snps
     min_snp = min(min_snp, L-K/2)
     max_snp = max(max_snp, L+K/2)
 
+ks = list(reads.keys())
+ks.sort()
+for start in ks:
+    for ends in reads[start]:
+        H = np.random.randint(2)
+        for i in range(start,ends + 1):
+            print("{} X {} 61".format(i, haplotypes[H][i]), end=" : ")
+        print("# 60 : NA")
+
 # 4492 C 1 61 : 14636 T 0 61 :
 
 #GROUND TRUTH
 for h in haplotypes:
-    print(h[min_snp:max_snp], file=sys.stderr)
+    print(h[min_snp:max_snp+1], file=sys.stderr)
