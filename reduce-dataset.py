@@ -1,25 +1,23 @@
+from __future__ import print_function
+
 import sys
-import random
 import math
+import numpy as np
 
 if len(sys.argv) != 6:
-    print("Usage: {} <target SNPs> <wif file> <ground truth file> <coverage %> <read error %>".format(sys.argv[0]))
+    print("Usage: {} <target SNPs> <wif file> <ground truth file> <coverage> <read error %>".format(sys.argv[0]))
     sys.exit(1)
 
-target = int(sys.argv[1])
+target_snps = int(sys.argv[1])
 wif_file = sys.argv[2]
 gt_file = sys.argv[3]
-target_coverage = float(sys.argv[4])
+target_coverage = int(sys.argv[4])
 r_error_rate = float(sys.argv[5])
-
-if target_coverage > 1:
-    target_coverage /= 100
-if r_error_rate > 1:
-    r_error_rate /= 100
 
 wif = open(wif_file, 'r')
 gt = open(gt_file, 'r')
 sites = set()
+letters = {}
 
 for line in wif:
     sil = line.split('#')[0].strip().split(':')
@@ -28,73 +26,58 @@ for line in wif:
         if len(q) != 4: continue
 
         sites.add(int(q[0]))
+        
+        if letters.get(int(q[0]), -1) == -1:
+              letters[int(q[0])] = set()
+        letters[int(q[0])].add(q[1])
+
+for k in letters.keys():
+    letters[k] = list(letters[k])
+    if len(letters[k]) < 2:
+        letters[k].append('X')
 
 sites = list(sorted(sites))
 
-site_map = {}
-for i in range(len(sites)):
-    site_map[sites[i]] = i
+startidx = np.random.randint(0, len(sites) - target_snps)
+chosen = sites[startidx:startidx + target_snps]
 
-if (len(sites) < target):
-    target = len(sites)
-    #print("Target SNPs was greater than # of sites reducing target to current # of sites")
-
-startidx = random.randint(0, len(sites) - target)
-chosen = sites[startidx:startidx + target]
-
-R = []
-
-let_insites = {}
-for c in chosen:
-    let_insites[c] = {'A', 'C', 'T', 'G'}
-
-wif.seek(0)
-for line in wif:
-    sil = line.split('#')[0].strip().split(':')
-    l = []
-    for s in sil:
-        q = s.strip().split(' ')
-        if len(q) != 4: continue
-
-        if int(q[0]) in chosen:
-            l.append(s.strip())
-            let_insites[int(q[0])].discard(q[1])
-
-    if l:
-        R.append(' : '.join(l))
-
-random.shuffle(R)
-
-LETTERS = ['A', 'C', 'T', 'G']
-NR = []
-chosen = set()
-
-for i in range(0, math.ceil(len(R) * target_coverage)):
-    sil = R[i].strip().split(':')
-    res = []
-    l = []
-    for s in sil:
-        q = s.strip().split(' ')
-        if len(q) != 4: continue
-
-        if random.random() < r_error_rate:
-            for let in let_insites[int(q[0])]:
-                q[1] = let
-                break;
-            #ind = (LETTERS.index(q[1]) + 1) % 4
-            #q[1] = LETTERS[ind]
-        chosen.add(int(q[0]))
-        l.append(' '.join(q))
-
-    if l:
-        print(' : '.join(l))#, ' # 60 : NA']))
-
-chosen = list(sorted(chosen))
+haplotypes = []
 
 for line in gt:
-    #print(line.strip()[startidx:startidx+target], file=sys.stderr)
-    l = line.strip()
-    for s in chosen:
-        print(l[site_map[s]], end="", file=sys.stderr)
-    print("", file=sys.stderr)
+    haplotypes.append(line)
 
+haplotypes[0] = haplotypes[0][startidx:startidx + target_snps]
+haplotypes[1] = haplotypes[1][startidx:startidx + target_snps]
+
+cur_coverage = 0
+min_snp = target_snps
+max_snp = 0
+reads = {}
+while cur_coverage < target_coverage:
+    K = np.random.poisson(50)
+    L = np.random.randint(target_snps)
+    while L+K/2 >= target_snps or L-K/2 < 0:
+        L = np.random.randint(target_snps)
+    
+    if reads.get(L-K/2, -1) == -1:
+        reads[L-K/2] = []
+    reads[L-K/2].append(L+K/2)
+
+    cur_coverage += float(K) / target_snps
+    min_snp = min(min_snp, L-K/2)
+    max_snp = max(max_snp, L+K/2)
+
+ks = list(reads.keys())
+ks.sort()
+for start in ks:
+    for ends in reads[start]:
+        H = np.random.randint(2)
+        for i in range(start,ends + 1):
+            print("{} X {} 61".format(i, haplotypes[H][i]), end=" : ")
+        print("# 60 : NA")
+
+# 4492 C 1 61 : 14636 T 0 61 :
+
+#GROUND TRUTH
+for h in haplotypes:
+    print(h[min_snp:max_snp+1], file=sys.stderr)
