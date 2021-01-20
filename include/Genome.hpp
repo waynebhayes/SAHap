@@ -39,7 +39,7 @@ public:
 	void move();
 	void revertMove();
 	void iteration();
-	void optimize(bool debug=false);
+	void optimize(bool debug, dnapos_t s, dnapos_t e);
 	void DynamicSchedule(double pBad, int TARGET_MEC);
 
 	void Report(int seconds, bool final=false);
@@ -81,6 +81,10 @@ public:
 	void generateOutput();
 	dnacnt_t compareGroundTruth();
 
+	dnapos_t start = 0;
+	dnapos_t end = 0;
+
+	int total_time = 0;
 protected:
 	InputFile file;
 	mt19937 randomEngine;

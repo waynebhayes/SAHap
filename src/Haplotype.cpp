@@ -72,6 +72,25 @@ double Haplotype::mec() {
 	return this->imec;
 }
 
+double Haplotype::mec(dnapos_t s, dnapos_t e) {
+	double out = 0;
+
+	for (auto &r : reads) {
+		for (auto &site : r->sites) {
+			if (site.pos < s)
+				continue;
+			if (site.pos > e)
+				break;
+			if (solution[site.pos] != site.value)
+				out++;
+		}
+	}
+
+	return out;
+}
+
+
+
 double Haplotype::siteCost() {
 	return this->isitecost;
 }
@@ -124,6 +143,10 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec -= mec;
+
+			if (i >= start && i <= end)
+				pmec -= mec;
+
 			// FIXME
 			this->isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}
@@ -159,6 +182,10 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec += mec;
+
+			if (i >= start && i <= end)
+				pmec += mec;
+
 			// FIXME
 			this->isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}

@@ -179,6 +179,10 @@ void Genome::move() {
 	}
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
+
+	while (r->last <= start || r->first >= end)
+		r = haplotypes[moveFrom].pick(this->randomEngine);
+
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
 		cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
@@ -263,11 +267,17 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::optimize(bool debug) {
-	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
+void Genome::optimize(bool debug, dnapos_t s, dnapos_t e) {
+	unsigned int TARGET_MEC = 1;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
+
+	for (int i = 0; i < 2; i++) {
+		haplotypes[i].start = 0;
+		haplotypes[i].end = e;
+		haplotypes[i].pmec = haplotypes[i].mec(0, e);
+	}
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
@@ -293,7 +303,13 @@ void Genome::optimize(bool debug) {
 			    this->curIteration = this->maxIterations; // basically done
 			}
 		}
+
+		if (haplotypes[0].pmec + haplotypes[1].pmec < 10){
+			break;
+		}
+
 	}
+	total_time += cpuSeconds;
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
 }
@@ -308,13 +324,14 @@ void Genome::Report(int cpuSeconds, bool final) {
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
 	    double he = (double)gt / (this->haplotypes[0].size() * haplotypes.size());
-	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
+	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d]) ", (int)gt, 100*he,hapSize0,hapSize1);
 	    if(final) {
 		printf("\nEnding ground truth ");
 		if(he > 1.3 * READ_ERROR_RATE) printf("Fail!");
 		else printf("Good enough");
 	    }
     }
+	cout << start / 500;
     printf("\n");
 }
 
