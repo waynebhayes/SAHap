@@ -143,11 +143,10 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec -= mec;
-
 			if (i >= start && i <= end)
 				pmec -= mec;
-
-			// FIXME
+			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
+			// they are not equally probable. Need to account for this lopsidedness.
 			this->isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}
 
@@ -182,11 +181,10 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec += mec;
-
 			if (i >= start && i <= end)
 				pmec += mec;
-
-			// FIXME
+			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
+			// they are not equally probable. Need to account for this lopsidedness.
 			this->isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
 		}
 	}
