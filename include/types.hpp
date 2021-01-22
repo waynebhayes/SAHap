@@ -3,6 +3,7 @@
 
 #define READ_ERROR_RATE 0.01 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
 
+#include <limits.h>
 #include "Allele.hpp"
 #include <unordered_map>
 
