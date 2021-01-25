@@ -33,12 +33,16 @@ enum class Zygosity {
 	HETERO,   // '*'
 };
 
+struct Range {
+	dnapos_t start = INT_MAX;
+	dnapos_t end = 0;
+};
+
 struct Read {
 	vector<Site> sites;
 	double cost = 0; // read-based cost (-log T_p(E_r, k_r))
 	
-	dnapos_t first = INT_MAX;
-	dnapos_t last = 0;
+	Range range;
 };
 
 struct InputFile {

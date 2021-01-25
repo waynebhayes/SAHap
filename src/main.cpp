@@ -28,22 +28,21 @@ int main(int argc, char *argv[]) {
 
 	try {
 		Genome ge(parsed);
-		ge.start = 0;
-		ge.end = ge.haplotypes[0].size();
+		// ge.start = 0;
+		// ge.end = ge.haplotypes[0].size();
 		ge.autoSchedule(iterations);
 
-		for (unsigned i = 500; i <= ge.haplotypes[0].size() + 100; i+=500) {
-			ge.start = i-500;
-			ge.end = i;
+		// for (unsigned i = 500; i <= ge.haplotypes[0].size() + 100; i+=500) {
+		// 	ge.start = i-500;
+		// 	ge.end = i;
 
 			try {
-				ge.optimize(true, ge.start, ge.end);
-				cerr << ge;
+				ge.optimize(true);
+				cout << ge;
 			} catch (const char * e) {
 				cerr << e << endl;
 			}
-		}
-		cerr << "Total Time: " << ge.total_time << endl;
+		// }
 
 		/*
 		// cout << ge.haplotypes[0].percentAgree() << endl;

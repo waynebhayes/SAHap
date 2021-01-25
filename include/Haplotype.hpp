@@ -65,8 +65,7 @@ public:
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 	double mec(dnapos_t s, dnapos_t e);
-	dnapos_t start = 0;
-	dnapos_t end = 0;
+	Range range;
 	double pmec = 0;
 protected:
 	struct VoteInfo {

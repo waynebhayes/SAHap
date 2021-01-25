@@ -108,8 +108,8 @@ Read WIFInputReader::parseRead(unordered_map<dnapos_t, dnapos_t>& index, string 
 			snp.pos = index[snp.pos];
 		}
 
-		result.first = min(result.first, snp.pos);
-		result.last = max(result.last, snp.pos);
+		result.range.start = min(result.range.start, snp.pos);
+		result.range.end = max(result.range.end, snp.pos);
 
 		result.sites.push_back(snp);
 	}

@@ -14,6 +14,7 @@ Haplotype::Haplotype(dnapos_t length)
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
 	this->weights = vector<array<dnacnt_t, 2>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
+	this->range.start = 0;
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->solution[i] = Allele::UNKNOWN;
@@ -143,7 +144,7 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec -= mec;
-			if (i >= start && i <= end)
+			if (i >= range.start && i <= range.end)
 				pmec -= mec;
 			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
 			// they are not equally probable. Need to account for this lopsidedness.
@@ -181,7 +182,7 @@ void Haplotype::vote(Read& read, bool retract) {
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
 			this->imec += mec;
-			if (i >= start && i <= end)
+			if (i >= range.start && i <= range.end)
 				pmec += mec;
 			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
 			// they are not equally probable. Need to account for this lopsidedness.
