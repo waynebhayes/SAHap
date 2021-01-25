@@ -191,7 +191,7 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	int ctr = 0;
+	size_t ctr = 0; // TEMP FIX
 	while (r->range.end <= range.start || r->range.start >= range.end){
 		r = haplotypes[moveFrom].pick(this->randomEngine);
 		ctr++;
