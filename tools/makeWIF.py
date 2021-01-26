@@ -13,6 +13,9 @@ snp_count = int(sys.argv[1])
 target_coverage =  int(sys.argv[2])
 read_errors = float(sys.argv[3])
 
+if read_errors >= 1:
+    read_errors /= 100.0
+
 haplotypes = []
 haplotypes.append([])
 haplotypes.append([])
@@ -43,15 +46,22 @@ while cur_coverage < target_coverage:
 
 ks = list(reads.keys())
 ks.sort()
+
 for start in ks:
-    for ends in reads[start]:
+    for end in reads[start]:
         H = np.random.randint(2)
-        for i in range(start,ends + 1):
+        err_pos = -1
+        if np.random.random_sample() <= read_errors:
+            err_pos = np.random.randint(end + 1)
+        for i in range(start,end + 1):
+            if i == err_pos:
+                haplotypes[H][i] = int(not haplotypes[H][i])
             print("{} X {} 61".format(i, haplotypes[H][i]), end=" : ")
+            if i == err_pos:
+                haplotypes[H][i] = int(not haplotypes[H][i])
         print("# 60 : NA")
 
 # 4492 C 1 61 : 14636 T 0 61 :
-
 #GROUND TRUTH
 for haplotype in haplotypes:
     for i in haplotype[min_snp:max_snp+1]:

@@ -1,7 +1,7 @@
 #ifndef SAHAP_TYPES_HPP
 #define SAHAP_TYPES_HPP
 
-#define READ_ERROR_RATE 0.01 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
+#define READ_ERROR_RATE 0.015 // 0.01 = 1% of letters on a read are incorrect due to sequencing errors
 
 #include <limits.h>
 #include "Allele.hpp"
@@ -33,12 +33,16 @@ enum class Zygosity {
 	HETERO,   // '*'
 };
 
+struct Range {
+	dnapos_t start = INT_MAX;
+	dnapos_t end = 0;
+};
+
 struct Read {
 	vector<Site> sites;
 	double cost = 0; // read-based cost (-log T_p(E_r, k_r))
 	
-	dnapos_t first = INT_MAX;
-	dnapos_t last = 0;
+	Range range;
 };
 
 struct InputFile {

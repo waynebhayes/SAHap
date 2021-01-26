@@ -45,6 +45,9 @@ Genome::Genome(InputFile file)
 	this->randomEngine = mt19937(seed);
 	this->file = file;
 	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size()));
+	this->range.start = 0;
+	this->range.end = this->file.index.size();
+	this->total_sites = this->file.index.size();
 	this->shuffle();
 }
 
@@ -57,6 +60,14 @@ dnacnt_t Genome::mec() {
 		out = out + haplotypes[i].mec();
 	}
 
+	return out;
+}
+
+dnacnt_t Genome::pmec() { //Partial MEC
+	dnaweight_t out = 0;
+	for (size_t i = 0; i < haplotypes.size(); i++) {
+		out += haplotypes[i].pmec;
+	}
 	return out;
 }
 
@@ -180,8 +191,17 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	while (r->last <= start || r->first >= end)
+	size_t ctr = 0; // TEMP FIX
+	while (r->range.end <= range.start || r->range.start >= range.end){
 		r = haplotypes[moveFrom].pick(this->randomEngine);
+		ctr++;
+		if (ctr > haplotypes[moveFrom].readSize()) {
+			auto tmp = moveFrom;
+			moveFrom = moveTo;
+			moveTo = tmp;
+			ctr = 0;
+		}
+	}
 
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
@@ -267,18 +287,26 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::optimize(bool debug, dnapos_t s, dnapos_t e) {
-	unsigned int TARGET_MEC = 1;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
+void Genome::reset_pmec() {
+	for (size_t i = 0; i < haplotypes.size(); i++) {
+		haplotypes[i].range.start = 0;
+		haplotypes[i].range.end = range.end;
+		haplotypes[i].pmec = haplotypes[i].mec(0, range.end);
+	}
+}
+
+void Genome::optimize(bool debug) {
+	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
+	
+	range.end = 500;
 
-	for (int i = 0; i < 2; i++) {
-		haplotypes[i].start = 0;
-		haplotypes[i].end = e;
-		haplotypes[i].pmec = haplotypes[i].mec(0, e);
-	}
+	reset_pmec();
 
+	unsigned int PTARGET_MEC = TARGET_MEC / round(double(total_sites) / 500);
+	cout << PTARGET_MEC << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -293,7 +321,7 @@ void Genome::optimize(bool debug, dnapos_t s, dnapos_t e) {
 		this->iteration();
 		this->curIteration++;
 		double pBad = this->pBad.getAverage();
-		DynamicSchedule(pBad, TARGET_MEC);
+		DynamicSchedule(pBad, PTARGET_MEC);
 		if (debug && curIteration % REPORT_INTERVAL == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 			cpuSeconds = (int)(now_time - start_time).count();
@@ -303,13 +331,17 @@ void Genome::optimize(bool debug, dnapos_t s, dnapos_t e) {
 			    this->curIteration = this->maxIterations; // basically done
 			}
 		}
-
-		if (haplotypes[0].pmec + haplotypes[1].pmec < 10){
-			break;
+		if (done() || (pmec() <= PTARGET_MEC)){
+			range.start += 500;
+			range.end += 500;
+			curIteration = 0;
+			PTARGET_MEC += TARGET_MEC / round(double(total_sites) / 500);
+			reset_pmec();
+			if (range.end > haplotypes[0].size())
+				break;
 		}
 
 	}
-	total_time += cpuSeconds;
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
 }
@@ -331,7 +363,7 @@ void Genome::Report(int cpuSeconds, bool final) {
 		else printf("Good enough");
 	    }
     }
-	cout << start / 500;
+	cout << range.start / 500;
     printf("\n");
 }
 
@@ -483,7 +515,8 @@ the other remain constant.
 #define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
 #define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
     if(curIteration % (REPORT_INTERVAL/2) == 0) {
-	double factor = (double)mec()/TARGET_MEC;
+	//double factor = (double)mec()/TARGET_MEC;
+	double factor = (double)pmec()/TARGET_MEC;
 	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
 	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
 	     ((fracTime()>0.5||pBad<0.1) && factor >  8) )){  // quarter to half the above works well?
