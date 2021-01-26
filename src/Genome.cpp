@@ -63,7 +63,7 @@ dnacnt_t Genome::mec() {
 	return out;
 }
 
-dnacnt_t Genome::pmec() {
+dnacnt_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		out += haplotypes[i].pmec;
@@ -296,7 +296,7 @@ void Genome::reset_pmec() {
 }
 
 void Genome::optimize(bool debug) {
-	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * 0.015;//READ_ERROR_RATE;
+	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
@@ -331,15 +331,13 @@ void Genome::optimize(bool debug) {
 			    this->curIteration = this->maxIterations; // basically done
 			}
 		}
-		if (range.end < file.index.size() && haplotypes[0].pmec + haplotypes[1].pmec <= PTARGET_MEC){
+		if (done() || (pmec() <= PTARGET_MEC)){
 			range.start += 500;
 			range.end += 500;
-			//curIteration = 0;
-			//cout << "MIN MEC: " << min_mec << endl;
+			curIteration = 0;
 			PTARGET_MEC += TARGET_MEC / round(double(total_sites) / 500);
 			reset_pmec();
-			
-			if (range.end - 100 > this->file.index.size())
+			if (range.end > haplotypes[0].size())
 				break;
 		}
 
@@ -517,13 +515,14 @@ the other remain constant.
 #define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
 #define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
     if(curIteration % (REPORT_INTERVAL/2) == 0) {
+	//double factor = (double)mec()/TARGET_MEC;
 	double factor = (double)pmec()/TARGET_MEC;
 	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
 	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
 	     ((fracTime()>0.5||pBad<0.1) && factor >  8) )){  // quarter to half the above works well?
 	    retreat = factor * SMALL_RETREAT / totalCoverage() * log(num_meta_iters);
 	}
-	if(fracTime()>FULL_RETREAT && factor > 1.0){
+	if(fracTime()>FULL_RETREAT && factor > 1.3){
 	    retreat = FULL_RETREAT;
 	    ResetBuffers();
 	}
