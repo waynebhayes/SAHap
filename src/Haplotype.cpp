@@ -90,8 +90,6 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
 
 void Haplotype::save_reads() {
 	for (auto r : reads) {
-		if (r->range.end <= range.start)
-			continue;
 		sreads.insert(r);
 	}
 }
@@ -100,7 +98,7 @@ void Haplotype::sep_reads(int x) {
 	reads.clear();
 	//int mx = length;
 	for (auto r : sreads) {
-		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start + x);
+		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start - x);
 		if (scope > 0) {//} (r->range.end - r->range.start) / 2){
 			reads.insert(r);
 		}
@@ -111,13 +109,25 @@ void Haplotype::sep_reads(int x) {
 }
 
 void Haplotype::print_mec() {
-	for (auto i = 0; i < length; i++) {
+	for (dnapos_t i = 0; i < length; i++) {
 		if (solution[i] == Allele::UNKNOWN)
 			cerr << weights[i][0] + weights[i][1];
 		else 
 			cerr << weights[i][flip_allele_i(solution[i])];
 	}
 	cerr << endl;
+}
+
+bool Haplotype::check() {
+	dnacnt_t out = 0;
+
+	for (auto i = range.start; i <= range.end && i < length; i++) {
+		if (solution[i] == Allele::UNKNOWN)
+			out = max(out, weights[i][0] + weights[i][1]);
+		else
+			out = max(out, weights[i][flip_allele_i(solution[i])]);
+	}
+	return out < 6;
 }
 
 double Haplotype::siteCost() {

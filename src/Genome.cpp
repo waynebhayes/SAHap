@@ -335,24 +335,30 @@ void Genome::optimize(bool debug) {
 			}
 		}
 		if (done() || (pmec() <= PTARGET_MEC)){
+			if (!haplotypes[0].check() || !haplotypes[1].check()) {
+				curIteration = 0;
+				continue;
+			}
 			range.start += 500;
 			range.end += 500;
 			curIteration = 0;
+			tmp = cpuSeconds;
 			// haplotypes[0].print_mec();
 			// haplotypes[1].print_mec();
-			// cout << "PMEC: " << pmec() << endl;
+			cout << "PMEC: " << pmec() << endl;
+			PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
 			reset_pmec(0);
-			PTARGET_MEC += round(TARGET_MEC * ((double)range.end/total_sites));
-			if (range.end > total_sites + 200)
+			if (range.end > total_sites + 100){
 				break;
+			}
 		}
-		// if ((cpuSeconds - tmp) > 10){
-		// 	PTARGET_MEC += 50;
-		// 	tmp = cpuSeconds;
-		// }
+		if (cpuSeconds  > tmp + 1000){
+			break;
+		}
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
+	cout << "MEC: " << (int)mec() << endl;
 }
 
 

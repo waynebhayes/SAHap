@@ -69,6 +69,7 @@ public:
 	void save_reads();
 	void sep_reads(int x);
 	void print_mec();
+	bool check();
 	Range range;
 	double pmec = 0;
 protected:
