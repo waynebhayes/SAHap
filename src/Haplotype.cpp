@@ -9,12 +9,13 @@
 namespace SAHap {
 
 Haplotype::Haplotype(dnapos_t length)
-	: length(length), imec(0), isitecost(0)
+	: pmec(0), length(length), imec(0), isitecost(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
 	this->weights = vector<array<dnacnt_t, 2>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
 	this->range.start = 0;
+	this->range.end = length;
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->solution[i] = Allele::UNKNOWN;
@@ -27,6 +28,7 @@ Haplotype::Haplotype(dnapos_t length)
 Haplotype::Haplotype(const Haplotype& ch)
 	:
 		solution(ch.solution),
+		range(ch.range),
 		length(ch.length),
 		weights(ch.weights),
 		siteCoverages(ch.siteCoverages),
@@ -40,8 +42,8 @@ Haplotype::~Haplotype() {
 
 double Haplotype::meanCoverage() {
     double result = 0.0;
-    for (dnapos_t i = 0; i < this->length; ++i) {
-	result += this->siteCoverages[i];
+    for (dnapos_t i = range.start; i <= range.end && i < length; ++i) {
+		result += this->siteCoverages[i];
     }
     return result/this->length;
 }
@@ -76,21 +78,47 @@ double Haplotype::mec() {
 double Haplotype::mec(dnapos_t s, dnapos_t e) {
 	double out = 0;
 
-	for (auto &r : reads) {
-		for (auto &site : r->sites) {
-			if (site.pos < s)
-				continue;
-			if (site.pos > e)
-				break;
-			if (solution[site.pos] != site.value)
-				out++;
-		}
+	for (auto i = s; i <= e && i < length; i++) {
+		if (solution[i] == Allele::UNKNOWN)
+			out += weights[i][0] + weights[i][1];
+		else
+			out += weights[i][flip_allele_i(solution[i])];
 	}
 
 	return out;
 }
 
+void Haplotype::save_reads() {
+	for (auto r : reads) {
+		if (r->range.end <= range.start)
+			continue;
+		sreads.insert(r);
+	}
+}
 
+void Haplotype::sep_reads(int x) {
+	reads.clear();
+	//int mx = length;
+	for (auto r : sreads) {
+		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start + x);
+		if (scope > 0) {//} (r->range.end - r->range.start) / 2){
+			reads.insert(r);
+		}
+	}
+	//cout << "MIN START: " << mx << endl;
+	for (auto r : reads)
+		sreads.erase(r);
+}
+
+void Haplotype::print_mec() {
+	for (auto i = 0; i < length; i++) {
+		if (solution[i] == Allele::UNKNOWN)
+			cerr << weights[i][0] + weights[i][1];
+		else 
+			cerr << weights[i][flip_allele_i(solution[i])];
+	}
+	cerr << endl;
+}
 
 double Haplotype::siteCost() {
 	return this->isitecost;

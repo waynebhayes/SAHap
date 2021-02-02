@@ -79,7 +79,7 @@ double Genome::mecScore() {
 double Genome::totalCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
-	coverage += this->haplotypes[i].meanCoverage();
+		coverage += this->haplotypes[i].meanCoverage();
     return coverage;
 }
 
@@ -191,17 +191,17 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	size_t ctr = 0; // TEMP FIX
-	while (r->range.end <= range.start || r->range.start >= range.end){
-		r = haplotypes[moveFrom].pick(this->randomEngine);
-		ctr++;
-		if (ctr > haplotypes[moveFrom].readSize()) {
-			auto tmp = moveFrom;
-			moveFrom = moveTo;
-			moveTo = tmp;
-			ctr = 0;
-		}
-	}
+	// size_t ctr = 0; // TEMP FIX
+	// while (r->range.end <= range.start || r->range.start >= range.end){
+		// r = haplotypes[moveFrom].pick(this->randomEngine);
+	// 	ctr++;
+	// 	if (ctr > haplotypes[moveFrom].readSize()) {
+	// 		auto tmp = moveFrom;
+	// 		moveFrom = moveTo;
+	// 		moveTo = tmp;
+	// 		ctr = 0;
+	// 	}
+	// }
 
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
@@ -287,10 +287,12 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::reset_pmec() {
+void Genome::reset_pmec(int x) {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		haplotypes[i].range.start = 0;
 		haplotypes[i].range.end = range.end;
+		haplotypes[i].save_reads();
+		haplotypes[i].sep_reads(x);
 		haplotypes[i].pmec = haplotypes[i].mec(0, range.end);
 	}
 }
@@ -300,13 +302,13 @@ void Genome::optimize(bool debug) {
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
-	
+
 	range.end = 500;
 
-	reset_pmec();
+	reset_pmec(0);
 
-	unsigned int PTARGET_MEC = TARGET_MEC / round(double(total_sites) / 500);
-	cout << PTARGET_MEC << endl;
+	unsigned int PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
+	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage() << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -316,6 +318,7 @@ void Genome::optimize(bool debug) {
 	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), TARGET_MEC);
 
 	int cpuSeconds = 0;
+	int tmp = 0;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
@@ -335,12 +338,18 @@ void Genome::optimize(bool debug) {
 			range.start += 500;
 			range.end += 500;
 			curIteration = 0;
-			PTARGET_MEC += TARGET_MEC / round(double(total_sites) / 500);
-			reset_pmec();
-			if (range.end > haplotypes[0].size())
+			// haplotypes[0].print_mec();
+			// haplotypes[1].print_mec();
+			// cout << "PMEC: " << pmec() << endl;
+			reset_pmec(0);
+			PTARGET_MEC += round(TARGET_MEC * ((double)range.end/total_sites));
+			if (range.end > total_sites + 200)
 				break;
 		}
-
+		// if ((cpuSeconds - tmp) > 10){
+		// 	PTARGET_MEC += 50;
+		// 	tmp = cpuSeconds;
+		// }
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
@@ -350,7 +359,7 @@ void Genome::optimize(bool debug) {
 
 void Genome::Report(int cpuSeconds, bool final) {
     printf("%dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->mec());
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
@@ -363,7 +372,7 @@ void Genome::Report(int cpuSeconds, bool final) {
 		else printf("Good enough");
 	    }
     }
-	cout << range.start / 500;
+	cout << range.start << "->" << range.end;
     printf("\n");
 }
 
