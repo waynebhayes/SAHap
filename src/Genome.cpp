@@ -289,11 +289,11 @@ void Genome::ResetBuffers() {
 
 void Genome::reset_pmec(int x) {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
-		haplotypes[i].range.start = 0;
+		haplotypes[i].range.start = range.start;
 		haplotypes[i].range.end = range.end;
 		haplotypes[i].save_reads();
 		haplotypes[i].sep_reads(x);
-		haplotypes[i].pmec = haplotypes[i].mec(0, range.end);
+		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
 	}
 }
 
@@ -318,7 +318,9 @@ void Genome::optimize(bool debug) {
 	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), TARGET_MEC);
 
 	int cpuSeconds = 0;
+	int prev = 500;
 	int tmp = 0;
+	int init = 0;
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
@@ -335,10 +337,12 @@ void Genome::optimize(bool debug) {
 			}
 		}
 		if (done() || (pmec() <= PTARGET_MEC)){
+			int dmp = haplotypes[0].mec(range.start, range.start+init) + haplotypes[1].mec(range.start, range.start+init); 
 			if (!haplotypes[0].check() || !haplotypes[1].check()) {
 				curIteration = 0;
 				continue;
 			}
+			prev = haplotypes[0].mec(range.end - init, range.end) + haplotypes[1].mec(range.end - init, range.end);
 			range.start += 500;
 			range.end += 500;
 			curIteration = 0;
@@ -346,9 +350,9 @@ void Genome::optimize(bool debug) {
 			// haplotypes[0].print_mec();
 			// haplotypes[1].print_mec();
 			cout << "PMEC: " << pmec() << endl;
-			PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
-			reset_pmec(0);
-			if (range.end > total_sites + 100){
+			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
+			reset_pmec(init);
+			if (range.end > total_sites + 400){
 				break;
 			}
 		}

@@ -98,7 +98,7 @@ void Haplotype::sep_reads(int x) {
 	reads.clear();
 	//int mx = length;
 	for (auto r : sreads) {
-		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start - x);
+		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start + x);
 		if (scope > 0) {//} (r->range.end - r->range.start) / 2){
 			reads.insert(r);
 		}
