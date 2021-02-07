@@ -42,7 +42,7 @@ Haplotype::~Haplotype() {
 
 double Haplotype::meanCoverage() {
     double result = 0.0;
-    for (dnapos_t i = range.start; i <= range.end && i < length; ++i) {
+    for (dnapos_t i = 0; i < length; ++i) {
 		result += this->siteCoverages[i];
     }
     return result/this->length;
@@ -90,7 +90,10 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
 
 void Haplotype::save_reads() {
 	for (auto r : reads) {
-		sreads.insert(r);
+		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start);
+		if (scope > (r->range.end - r->range.start) / 2){
+			sreads.insert(r);
+		}
 	}
 }
 
@@ -118,16 +121,14 @@ void Haplotype::print_mec() {
 	cerr << endl;
 }
 
-bool Haplotype::check() {
+bool Haplotype::check(Read * r) {
 	dnacnt_t out = 0;
 
-	for (auto i = range.start; i <= range.end && i < length; i++) {
-		if (solution[i] == Allele::UNKNOWN)
-			out = max(out, weights[i][0] + weights[i][1]);
-		else
-			out = max(out, weights[i][flip_allele_i(solution[i])]);
+	for (auto s : r->sites) {
+		if (solution[s.pos] != s.value)
+			out++;
 	}
-	return out < 6;
+	return out == 0;
 }
 
 double Haplotype::siteCost() {

@@ -69,7 +69,7 @@ public:
 	void save_reads();
 	void sep_reads(int x);
 	void print_mec();
-	bool check();
+	bool check(Read *r);
 	Range range;
 	double pmec = 0;
 protected:
@@ -92,6 +92,8 @@ protected:
 	double isitecost = 0; // cached site-based cost
 	unordered_set<Read *> reads;
 	unordered_set<Read *> sreads;
+
+	unordered_set<Read *> archived;
 
 	void tally(dnapos_t site);
 	void vote(Read& read, bool retract=false);
