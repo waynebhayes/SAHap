@@ -287,17 +287,17 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::reset_pmec(int x) {
+void Genome::reset_pmec() {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		haplotypes[i].range = range;
 		haplotypes[i].save_reads();
-		haplotypes[i].sep_reads(x);
+		haplotypes[i].sep_reads();
 		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
 	}
 }
 
 void Genome::optimize(bool debug) {
-	unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
+	// unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
@@ -306,9 +306,9 @@ void Genome::optimize(bool debug) {
 		haplotypes[1].save_reads();
 
 	range.end = 500;
-	reset_pmec(0);
+	reset_pmec();
 
-	unsigned int PTARGET_MEC = 500 * totalCoverage() * 0.015;//READ_ERROR_RATE;
+	unsigned int PTARGET_MEC = 500 * totalCoverage() * READ_ERROR_RATE;
 	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage() << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
@@ -320,9 +320,8 @@ void Genome::optimize(bool debug) {
 
 	
 	int cpuSeconds = 0;
-	int prev = 500;
 	int tmp = 0;
-	int init = 0;
+	
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
@@ -338,7 +337,7 @@ void Genome::optimize(bool debug) {
 			//     this->curIteration = this->maxIterations; // basically done
 			// }
 		}
-		if (done() || (pmec() <= PTARGET_MEC)){
+		if (done()){//} || (pmec() <= PTARGET_MEC)){
 			range.start += 500;
 			range.end += 500;
 			curIteration = 0;
@@ -350,9 +349,9 @@ void Genome::optimize(bool debug) {
 			if (range.end > total_sites + 100){
 				break;
 			}
-			reset_pmec(init);
+			reset_pmec();
 		}
-		if (cpuSeconds  > tmp + 1000){
+		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;
 		}
 	}
@@ -364,7 +363,7 @@ void Genome::optimize(bool debug) {
 
 
 void Genome::Report(int cpuSeconds, bool final) {
-    printf("%dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
+    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
 	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();

@@ -67,7 +67,7 @@ public:
 	double mec(dnapos_t s, dnapos_t e);
 	double ave_coverage();
 	void save_reads();
-	void sep_reads(int x);
+	void sep_reads();
 	void print_mec();
 	bool check(Read *r);
 	Range range;
