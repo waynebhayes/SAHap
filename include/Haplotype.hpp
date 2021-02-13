@@ -65,6 +65,11 @@ public:
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 	double mec(dnapos_t s, dnapos_t e);
+	double ave_coverage();
+	void save_reads();
+	void sep_reads();
+	void print_mec();
+	bool check(Read *r);
 	Range range;
 	double pmec = 0;
 protected:
@@ -86,6 +91,9 @@ protected:
 	double imec = 0; // cached MEC
 	double isitecost = 0; // cached site-based cost
 	unordered_set<Read *> reads;
+	unordered_set<Read *> sreads;
+
+	unordered_set<Read *> archived;
 
 	void tally(dnapos_t site);
 	void vote(Read& read, bool retract=false);

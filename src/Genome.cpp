@@ -79,7 +79,7 @@ double Genome::mecScore() {
 double Genome::totalCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
-	coverage += this->haplotypes[i].meanCoverage();
+		coverage += this->haplotypes[i].meanCoverage();
     return coverage;
 }
 
@@ -191,17 +191,17 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	size_t ctr = 0; // TEMP FIX
-	while (r->range.end <= range.start || r->range.start >= range.end){
-		r = haplotypes[moveFrom].pick(this->randomEngine);
-		ctr++;
-		if (ctr > haplotypes[moveFrom].readSize()) {
-			auto tmp = moveFrom;
-			moveFrom = moveTo;
-			moveTo = tmp;
-			ctr = 0;
-		}
-	}
+	// size_t ctr = 0; // TEMP FIX
+	// while (r->range.end <= range.start || r->range.start >= range.end){
+		// r = haplotypes[moveFrom].pick(this->randomEngine);
+	// 	ctr++;
+	// 	if (ctr > haplotypes[moveFrom].readSize()) {
+	// 		auto tmp = moveFrom;
+	// 		moveFrom = moveTo;
+	// 		moveTo = tmp;
+	// 		ctr = 0;
+	// 	}
+	// }
 
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
@@ -238,9 +238,9 @@ void Genome::iteration() {
 	bool accept = randomIndex <= chanceToKeep;
 	assert(!isGood || accept);
 
-	if (isGood || accept) {
+	if (isGood) {
 		// always accept
-	} else {
+	} else if (!isGood && !accept) {
 		// reject
 		this->revertMove();
 	}
@@ -289,33 +289,39 @@ void Genome::ResetBuffers() {
 
 void Genome::reset_pmec() {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
-		haplotypes[i].range.start = 0;
-		haplotypes[i].range.end = range.end;
-		haplotypes[i].pmec = haplotypes[i].mec(0, range.end);
+		haplotypes[i].range = range;
+		haplotypes[i].save_reads();
+		haplotypes[i].sep_reads();
+		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
 	}
 }
 
 void Genome::optimize(bool debug) {
-	unsigned int TARGET_MEC = this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
+	// unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
-	
-	range.end = 500;
 
+		haplotypes[0].save_reads();
+		haplotypes[1].save_reads();
+
+	range.end = 500;
 	reset_pmec();
 
-	unsigned int PTARGET_MEC = TARGET_MEC / round(double(total_sites) / 500);
-	cout << PTARGET_MEC << endl;
+	unsigned int PTARGET_MEC = 500 * totalCoverage() * READ_ERROR_RATE;
+	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage() << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
 	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
-	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), TARGET_MEC);
+	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
 
+	
 	int cpuSeconds = 0;
+	int tmp = 0;
+	
 	while (!this->done()) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
@@ -326,31 +332,39 @@ void Genome::optimize(bool debug) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 			cpuSeconds = (int)(now_time - start_time).count();
 			Report(cpuSeconds);
-			if(fracTime() > 0.5 && pBad < 0.01 && mec() <= TARGET_MEC) {
-			    printf("Exiting early because MEC %lu reached target\n", mec());
-			    this->curIteration = this->maxIterations; // basically done
-			}
+			// if(fracTime() > 0.5 && pBad < 0.01 && mec() <= TARGET_MEC) {
+			//     printf("Exiting early because MEC %lu reached target\n", mec());
+			//     this->curIteration = this->maxIterations; // basically done
+			// }
 		}
-		if (done() || (pmec() <= PTARGET_MEC)){
+		if (done()){//} || (pmec() <= PTARGET_MEC)){
 			range.start += 500;
 			range.end += 500;
 			curIteration = 0;
-			PTARGET_MEC += TARGET_MEC / round(double(total_sites) / 500);
-			reset_pmec();
-			if (range.end > haplotypes[0].size())
+			tmp = cpuSeconds;
+			// haplotypes[0].print_mec();
+			// haplotypes[1].print_mec();
+			// cout << "PMEC: " << pmec() << endl;
+			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
+			if (range.end > total_sites + 100){
 				break;
+			}
+			reset_pmec();
 		}
-
+		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
+			break;
+		}
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
+	cout << "MEC: " << (int)mec() << endl;
 }
 
 
 
 void Genome::Report(int cpuSeconds, bool final) {
-    printf("%dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->mec());
+    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
@@ -363,7 +377,7 @@ void Genome::Report(int cpuSeconds, bool final) {
 		else printf("Good enough");
 	    }
     }
-	cout << range.start / 500;
+	cout << range.start << "->" << range.end;
     printf("\n");
 }
 
@@ -515,14 +529,14 @@ the other remain constant.
 #define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
 #define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
     if(curIteration % (REPORT_INTERVAL/2) == 0) {
-	//double factor = (double)mec()/TARGET_MEC;
 	double factor = (double)pmec()/TARGET_MEC;
+	// double factor = (double)pmec()/(TARGET_MEC == 0 ? 0.5 : TARGET_MEC);
 	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
 	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
 	     ((fracTime()>0.5||pBad<0.1) && factor >  8) )){  // quarter to half the above works well?
 	    retreat = factor * SMALL_RETREAT / totalCoverage() * log(num_meta_iters);
 	}
-	if(fracTime()>FULL_RETREAT && factor > 1.3){
+	if(fracTime()>FULL_RETREAT && factor > 1.3) {//pmec() != 0){
 	    retreat = FULL_RETREAT;
 	    ResetBuffers();
 	}
