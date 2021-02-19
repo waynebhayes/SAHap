@@ -31,6 +31,7 @@ public:
 	double score();
 	double score(dnaweight_t mec);
 	double totalCoverage();
+	double totalWindowCoverage();
 	double fracTime();
 
 	void shuffle();
@@ -112,8 +113,7 @@ protected:
 	double acceptance(double newScore, double curScore);
 	double getTemperature(iteration_t iteration);
 	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth);
-	void reset_pmec();
-
+	
 	friend ostream& operator << (ostream& stream, const Genome& ge);
 };
 

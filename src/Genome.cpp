@@ -83,6 +83,13 @@ double Genome::totalCoverage() {
     return coverage;
 }
 
+double Genome::totalWindowCoverage() {
+	double coverage = 0;
+	for (size_t i = 0; i < this->haplotypes.size(); i++)
+		coverage += this->haplotypes[i].windowMeanCoverage();
+	return coverage;
+}
+
 double Genome::siteCostScore() {
 	double out = 0;
 
@@ -281,13 +288,18 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
+	unsigned WINDOW_SIZE = 100;
+	unsigned INCREMENTS = 50;
+
 	range.end = 100;
 	
 	for (auto& haplotype : this->haplotypes) {
-		haplotype.initializeWindow(100, 50);
+		haplotype.initializeWindow(WINDOW_SIZE, INCREMENTS);
 	}
 
-	unsigned int PTARGET_MEC = 100;// * totalCoverage() * 0.02;//READ_ERROR_RATE;
+	// Target MEC for the Window
+	unsigned int PTARGET_MEC = 200 * totalWindowCoverage() * READ_ERROR_RATE;
+
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -332,6 +344,7 @@ void Genome::optimize(bool debug) {
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
+			PTARGET_MEC = 200 * totalWindowCoverage() * READ_ERROR_RATE;
 		}
 		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;

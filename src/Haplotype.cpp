@@ -130,13 +130,21 @@ void Haplotype::initializeWindow(unsigned windowSize, unsigned incrementBy) {
 void Haplotype::incrementWindow() {
 	dnapos_t old_end = this->window.end;
 
-	this->window.start += increment_window_by;
-	this->window.end += increment_window_by;
+	this->window.start += this->increment_window_by;
+	this->window.end = min(this->window.end + this->increment_window_by, this->length);
 
 	this->saveReads();
 	this->pickReads(old_end - this->window.start);
 	
 	this->window_mec = mec(this->window.start, this->window.end);
+}
+
+double Haplotype::windowMeanCoverage() {
+    double result = 0.0;
+    for (dnapos_t i = this->window.start; i < this->window.end; ++i) {
+		result += this->siteCoverages[i];
+    }
+    return result/(this->window.end - this->window.start);
 }
 
 void Haplotype::print_mec() {

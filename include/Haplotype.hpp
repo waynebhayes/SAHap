@@ -45,6 +45,11 @@ public:
 	double windowMec();
 
 	/**
+	 * Compute average coverage of SNPs within the Window
+	 */
+	double windowMeanCoverage();
+
+	/**
 	 * Compute the site-based cost
 	 */
 	double siteCost();
