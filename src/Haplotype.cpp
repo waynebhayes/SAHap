@@ -40,12 +40,12 @@ Haplotype::Haplotype(const Haplotype& ch)
 Haplotype::~Haplotype() {
 }
 
-double Haplotype::meanCoverage() {
+double Haplotype::meanCoverage(Range r) {
     double result = 0.0;
-    for (dnapos_t i = 0; i < length; ++i) {
+    for (dnapos_t i = r.start; i <= r.end && i < length; ++i) {
 		result += this->siteCoverages[i];
     }
-    return result/this->length;
+    return result/(range.end - range.start);
 }
 
 dnapos_t Haplotype::size() const {
@@ -91,9 +91,9 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
 void Haplotype::save_reads() {
 	for (auto r : reads) {
 		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start);
-		if (scope > (r->range.end - r->range.start) / 2){
+		// if (scope > (r->range.end - r->range.start) / 2){
 			sreads.insert(r);
-		}
+		// }
 	}
 }
 

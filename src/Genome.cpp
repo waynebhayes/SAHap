@@ -79,7 +79,7 @@ double Genome::mecScore() {
 double Genome::totalCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
-		coverage += this->haplotypes[i].meanCoverage();
+		coverage += this->haplotypes[i].meanCoverage(range);
     return coverage;
 }
 
@@ -89,7 +89,7 @@ double Genome::siteCostScore() {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
 #if OBJECTIVE == OBJ_MEC
-		out = out + haplotypes[i].mec();
+		out = out + haplotypes[i].pmec;
 #elif OBJECTIVE == OBJ_Poisson
 		out = out + haplotypes[i].siteCost();
 #else
@@ -291,7 +291,10 @@ void Genome::reset_pmec() {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		haplotypes[i].range = range;
 		haplotypes[i].save_reads();
+		if (range.start != 0) // Position of this if statements affects the outcome
+			haplotypes[i].range.start += 50;
 		haplotypes[i].sep_reads();
+		haplotypes[i].range = range;
 		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
 	}
 }
@@ -305,11 +308,11 @@ void Genome::optimize(bool debug) {
 		haplotypes[0].save_reads();
 		haplotypes[1].save_reads();
 
-	range.end = 500;
+	range.end = 100;
 	reset_pmec();
 
-	unsigned int PTARGET_MEC = 500 * totalCoverage() * READ_ERROR_RATE;
-	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage() << endl;
+	unsigned int PTARGET_MEC = 100;// * totalCoverage() * 0.02;//READ_ERROR_RATE;
+	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage(range) << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -338,15 +341,16 @@ void Genome::optimize(bool debug) {
 			// }
 		}
 		if (done()){//} || (pmec() <= PTARGET_MEC)){
-			range.start += 500;
-			range.end += 500;
+			range.start += 50;
+			range.end += 50;
 			curIteration = 0;
 			tmp = cpuSeconds;
 			// haplotypes[0].print_mec();
 			// haplotypes[1].print_mec();
 			// cout << "PMEC: " << pmec() << endl;
 			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
-			if (range.end > total_sites + 100){
+
+			if (range.start > total_sites - 50){
 				break;
 			}
 			reset_pmec();
@@ -370,14 +374,14 @@ void Genome::Report(int cpuSeconds, bool final) {
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
 	    double he = (double)gt / (this->haplotypes[0].size() * haplotypes.size());
-	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d]) ", (int)gt, 100*he,hapSize0,hapSize1);
+	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
 	    if(final) {
 		printf("\nEnding ground truth ");
 		if(he > 1.3 * READ_ERROR_RATE) printf("Fail!");
 		else printf("Good enough");
 	    }
     }
-	cout << range.start << "->" << range.end;
+	cout << " " << range.start << "->" << range.end;
     printf("\n");
 }
 
@@ -544,8 +548,8 @@ the other remain constant.
 	    cout << "Retreat " << 100*retreat << "% from " << 100 * fracTime();
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
-	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << mec();
-	    cout << ", too big by a factor of " << factor << endl;
+	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << pmec();
+	    cout << ", too big by a factor of " << factor << "==" << TARGET_MEC << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }

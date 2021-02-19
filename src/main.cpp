@@ -17,25 +17,18 @@ int main(int argc, char *argv[]) {
 	file.open(argv[1]);
 	auto parsed = WIFInputReader::read(file, 2);
 
-	if (argc >= 3) {
+	if (argc > 3) {
 		ifstream gtruth;
 		gtruth.open(argv[2]);
 
 		WIFInputReader::readGroundTruth(gtruth, parsed);
 	}
 
-	iteration_t iterations = argc == 4 ? atoi(argv[3]) * META_ITER : META_ITER;
-
+	iteration_t iterations = argc == 4 ? atoi(argv[3]) * META_ITER : atoi(argv[2]) * META_ITER;
+	
 	try {
 		Genome ge(parsed);
-		// ge.start = 0;
-		// ge.end = ge.haplotypes[0].size();
 		ge.autoSchedule(iterations);
-
-		// for (unsigned i = 500; i <= ge.haplotypes[0].size() + 100; i+=500) {
-		// 	ge.start = i-500;
-		// 	ge.end = i;
-
 			try {
 				ge.optimize(true);
 				cout << ge;
