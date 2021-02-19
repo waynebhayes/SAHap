@@ -66,7 +66,7 @@ dnacnt_t Genome::mec() {
 dnacnt_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
-		out += haplotypes[i].pmec;
+		out += haplotypes[i].windowMec();
 	}
 	return out;
 }
@@ -79,7 +79,7 @@ double Genome::mecScore() {
 double Genome::totalCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
-		coverage += this->haplotypes[i].meanCoverage(range);
+		coverage += this->haplotypes[i].meanCoverage();
     return coverage;
 }
 
@@ -89,7 +89,7 @@ double Genome::siteCostScore() {
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
 #if OBJECTIVE == OBJ_MEC
-		out = out + haplotypes[i].pmec;
+		out = out + haplotypes[i].windowMec();
 #elif OBJECTIVE == OBJ_Poisson
 		out = out + haplotypes[i].siteCost();
 #else
@@ -191,18 +191,6 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	// size_t ctr = 0; // TEMP FIX
-	// while (r->range.end <= range.start || r->range.start >= range.end){
-		// r = haplotypes[moveFrom].pick(this->randomEngine);
-	// 	ctr++;
-	// 	if (ctr > haplotypes[moveFrom].readSize()) {
-	// 		auto tmp = moveFrom;
-	// 		moveFrom = moveTo;
-	// 		moveTo = tmp;
-	// 		ctr = 0;
-	// 	}
-	// }
-
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
 		cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
@@ -287,32 +275,19 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::reset_pmec() {
-	for (size_t i = 0; i < haplotypes.size(); i++) {
-		haplotypes[i].range = range;
-		haplotypes[i].save_reads();
-		if (range.start != 0) // Position of this if statements affects the outcome
-			haplotypes[i].range.start += 50;
-		haplotypes[i].sep_reads();
-		haplotypes[i].range = range;
-		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
-	}
-}
-
 void Genome::optimize(bool debug) {
 	// unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
 
-		haplotypes[0].save_reads();
-		haplotypes[1].save_reads();
-
 	range.end = 100;
-	reset_pmec();
+	
+	for (auto& haplotype : this->haplotypes) {
+		haplotype.initializeWindow(100, 50);
+	}
 
 	unsigned int PTARGET_MEC = 100;// * totalCoverage() * 0.02;//READ_ERROR_RATE;
-	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage(range) << endl;
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -353,7 +328,10 @@ void Genome::optimize(bool debug) {
 			if (range.start > total_sites - 50){
 				break;
 			}
-			reset_pmec();
+			
+			for (auto& haplotype : haplotypes) {
+				haplotype.incrementWindow();
+			}
 		}
 		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;

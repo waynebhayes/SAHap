@@ -9,13 +9,13 @@
 namespace SAHap {
 
 Haplotype::Haplotype(dnapos_t length)
-	: pmec(0), length(length), imec(0), isitecost(0)
+	: length(length), total_mec(0), window_mec(0), isitecost(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
 	this->weights = vector<array<dnacnt_t, 2>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
-	this->range.start = 0;
-	this->range.end = length;
+	this->window.start = 0;
+	this->window.end = this->length;
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->solution[i] = Allele::UNKNOWN;
@@ -28,24 +28,27 @@ Haplotype::Haplotype(dnapos_t length)
 Haplotype::Haplotype(const Haplotype& ch)
 	:
 		solution(ch.solution),
-		range(ch.range),
 		length(ch.length),
 		weights(ch.weights),
 		siteCoverages(ch.siteCoverages),
-		imec(ch.imec),
-		reads(ch.reads)
+		total_mec(ch.total_mec),
+		window_mec(ch.window_mec),
+		reads(ch.reads),
+		saved_reads(ch.saved_reads),
+		window(ch.window),
+		increment_window_by(ch.increment_window_by)
 {
 }
 
 Haplotype::~Haplotype() {
 }
 
-double Haplotype::meanCoverage(Range r) {
+double Haplotype::meanCoverage() {
     double result = 0.0;
-    for (dnapos_t i = r.start; i <= r.end && i < length; ++i) {
+    for (dnapos_t i = 0; i < this->length; ++i) {
 		result += this->siteCoverages[i];
     }
-    return result/(range.end - range.start);
+    return result/this->length;
 }
 
 dnapos_t Haplotype::size() const {
@@ -66,69 +69,84 @@ double Haplotype::mec() {
 			imec += this->weights[i][flip_allele_i(majority)];
 		}
 	}
-	if (imec != this->imec) {
-		cerr << "DEBUG: Bad MEC value " << this->imec << ", should be " << imec << endl;
+	if (imec != this->total_mec) {
+		cerr << "DEBUG: Bad MEC value " << this->total_mec << ", should be " << imec << endl;
 		raise(SIGINT);
 	}
 #endif
 
-	return this->imec;
+	return this->total_mec;
 }
 
 double Haplotype::mec(dnapos_t s, dnapos_t e) {
 	double out = 0;
 
-	for (auto i = s; i <= e && i < length; i++) {
-		if (solution[i] == Allele::UNKNOWN)
-			out += weights[i][0] + weights[i][1];
+	for (auto i = s; i <= e && i < this->length; i++) {
+		if (this->solution[i] == Allele::UNKNOWN)
+			out += this->weights[i][0] + this->weights[i][1];
 		else
-			out += weights[i][flip_allele_i(solution[i])];
+			out += this->weights[i][flip_allele_i(this->solution[i])];
 	}
 
 	return out;
 }
 
-void Haplotype::save_reads() {
-	for (auto r : reads) {
-		int scope = (int)min(r->range.end, range.end) - (int)max((int)r->range.start, (int)range.start);
-		// if (scope > (r->range.end - r->range.start) / 2){
-			sreads.insert(r);
-		// }
+double Haplotype::windowMec() {
+	return this->window_mec;
+}
+
+void Haplotype::saveReads() {
+	for (auto r : this->reads) {
+		if (r->range.end > this->window.start)
+			this->saved_reads.insert(r);
 	}
 }
 
-void Haplotype::sep_reads() {
-	reads.clear();
-	//int mx = length;
-	for (auto r : sreads) {
-		int scope = (int)min(r->range.end, range.end) - (int)max(r->range.start, range.start);
-		if (scope > 0) {//} (r->range.end - r->range.start) / 2){
-			reads.insert(r);
+void Haplotype::pickReads(unsigned overlap) {
+	this->reads.clear();
+	
+	for (auto r : this->saved_reads) {
+		int scope = (int)min(r->range.end, this->window.end) - max(r->range.start, this->window.start + overlap);
+		if (scope > 0) {// Maybe we should just pick reads that overlaps with the current window by more than 1 SNPs
+			this->reads.insert(r);
 		}
 	}
 	//cout << "MIN START: " << mx << endl;
-	for (auto r : reads)
-		sreads.erase(r);
+	for (auto r : this->reads)
+		this->saved_reads.erase(r);
+}
+
+void Haplotype::initializeWindow(unsigned windowSize, unsigned incrementBy) {
+	this->window.start = 0;
+	this->window.end = windowSize;
+	this->increment_window_by = incrementBy;
+	this->saved_reads = this->reads;
+
+	this->pickReads(0);
+
+	this->window_mec = mec(this->window.start, this->window.end);
+}
+
+void Haplotype::incrementWindow() {
+	dnapos_t old_end = this->window.end;
+
+	this->window.start += increment_window_by;
+	this->window.end += increment_window_by;
+
+	this->saveReads();
+	this->pickReads(old_end - this->window.start);
+	
+	this->window_mec = mec(this->window.start, this->window.end);
 }
 
 void Haplotype::print_mec() {
-	for (dnapos_t i = 0; i < length; i++) {
-		if (solution[i] == Allele::UNKNOWN)
-			cerr << weights[i][0] + weights[i][1];
+	for (dnapos_t i = 0; i < this->length; i++) {
+		if (this->solution[i] == Allele::UNKNOWN)
+			cerr << this->weights[i][0] + this->weights[i][1];
 		else 
-			cerr << weights[i][flip_allele_i(solution[i])];
+			cerr << this->weights[i][flip_allele_i(this->solution[i])];
 	}
 	cerr << endl;
-}
-
-bool Haplotype::check(Read * r) {
-	dnacnt_t out = 0;
-
-	for (auto s : r->sites) {
-		if (solution[s.pos] != s.value)
-			out++;
-	}
-	return out == 0;
 }
 
 double Haplotype::siteCost() {
@@ -182,9 +200,9 @@ void Haplotype::vote(Read& read, bool retract) {
 
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
-			this->imec -= mec;
-			if (i >= range.start && i <= range.end)
-				pmec -= mec;
+			this->total_mec -= mec;
+			if (i >= this->window.start && i <= this->window.end)
+				this->window_mec -= mec;
 			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
 			// they are not equally probable. Need to account for this lopsidedness.
 			this->isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
@@ -220,9 +238,9 @@ void Haplotype::vote(Read& read, bool retract) {
 
 		if (majority != Allele::UNKNOWN) {
 			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
-			this->imec += mec;
-			if (i >= range.start && i <= range.end)
-				pmec += mec;
+			this->total_mec += mec;
+			if (i >= this->window.start && i <= this->window.end)
+				this->window_mec += mec;
 			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
 			// they are not equally probable. Need to account for this lopsidedness.
 			this->isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
