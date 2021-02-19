@@ -298,7 +298,7 @@ void Genome::optimize(bool debug) {
 	}
 
 	// Target MEC for the Window
-	unsigned int PTARGET_MEC = 200 * totalWindowCoverage() * READ_ERROR_RATE;
+	unsigned int PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
@@ -332,10 +332,6 @@ void Genome::optimize(bool debug) {
 			range.end += 50;
 			curIteration = 0;
 			tmp = cpuSeconds;
-			// haplotypes[0].print_mec();
-			// haplotypes[1].print_mec();
-			// cout << "PMEC: " << pmec() << endl;
-			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
 
 			if (range.start > total_sites - WINDOW_SIZE){
 				break;
@@ -344,7 +340,7 @@ void Genome::optimize(bool debug) {
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
-			PTARGET_MEC = 200 * totalWindowCoverage() * READ_ERROR_RATE;
+			PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
 		}
 		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;
