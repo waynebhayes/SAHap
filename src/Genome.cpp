@@ -337,7 +337,7 @@ void Genome::optimize(bool debug) {
 			// cout << "PMEC: " << pmec() << endl;
 			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
 
-			if (range.start > total_sites - 50){
+			if (range.start > total_sites - WINDOW_SIZE){
 				break;
 			}
 			
