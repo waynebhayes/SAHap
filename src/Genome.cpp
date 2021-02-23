@@ -66,7 +66,7 @@ dnacnt_t Genome::mec() {
 dnacnt_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
-		out += haplotypes[i].pmec;
+		out += haplotypes[i].windowMec();
 	}
 	return out;
 }
@@ -83,13 +83,20 @@ double Genome::totalCoverage() {
     return coverage;
 }
 
+double Genome::totalWindowCoverage() {
+	double coverage = 0;
+	for (size_t i = 0; i < this->haplotypes.size(); i++)
+		coverage += this->haplotypes[i].windowMeanCoverage();
+	return coverage;
+}
+
 double Genome::siteCostScore() {
 	double out = 0;
 
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		// -logT_p(lambda_i, k_i)
 #if OBJECTIVE == OBJ_MEC
-		out = out + haplotypes[i].mec();
+		out = out + haplotypes[i].windowMec();
 #elif OBJECTIVE == OBJ_Poisson
 		out = out + haplotypes[i].siteCost();
 #else
@@ -191,18 +198,6 @@ void Genome::move() {
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
 
-	// size_t ctr = 0; // TEMP FIX
-	// while (r->range.end <= range.start || r->range.start >= range.end){
-		// r = haplotypes[moveFrom].pick(this->randomEngine);
-	// 	ctr++;
-	// 	if (ctr > haplotypes[moveFrom].readSize()) {
-	// 		auto tmp = moveFrom;
-	// 		moveFrom = moveTo;
-	// 		moveTo = tmp;
-	// 		ctr = 0;
-	// 	}
-	// }
-
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
 		cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
@@ -287,29 +282,24 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
-void Genome::reset_pmec() {
-	for (size_t i = 0; i < haplotypes.size(); i++) {
-		haplotypes[i].range = range;
-		haplotypes[i].save_reads();
-		haplotypes[i].sep_reads();
-		haplotypes[i].pmec = haplotypes[i].mec(range.start, range.end);
-	}
-}
-
 void Genome::optimize(bool debug) {
 	// unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
 	this->t = this->tInitial;
 	ResetBuffers();
 
-		haplotypes[0].save_reads();
-		haplotypes[1].save_reads();
+	unsigned WINDOW_SIZE = 100;
+	unsigned INCREMENTS = 50;
 
-	range.end = 500;
-	reset_pmec();
+	range.end = 100;
+	
+	for (auto& haplotype : this->haplotypes) {
+		haplotype.initializeWindow(WINDOW_SIZE, INCREMENTS);
+	}
 
-	unsigned int PTARGET_MEC = 500 * totalCoverage() * READ_ERROR_RATE;
-	cout << PTARGET_MEC << " : " << haplotypes[0].meanCoverage() << endl;
+	// Target MEC for the Window
+	unsigned int PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
+
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
@@ -338,18 +328,19 @@ void Genome::optimize(bool debug) {
 			// }
 		}
 		if (done()){//} || (pmec() <= PTARGET_MEC)){
-			range.start += 500;
-			range.end += 500;
+			range.start += 50;
+			range.end += 50;
 			curIteration = 0;
 			tmp = cpuSeconds;
-			// haplotypes[0].print_mec();
-			// haplotypes[1].print_mec();
-			// cout << "PMEC: " << pmec() << endl;
-			//PTARGET_MEC = round(TARGET_MEC * ((double)range.end/total_sites));
-			if (range.end > total_sites + 100){
+
+			if (range.start > total_sites - WINDOW_SIZE){
 				break;
 			}
-			reset_pmec();
+			
+			for (auto& haplotype : haplotypes) {
+				haplotype.incrementWindow();
+			}
+			PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
 		}
 		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;
@@ -370,14 +361,14 @@ void Genome::Report(int cpuSeconds, bool final) {
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
 	    double he = (double)gt / (this->haplotypes[0].size() * haplotypes.size());
-	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d]) ", (int)gt, 100*he,hapSize0,hapSize1);
+	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
 	    if(final) {
 		printf("\nEnding ground truth ");
 		if(he > 1.3 * READ_ERROR_RATE) printf("Fail!");
 		else printf("Good enough");
 	    }
     }
-	cout << range.start << "->" << range.end;
+	cout << " " << range.start << "->" << range.end;
     printf("\n");
 }
 
@@ -544,8 +535,8 @@ the other remain constant.
 	    cout << "Retreat " << 100*retreat << "% from " << 100 * fracTime();
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
-	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << mec();
-	    cout << ", too big by a factor of " << factor << endl;
+	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << pmec();
+	    cout << ", too big by a factor of " << factor << "==" << TARGET_MEC << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }
