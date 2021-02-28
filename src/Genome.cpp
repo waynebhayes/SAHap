@@ -288,17 +288,18 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
-	unsigned WINDOW_SIZE = 100;
-	unsigned INCREMENTS = 50;
+	unsigned WINDOW_SIZE = 200;
+	unsigned INCREMENTS = WINDOW_SIZE / 2;
+	double ERROR = 0.02;
 
-	range.end = 100;
+	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
 		haplotype.initializeWindow(WINDOW_SIZE, INCREMENTS);
 	}
 
 	// Target MEC for the Window
-	unsigned int PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
+	double PTARGET_MEC = totalWindowCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
@@ -328,8 +329,8 @@ void Genome::optimize(bool debug) {
 			// }
 		}
 		if (done()){//} || (pmec() <= PTARGET_MEC)){
-			range.start += 50;
-			range.end += 50;
+			range.start += INCREMENTS;
+			range.end += INCREMENTS;
 			curIteration = 0;
 			tmp = cpuSeconds;
 
@@ -340,7 +341,7 @@ void Genome::optimize(bool debug) {
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
-			PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
+			PTARGET_MEC = totalWindowCoverage() * ERROR;
 		}
 		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
 			break;
@@ -475,7 +476,7 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 }
 
 
-void Genome::DynamicSchedule(double pBad, int TARGET_MEC)
+void Genome::DynamicSchedule(double pBad, double TARGET_MEC)
 {
     //printf("pBad %ld %g\n", this->pBad.len, pBad);
 #if SCHEDULE==RETREAT
@@ -536,7 +537,8 @@ the other remain constant.
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
 	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << pmec();
-	    cout << ", too big by a factor of " << factor << "==" << TARGET_MEC << endl;
+	    cout << ", too big by a factor of " << factor << "(" << TARGET_MEC << 
+			", " << totalWindowCoverage() << ")" << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }

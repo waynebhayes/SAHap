@@ -106,8 +106,7 @@ void Haplotype::pickReads(unsigned overlap) {
 	this->reads.clear();
 	
 	for (auto r : this->saved_reads) {
-		int scope = (int)min(r->range.end, this->window.end) - max(r->range.start, this->window.start + overlap);
-		if (scope > 0) {// Maybe we should just pick reads that overlaps with the current window by more than 1 SNPs
+		if (r->range.end > this->window.start + overlap && r->range.start <= this->window.end) {
 			this->reads.insert(r);
 		}
 	}
@@ -144,7 +143,7 @@ double Haplotype::windowMeanCoverage() {
     for (dnapos_t i = this->window.start; i < this->window.end; ++i) {
 		result += this->siteCoverages[i];
     }
-    return result/(this->window.end - this->window.start);
+    return result;//(this->window.end - this->window.start);
 }
 
 void Haplotype::print_mec() {

@@ -42,7 +42,7 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug);
-	void DynamicSchedule(double pBad, int TARGET_MEC);
+	void DynamicSchedule(double pBad, double TARGET_MEC);
 
 	void Report(int seconds, bool final=false);
 	double findPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
