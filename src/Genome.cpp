@@ -288,10 +288,10 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
-	unsigned WINDOW_SIZE = 200;
+	unsigned WINDOW_SIZE = 100;
 	unsigned INCREMENTS = WINDOW_SIZE / 2;
-	double ERROR = 0.02;
-
+	double ERROR = 0.03;
+	double add = 0.0;
 	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
@@ -307,7 +307,7 @@ void Genome::optimize(bool debug) {
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
 	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
-	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
+	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), (int)PTARGET_MEC);
 
 	
 	int cpuSeconds = 0;
@@ -318,6 +318,7 @@ void Genome::optimize(bool debug) {
 		this->iteration();
 		this->curIteration++;
 		double pBad = this->pBad.getAverage();
+		iteration_t prev = curIteration;
 		DynamicSchedule(pBad, PTARGET_MEC);
 		if (debug && curIteration % REPORT_INTERVAL == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
@@ -341,9 +342,13 @@ void Genome::optimize(bool debug) {
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
+			add = 0;
 			PTARGET_MEC = totalWindowCoverage() * ERROR;
+		} else if (prev > curIteration) {
+			add += 0.0005;
+			PTARGET_MEC = totalWindowCoverage() * (ERROR + add);
 		}
-		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
+		if (cpuSeconds  > tmp + 50){ // Avoid getting stuck on one part
 			break;
 		}
 	}
