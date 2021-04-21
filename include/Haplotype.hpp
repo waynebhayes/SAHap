@@ -103,7 +103,7 @@ protected:
 
 	dnapos_t length;
 	// vector<VoteInfo> votes;
-	vector<array<dnacnt_t, 2>> weights;
+	vector<array<double, 2>> weights;
 	vector<dnacnt_t> siteCoverages;
 
 	double total_mec = 0; // cached MEC

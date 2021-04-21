@@ -24,8 +24,8 @@ class Genome {
 public:
 	Genome(InputFile file);
 	~Genome();
-	dnacnt_t mec();
-	dnacnt_t pmec();
+	dnaweight_t mec();
+	dnaweight_t pmec();
 	double mecScore();
 	double siteCostScore();
 	double score();

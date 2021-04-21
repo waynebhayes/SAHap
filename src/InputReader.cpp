@@ -73,7 +73,7 @@ Site WIFInputReader::parseSNP(string snp) {
 	} else {
 		throw "Invalid weight value";
 	}
-	s.weight = 1; // HACK
+	//s.weight = 1; // HACK
 
 	if (value == 0) {
 		s.value = Allele::REF;

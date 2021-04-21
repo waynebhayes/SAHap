@@ -12,7 +12,7 @@ Haplotype::Haplotype(dnapos_t length)
 	: length(length), total_mec(0), window_mec(0), isitecost(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
-	this->weights = vector<array<dnacnt_t, 2>>(this->length);
+	this->weights = vector<array<double, 2>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
 	this->window.start = 0;
 	this->window.end = this->length;

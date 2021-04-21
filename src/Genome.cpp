@@ -54,7 +54,7 @@ Genome::Genome(InputFile file)
 Genome::~Genome() {
 }
 
-dnacnt_t Genome::mec() {
+dnaweight_t Genome::mec() {
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		out = out + haplotypes[i].mec();
@@ -63,7 +63,7 @@ dnacnt_t Genome::mec() {
 	return out;
 }
 
-dnacnt_t Genome::pmec() { //Partial MEC
+dnaweight_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		out += haplotypes[i].windowMec();
@@ -108,7 +108,7 @@ double Genome::siteCostScore() {
 	// cout << "siteCost: " << out << endl;
 
 	double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
-	return out / maxCost;
+	return out;// / maxCost;
 }
 
 double Genome::score(dnaweight_t mec) {
@@ -288,10 +288,10 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
-	unsigned WINDOW_SIZE = 100;
+	unsigned WINDOW_SIZE = 14;
 	unsigned INCREMENTS = WINDOW_SIZE / 2;
-	double ERROR = 0.03;
-	double add = 0.0;
+	double ERROR = 0.001;
+	double add = 0.000;
 	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
@@ -306,8 +306,8 @@ void Genome::optimize(bool debug) {
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
-	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
-	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), (int)PTARGET_MEC);
+	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %.4f\n",
+	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
 
 	
 	int cpuSeconds = 0;
@@ -335,7 +335,7 @@ void Genome::optimize(bool debug) {
 			curIteration = 0;
 			tmp = cpuSeconds;
 
-			if (range.start > total_sites - WINDOW_SIZE){
+			if (range.start + WINDOW_SIZE > total_sites){
 				break;
 			}
 			
@@ -354,14 +354,14 @@ void Genome::optimize(bool debug) {
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
-	cout << "MEC: " << (int)mec() << endl;
+	cout << "MEC: " << mec() << endl;
 }
 
 
 
 void Genome::Report(int cpuSeconds, bool final) {
-    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->pmec());
+    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
