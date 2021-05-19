@@ -100,7 +100,8 @@ protected:
 
 	Range range;
 
-	dnapos_t total_sites = 0;
+	dnapos_t numberOfSites = 0;
+	dnacnt_t increments = 0;
 
 	// The last move performed
 	struct Move {

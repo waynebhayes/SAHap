@@ -8,14 +8,19 @@ InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
 	InputFile result;
 	string buf;
 
+	dnacnt_t totalReadLength = 0;
 	while (!file.eof()) {
 		getline(file, buf);
 		if (buf.size() == 0 || buf.find("#") == 0) continue;
 
-		result.reads.push_back(WIFInputReader::parseRead(result.index, buf));
+		Read read = WIFInputReader::parseRead(result.index, buf);
+		result.reads.push_back(read);
+		totalReadLength += read.range.end - read.range.start + 1;
 	}
-
+	result.averageReadLength = totalReadLength / result.reads.size() + 1;
 	result.ploidy = ploidy;
+
+	//std::cout << "Average Read Length: " << result.averageReadLength << std::endl;
 	return result;
 }
 

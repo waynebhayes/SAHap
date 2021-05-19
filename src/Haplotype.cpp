@@ -147,11 +147,25 @@ double Haplotype::windowMeanCoverage() {
 }
 
 void Haplotype::print_mec() {
+	double total_mec = 0;
 	for (dnapos_t i = 0; i < this->length; i++) {
+		double m = 0;
 		if (this->solution[i] == Allele::UNKNOWN)
-			cerr << this->weights[i][0] + this->weights[i][1];
+			m = this->weights[i][0] + this->weights[i][1];
+		else if (i <= 166)
+			m = this->weights[i][allele_i(this->solution[i])];
 		else 
-			cerr << this->weights[i][flip_allele_i(this->solution[i])];
+			m = this->weights[i][flip_allele_i(this->solution[i])];
+		cerr << m;
+		cerr << " ";
+		total_mec += m;
+	}
+	cerr << endl << "Total MEC: " << total_mec << endl;
+}
+
+void Haplotype::printCoverages() {
+	for (auto siteCoverage : siteCoverages) {
+		cerr << siteCoverage << " ";
 	}
 	cerr << endl;
 }

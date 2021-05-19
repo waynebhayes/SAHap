@@ -53,6 +53,7 @@ struct InputFile {
 	vector<Zygosity> zygosity;
 	vector<vector<Allele>> groundTruth;
 	dnacnt_t groundTruthNotCovered = 0;
+	dnacnt_t averageReadLength = 0;
 	bool hasZygosity = false; // For MEC/GI and WMEC/GI
 	bool hasGroundTruth = false;
 };

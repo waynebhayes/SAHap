@@ -47,7 +47,8 @@ Genome::Genome(InputFile file)
 	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size()));
 	this->range.start = 0;
 	this->range.end = this->file.index.size();
-	this->total_sites = this->file.index.size();
+	this->numberOfSites = this->file.index.size();
+	this->increments = file.averageReadLength;
 	this->shuffle();
 }
 
@@ -288,14 +289,13 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
-	unsigned WINDOW_SIZE = 14;
-	unsigned INCREMENTS = WINDOW_SIZE / 2;
-	double ERROR = 0.001;
-	double add = 0.000;
+	unsigned WINDOW_SIZE = increments * 2;
+	double ERROR = 0.01;
+	double add = 0.0001;
 	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
-		haplotype.initializeWindow(WINDOW_SIZE, INCREMENTS);
+		haplotype.initializeWindow(WINDOW_SIZE, increments);
 	}
 
 	// Target MEC for the Window
@@ -313,7 +313,7 @@ void Genome::optimize(bool debug) {
 	int cpuSeconds = 0;
 	int tmp = 0;
 	
-	while (!this->done()) {
+	while (range.start + WINDOW_SIZE <= numberOfSites) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
 		this->curIteration++;
@@ -329,32 +329,35 @@ void Genome::optimize(bool debug) {
 			//     this->curIteration = this->maxIterations; // basically done
 			// }
 		}
-		if (done()){//} || (pmec() <= PTARGET_MEC)){
-			range.start += INCREMENTS;
-			range.end += INCREMENTS;
+		if (this->done()){//} || (pmec() <= PTARGET_MEC)){
+			range.start += increments;
+			range.end += increments;
 			curIteration = 0;
 			tmp = cpuSeconds;
-
-			if (range.start + WINDOW_SIZE > total_sites){
-				break;
-			}
 			
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
+
 			add = 0;
 			PTARGET_MEC = totalWindowCoverage() * ERROR;
 		} else if (prev > curIteration) {
 			add += 0.0005;
 			PTARGET_MEC = totalWindowCoverage() * (ERROR + add);
 		}
-		if (cpuSeconds  > tmp + 50){ // Avoid getting stuck on one part
+
+		if (cpuSeconds  > tmp + 50){ // For Debugging to break out if program can't find optimal solution
 			break;
 		}
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
 	cout << "MEC: " << mec() << endl;
+
+	// for (auto h : haplotypes) {
+	// 	// h.printCoverages();
+	// 	h.print_mec();
+	// }
 }
 
 

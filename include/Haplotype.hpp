@@ -90,6 +90,7 @@ public:
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 	void print_mec(); // Only for debugging
+	void printCoverages();
 protected:
 	struct VoteInfo {
 		dnacnt_t ref_c = 0;
