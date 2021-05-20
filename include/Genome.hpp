@@ -116,6 +116,13 @@ protected:
 	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth);
 	
 	friend ostream& operator << (ostream& stream, const Genome& ge);
+
+private:
+	vector<Range> blocks;
+
+	void createBlocks();
+	bool intersects(Range a, Range b);
+	Range combineBlocks(Range a, Range b);
 };
 
 }

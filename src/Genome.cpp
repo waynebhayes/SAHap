@@ -290,7 +290,7 @@ void Genome::optimize(bool debug) {
 	ResetBuffers();
 
 	unsigned WINDOW_SIZE = increments * 2;
-	double ERROR = 0.01;
+	double ERROR = 0.00;
 	double add = 0.0001;
 	range.end = WINDOW_SIZE;
 	
@@ -358,9 +358,28 @@ void Genome::optimize(bool debug) {
 	// 	// h.printCoverages();
 	// 	h.print_mec();
 	// }
+	createBlocks();
 }
 
+void Genome::createBlocks() {
+	for (Read r : file.reads) {
+		if (blocks.empty() || !intersects(blocks.back(), r.range))
+			blocks.push_back(r.range);
+		else
+			blocks.back() = combineBlocks(blocks.back(), r.range);
+	}
+}
 
+bool Genome::intersects(Range a, Range b) {
+	return min(a.end, b.end) >= max(a.start, b.start);
+}
+
+Range Genome::combineBlocks(Range a, Range b) {
+	Range ret;
+	ret.start = min(a.start, b.start);
+	ret.end = max(a.end, b.end);
+	return ret;
+}
 
 void Genome::Report(int cpuSeconds, bool final) {
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
@@ -474,11 +493,18 @@ dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<Allele>& t
 }
 
 ostream& operator << (ostream& stream, const Genome& ge) {
-	for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
-		for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
-			stream << ge.haplotypes[i].solution[j];
+	int blockNum = 1;
+	for (Range r : ge.blocks) {
+		stream << "BLOCK " << blockNum++ << endl;
+		for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
+			for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
+				if (j >= r.start && j <= r.end)
+					stream << ge.haplotypes[i].solution[j];
+				else
+					stream << '-';
+			}
+			stream << endl;
 		}
-		stream << endl;
 	}
 	return stream;
 }
