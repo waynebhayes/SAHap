@@ -290,7 +290,7 @@ void Genome::optimize(bool debug) {
 	ResetBuffers();
 
 	unsigned WINDOW_SIZE = increments * 2;
-	double ERROR = 0.00;
+	double ERROR = READ_ERROR_RATE;
 	double add = 0.0001;
 	range.end = WINDOW_SIZE;
 	
