@@ -8,14 +8,21 @@ InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
 	InputFile result;
 	string buf;
 
+	dnacnt_t totalReadLength = 0;
 	while (!file.eof()) {
 		getline(file, buf);
 		if (buf.size() == 0 || buf.find("#") == 0) continue;
 
-		result.reads.push_back(WIFInputReader::parseRead(result.index, buf));
+		Read read = WIFInputReader::parseRead(result.index, buf);
+		if (read.range.end - read.range.start < 1)
+			continue;
+		result.reads.push_back(read);
+		totalReadLength += read.range.end - read.range.start + 1;
 	}
-
+	result.averageReadLength = totalReadLength / result.reads.size();
 	result.ploidy = ploidy;
+	std::cout << "Total: " << totalReadLength << std::endl;
+	std::cout << "Average Read Length: " << result.averageReadLength << std::endl;
 	return result;
 }
 
@@ -73,7 +80,7 @@ Site WIFInputReader::parseSNP(string snp) {
 	} else {
 		throw "Invalid weight value";
 	}
-	s.weight = 1; // HACK
+	//s.weight = 1; // HACK
 
 	if (value == 0) {
 		s.value = Allele::REF;

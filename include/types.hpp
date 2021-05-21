@@ -34,8 +34,11 @@ enum class Zygosity {
 };
 
 struct Range {
-	dnapos_t start = INT_MAX;
-	dnapos_t end = 0;
+	dnapos_t start;
+	dnapos_t end;
+
+	Range(): start(INT_MAX), end(0) {}
+	Range(dnapos_t a, dnapos_t b): start(a), end(b) {}
 };
 
 struct Read {
@@ -53,6 +56,7 @@ struct InputFile {
 	vector<Zygosity> zygosity;
 	vector<vector<Allele>> groundTruth;
 	dnacnt_t groundTruthNotCovered = 0;
+	dnacnt_t averageReadLength = 0;
 	bool hasZygosity = false; // For MEC/GI and WMEC/GI
 	bool hasGroundTruth = false;
 };

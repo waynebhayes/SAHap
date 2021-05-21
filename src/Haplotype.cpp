@@ -12,7 +12,7 @@ Haplotype::Haplotype(dnapos_t length)
 	: length(length), total_mec(0), window_mec(0), isitecost(0)
 {
 	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
-	this->weights = vector<array<dnacnt_t, 2>>(this->length);
+	this->weights = vector<array<double, 2>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
 	this->window.start = 0;
 	this->window.end = this->length;
@@ -106,8 +106,7 @@ void Haplotype::pickReads(unsigned overlap) {
 	this->reads.clear();
 	
 	for (auto r : this->saved_reads) {
-		int scope = (int)min(r->range.end, this->window.end) - max(r->range.start, this->window.start + overlap);
-		if (scope > 0) {// Maybe we should just pick reads that overlaps with the current window by more than 1 SNPs
+		if (r->range.end > this->window.start + overlap && r->range.start <= this->window.end) {
 			this->reads.insert(r);
 		}
 	}
@@ -144,15 +143,29 @@ double Haplotype::windowMeanCoverage() {
     for (dnapos_t i = this->window.start; i < this->window.end; ++i) {
 		result += this->siteCoverages[i];
     }
-    return result/(this->window.end - this->window.start);
+    return result;//(this->window.end - this->window.start);
 }
 
 void Haplotype::print_mec() {
+	double total_mec = 0;
 	for (dnapos_t i = 0; i < this->length; i++) {
+		double m = 0;
 		if (this->solution[i] == Allele::UNKNOWN)
-			cerr << this->weights[i][0] + this->weights[i][1];
+			m = this->weights[i][0] + this->weights[i][1];
+		else if (i <= 166)
+			m = this->weights[i][allele_i(this->solution[i])];
 		else 
-			cerr << this->weights[i][flip_allele_i(this->solution[i])];
+			m = this->weights[i][flip_allele_i(this->solution[i])];
+		cerr << m;
+		cerr << " ";
+		total_mec += m;
+	}
+	cerr << endl << "Total MEC: " << total_mec << endl;
+}
+
+void Haplotype::printCoverages() {
+	for (auto siteCoverage : siteCoverages) {
+		cerr << siteCoverage << " ";
 	}
 	cerr << endl;
 }

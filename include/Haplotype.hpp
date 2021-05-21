@@ -90,6 +90,7 @@ public:
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 	void print_mec(); // Only for debugging
+	void printCoverages();
 protected:
 	struct VoteInfo {
 		dnacnt_t ref_c = 0;
@@ -103,7 +104,7 @@ protected:
 
 	dnapos_t length;
 	// vector<VoteInfo> votes;
-	vector<array<dnacnt_t, 2>> weights;
+	vector<array<double, 2>> weights;
 	vector<dnacnt_t> siteCoverages;
 
 	double total_mec = 0; // cached MEC

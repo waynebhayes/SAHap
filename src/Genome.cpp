@@ -47,14 +47,15 @@ Genome::Genome(InputFile file)
 	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size()));
 	this->range.start = 0;
 	this->range.end = this->file.index.size();
-	this->total_sites = this->file.index.size();
+	this->numberOfSites = this->file.index.size();
+	this->increments = file.averageReadLength;
 	this->shuffle();
 }
 
 Genome::~Genome() {
 }
 
-dnacnt_t Genome::mec() {
+dnaweight_t Genome::mec() {
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		out = out + haplotypes[i].mec();
@@ -63,7 +64,7 @@ dnacnt_t Genome::mec() {
 	return out;
 }
 
-dnacnt_t Genome::pmec() { //Partial MEC
+dnaweight_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		out += haplotypes[i].windowMec();
@@ -108,7 +109,7 @@ double Genome::siteCostScore() {
 	// cout << "siteCost: " << out << endl;
 
 	double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
-	return out / maxCost;
+	return out;// / maxCost;
 }
 
 double Genome::score(dnaweight_t mec) {
@@ -288,35 +289,36 @@ void Genome::optimize(bool debug) {
 	this->t = this->tInitial;
 	ResetBuffers();
 
-	unsigned WINDOW_SIZE = 100;
-	unsigned INCREMENTS = 50;
-
-	range.end = 100;
+	unsigned WINDOW_SIZE = increments * 2;
+	double ERROR = READ_ERROR_RATE;
+	double add = 0.0001;
+	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
-		haplotype.initializeWindow(WINDOW_SIZE, INCREMENTS);
+		haplotype.initializeWindow(WINDOW_SIZE, increments);
 	}
 
 	// Target MEC for the Window
-	unsigned int PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
+	double PTARGET_MEC = totalWindowCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
-	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %d\n",
+	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %.4f\n",
 	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
 
 	
 	int cpuSeconds = 0;
 	int tmp = 0;
 	
-	while (!this->done()) {
+	while (range.start + WINDOW_SIZE <= numberOfSites) {
 		this->t = this->getTemperature(this->curIteration);
 		this->iteration();
 		this->curIteration++;
 		double pBad = this->pBad.getAverage();
+		iteration_t prev = curIteration;
 		DynamicSchedule(pBad, PTARGET_MEC);
 		if (debug && curIteration % REPORT_INTERVAL == 0) {
 			auto now_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
@@ -327,35 +329,61 @@ void Genome::optimize(bool debug) {
 			//     this->curIteration = this->maxIterations; // basically done
 			// }
 		}
-		if (done()){//} || (pmec() <= PTARGET_MEC)){
-			range.start += 50;
-			range.end += 50;
+		if (this->done()){//} || (pmec() <= PTARGET_MEC)){
+			range.start += increments;
+			range.end += increments;
 			curIteration = 0;
 			tmp = cpuSeconds;
-
-			if (range.start > total_sites - WINDOW_SIZE){
-				break;
-			}
 			
 			for (auto& haplotype : haplotypes) {
 				haplotype.incrementWindow();
 			}
-			PTARGET_MEC = WINDOW_SIZE * haplotypes.size() * totalWindowCoverage() * READ_ERROR_RATE;
+
+			add = 0;
+			PTARGET_MEC = totalWindowCoverage() * ERROR;
+		} else if (prev > curIteration) {
+			add += 0.0005;
+			PTARGET_MEC = totalWindowCoverage() * (ERROR + add);
 		}
-		if (cpuSeconds  > tmp + 300){ // Avoid getting stuck on one part
+
+		if (cpuSeconds  > tmp + 50){ // For Debugging to break out if program can't find optimal solution
 			break;
 		}
 	}
 	Report(cpuSeconds, true);
 	printf("Finished optimizing %d sites using %s cost function\n", (int)this->haplotypes[0].size(), objName[OBJECTIVE]);
-	cout << "MEC: " << (int)mec() << endl;
+	cout << "MEC: " << mec() << endl;
+
+	// for (auto h : haplotypes) {
+	// 	// h.printCoverages();
+	// 	h.print_mec();
+	// }
+	createBlocks();
 }
 
+void Genome::createBlocks() {
+	for (Read r : file.reads) {
+		if (blocks.empty() || !intersects(blocks.back(), r.range))
+			blocks.push_back(r.range);
+		else
+			blocks.back() = combineBlocks(blocks.back(), r.range);
+	}
+}
 
+bool Genome::intersects(Range a, Range b) {
+	return min(a.end, b.end) >= max(a.start, b.start);
+}
+
+Range Genome::combineBlocks(Range a, Range b) {
+	Range ret;
+	ret.start = min(a.start, b.start);
+	ret.end = max(a.end, b.end);
+	return ret;
+}
 
 void Genome::Report(int cpuSeconds, bool final) {
-    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %5d", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), (int)this->pmec());
+    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
@@ -465,17 +493,24 @@ dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<Allele>& t
 }
 
 ostream& operator << (ostream& stream, const Genome& ge) {
-	for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
-		for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
-			stream << ge.haplotypes[i].solution[j];
+	int blockNum = 1;
+	for (Range r : ge.blocks) {
+		stream << "BLOCK " << blockNum++ << endl;
+		for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
+			for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
+				if (j >= r.start && j <= r.end)
+					stream << ge.haplotypes[i].solution[j];
+				else
+					stream << '-';
+			}
+			stream << endl;
 		}
-		stream << endl;
 	}
 	return stream;
 }
 
 
-void Genome::DynamicSchedule(double pBad, int TARGET_MEC)
+void Genome::DynamicSchedule(double pBad, double TARGET_MEC)
 {
     //printf("pBad %ld %g\n", this->pBad.len, pBad);
 #if SCHEDULE==RETREAT
@@ -536,7 +571,8 @@ the other remain constant.
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
 	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << pmec();
-	    cout << ", too big by a factor of " << factor << "==" << TARGET_MEC << endl;
+	    cout << ", too big by a factor of " << factor << "(" << TARGET_MEC << 
+			", " << totalWindowCoverage() << ")" << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }

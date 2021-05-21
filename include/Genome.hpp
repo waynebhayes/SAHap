@@ -24,8 +24,8 @@ class Genome {
 public:
 	Genome(InputFile file);
 	~Genome();
-	dnacnt_t mec();
-	dnacnt_t pmec();
+	dnaweight_t mec();
+	dnaweight_t pmec();
 	double mecScore();
 	double siteCostScore();
 	double score();
@@ -42,7 +42,7 @@ public:
 	void revertMove();
 	void iteration();
 	void optimize(bool debug);
-	void DynamicSchedule(double pBad, int TARGET_MEC);
+	void DynamicSchedule(double pBad, double TARGET_MEC);
 
 	void Report(int seconds, bool final=false);
 	double findPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
@@ -100,7 +100,8 @@ protected:
 
 	Range range;
 
-	dnapos_t total_sites = 0;
+	dnapos_t numberOfSites = 0;
+	dnacnt_t increments = 0;
 
 	// The last move performed
 	struct Move {
@@ -115,6 +116,13 @@ protected:
 	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth);
 	
 	friend ostream& operator << (ostream& stream, const Genome& ge);
+
+private:
+	vector<Range> blocks;
+
+	void createBlocks();
+	bool intersects(Range a, Range b);
+	Range combineBlocks(Range a, Range b);
 };
 
 }
