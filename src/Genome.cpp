@@ -382,7 +382,7 @@ Range Genome::combineBlocks(Range a, Range b) {
 }
 
 void Genome::Report(int cpuSeconds, bool final) {
-    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.3f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
+    printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
 	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
     if (this->file.hasGroundTruth) {
 	    auto gt = this->compareGroundTruth();
@@ -406,12 +406,19 @@ double Genome::findPbad(double temperature, iteration_t iterations) {
 	this->t = temperature;
 	this->ResetBuffers();
 
-	for (iteration_t i = 0; i < iterations; ++i) {
+	double sumPbad = 0.0, prevSumPbad;
+	int i = 0;
+	do {
 		this->iteration();
 		// cout << "[simann] temp=" << this->t << ", mec=" << this->mec() << endl;
-	}
+		double newPbad = this->pBad.getAverage();
+		prevSumPbad = sumPbad;
+		sumPbad += newPbad;
+		++i;
+		// below, we compute the previous and current average and demand they agree to some precision
+	} while (i < 30 || fabs(prevSumPbad/(i-1) / (sumPbad/i) - 1) > 1e-3); // stabilize to at least this relative precision
 
-	cout << "temperature " << temperature << " gives Pbad " << this->pBad.getAverage() << endl;
+	cout << "temperature " << temperature << " gives Pbad " << this->pBad.getAverage() << " after " << i << " iterations\n";
 
 	return this->pBad.getAverage();
 }
