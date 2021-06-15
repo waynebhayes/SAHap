@@ -21,8 +21,8 @@ InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
 	}
 	result.averageReadLength = totalReadLength / result.reads.size();
 	result.ploidy = ploidy;
-	std::cout << "Total: " << totalReadLength << std::endl;
-	std::cout << "Average Read Length: " << result.averageReadLength << std::endl;
+	// std::cout << "Total: " << totalReadLength << std::endl;
+	// std::cout << "Average Read Length: " << result.averageReadLength << std::endl;
 	return result;
 }
 
@@ -37,21 +37,20 @@ void WIFInputReader::readGroundTruth(ifstream& file, InputFile& parsed) {
 	parsed.sites = sites;
 
 	string buf;
-	vector<vector<Allele>> truth;
+	vector<vector<int>> truth;
 	truth.reserve(parsed.ploidy);
 
 	while (!file.eof()) {
 		getline(file, buf);
 		if (buf.size() == 0) continue;
-		vector<Allele> ch(parsed.index.size(), Allele::UNKNOWN);
+		vector<int> ch(parsed.index.size(), -1);
 		for (size_t i = 0; i < buf.size(); ++i) {
 			char allele = buf[i];
 			dnapos_t pos = sites[i];
 			dnapos_t matrixPos = parsed.index[pos];
-			if (allele == '0') ch[matrixPos] = Allele::REF;
-			else if (allele == '1') ch[matrixPos] = Allele::ALT;
-			else if (allele == 'X') ch[matrixPos] = Allele::UNKNOWN;
-			else throw "Invalid ground truth allele value";
+			if (allele == 'X') ch[matrixPos] = -1;
+			else ch[matrixPos] = allele - '0';
+			// else throw "Invalid ground truth allele value";
 		}
 		truth.push_back(ch);
 	}
@@ -81,15 +80,15 @@ Site WIFInputReader::parseSNP(string snp) {
 		throw "Invalid weight value";
 	}
 	//s.weight = 1; // HACK
-
-	if (value == 0) {
-		s.value = Allele::REF;
-	} else if (value == 1) {
-		s.value = Allele::ALT;
-	} else {
-		cout << value << endl;
-		throw "Invalid allele value";
-	}
+	s.value = value;
+	// if (value == 0) {
+	// 	s.value = Allele::REF;
+	// } else if (value == 1) {
+	// 	s.value = Allele::ALT;
+	// } else {
+	// 	cout << value << endl;
+	// 	throw "Invalid allele value";
+	// }
 	return s;
 }
 

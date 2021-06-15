@@ -8,19 +8,19 @@
 
 namespace SAHap {
 
-Haplotype::Haplotype(dnapos_t length)
+Haplotype::Haplotype(dnapos_t length, unsigned ploidyCount)
 	: length(length), total_mec(0), window_mec(0), isitecost(0)
 {
-	this->solution = vector<Allele>(this->length, Allele::UNKNOWN);
-	this->weights = vector<array<double, 2>>(this->length);
+	this->ploidyCount = ploidyCount;
+	this->solution = vector<int>(this->length, -1);
+	this->weights = vector<vector<double>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
 	this->window.start = 0;
 	this->window.end = this->length;
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
-		this->solution[i] = Allele::UNKNOWN;
-		this->weights[i][0] = 0;
-		this->weights[i][1] = 0;
+		this->solution[i] = -1;
+		this->weights[i] = vector<double>(this->ploidyCount, 0);
 		this->siteCoverages[i] = 0;
 	}
 }
@@ -33,6 +33,7 @@ Haplotype::Haplotype(const Haplotype& ch)
 		siteCoverages(ch.siteCoverages),
 		total_mec(ch.total_mec),
 		window_mec(ch.window_mec),
+		ploidyCount(ch.ploidyCount),
 		reads(ch.reads),
 		saved_reads(ch.saved_reads),
 		window(ch.window),
@@ -82,10 +83,11 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
 	double out = 0;
 
 	for (auto i = s; i <= e && i < this->length; i++) {
-		if (this->solution[i] == Allele::UNKNOWN)
-			out += this->weights[i][0] + this->weights[i][1];
-		else
-			out += this->weights[i][flip_allele_i(this->solution[i])];
+		for (unsigned j = 0; j < ploidyCount; j++) {
+			if (j == solution[i])
+				continue;
+			out += weights[i][j];
+		}
 	}
 
 	return out;
@@ -146,23 +148,6 @@ double Haplotype::windowMeanCoverage() {
     return result;//(this->window.end - this->window.start);
 }
 
-void Haplotype::print_mec() {
-	double total_mec = 0;
-	for (dnapos_t i = 0; i < this->length; i++) {
-		double m = 0;
-		if (this->solution[i] == Allele::UNKNOWN)
-			m = this->weights[i][0] + this->weights[i][1];
-		else if (i <= 166)
-			m = this->weights[i][allele_i(this->solution[i])];
-		else 
-			m = this->weights[i][flip_allele_i(this->solution[i])];
-		cerr << m;
-		cerr << " ";
-		total_mec += m;
-	}
-	cerr << endl << "Total MEC: " << total_mec << endl;
-}
-
 void Haplotype::printCoverages() {
 	for (auto siteCoverage : siteCoverages) {
 		cerr << siteCoverage << " ";
@@ -178,7 +163,7 @@ void Haplotype::add(Read * r) {
 	if (this->reads.find(r) != this->reads.end()) {
 		throw "Haplotype already contains read";
 	}
-
+	// std::cout << "adding\n";
 	this->reads.insert(r);
 	this->vote(*r);
 }
@@ -210,75 +195,79 @@ Read * Haplotype::pick(mt19937& engine) {
 	return *next(begin(this->reads), rd);
 }
 
+bool Haplotype::isInRangeOf(Range r, dnapos_t pos) {
+	return pos >= r.start && pos <= r.end;
+}
+
+void Haplotype::subtractMECValuesAt(dnapos_t pos) {
+	for (unsigned i = 0; i < ploidyCount; i++) {
+		if (i == solution[pos])
+			continue;
+		auto mec = weights[pos][i];
+		total_mec -= mec;
+
+		if (isInRangeOf(window, pos))
+			window_mec -= mec;
+
+		isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
+	}
+}
+
+void Haplotype::addMECValuesAt(dnapos_t pos) {
+	for (unsigned i = 0; i < ploidyCount; i++) {
+		if (i == solution[pos])
+			continue;
+		auto mec = weights[pos][i];
+		total_mec += mec;
+
+		if (isInRangeOf(window, pos))
+			window_mec += mec;
+
+		isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
+	}
+}
+
+void Haplotype::addSite(const Site &s) {
+	weights[s.pos][s.value] += s.weight;
+
+	if (s.value != solution[s.pos] && weights[s.pos][s.value] > weights[s.pos][solution[s.pos]])
+		solution[s.pos] = s.value;
+	
+	siteCoverages[s.pos]++;
+}
+
+void Haplotype::removeSite(const Site &s) {
+	weights[s.pos][s.value] -= s.weight;
+
+	if (solution[s.pos] == s.value)
+		tally(s.pos);
+
+	siteCoverages[s.pos]--;
+}
+
 void Haplotype::vote(Read& read, bool retract) {
 #if SAHAP_CHROMOSOME_ALT_MEC
 	// TODO: Alternative MEC
 #else
 	for (const Site& site : read.sites) {
 		dnapos_t i = site.pos;
-		Allele allele = site.value;
-		Allele majority = this->solution[i];
 
-		if (majority != Allele::UNKNOWN) {
-			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
-			this->total_mec -= mec;
-			if (i >= this->window.start && i <= this->window.end)
-				this->window_mec -= mec;
-			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
-			// they are not equally probable. Need to account for this lopsidedness.
-			this->isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
-		}
+		subtractMECValuesAt(i);
 
-		if (!retract) {
-			// enter
-			this->weights[i][allele_i(allele)] += site.weight;
+		if (!retract) // enter
+			addSite(site);
+		else // leave
+			removeSite(site);
 
-			if (
-				allele != majority &&
-				(
-					majority == Allele::UNKNOWN ||
-					this->weights[i][allele_i(allele)] > this->weights[i][flip_allele_i(allele)]
-				)
-			) {
-				majority = allele;
-				this->solution[i] = allele;
-			}
-
-			this->siteCoverages[i]++;
-		} else {
-			// leave
-			this->weights[i][allele_i(allele)] -= site.weight;
-
-			if (allele == majority) {
-				this->tally(i);
-				majority = this->solution[i];
-			}
-
-			this->siteCoverages[i]--;
-		}
-
-		if (majority != Allele::UNKNOWN) {
-			auto mec = this->weights[i][flip_allele_i(this->solution[i])];
-			this->total_mec += mec;
-			if (i >= this->window.start && i <= this->window.end)
-				this->window_mec += mec;
-			// FIXME: we have only 1 bit to specify the "main" letter or *THREE* altertanes, so
-			// they are not equally probable. Need to account for this lopsidedness.
-			this->isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * this->siteCoverages[i], mec);
-		}
+		addMECValuesAt(i);
 	}
 #endif
 }
 
 void Haplotype::tally(dnapos_t site) {
-	auto weights = this->weights[site];
-	if (weights[allele_i(Allele::REF)] == 0 && weights[allele_i(Allele::ALT)] == 0) {
-		this->solution[site] = Allele::UNKNOWN;
-	} else if (weights[allele_i(Allele::REF)] >= weights[allele_i(Allele::ALT)]) {
-		this->solution[site] = Allele::REF;
-	} else {
-		this->solution[site] = Allele::ALT;
-	}
+	for (unsigned i = 0; i < ploidyCount; i++) 
+		if (weights[site][i] > weights[site][solution[site]])
+			solution[site] = i;
 }
 
 dnacnt_t& Haplotype::VoteInfo::vote(Allele allele) {

@@ -44,7 +44,7 @@ Genome::Genome(InputFile file)
 	cout << "Genome seed " << seed << endl;
 	this->randomEngine = mt19937(seed);
 	this->file = file;
-	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size()));
+	this->haplotypes = vector<Haplotype>(this->file.ploidy, Haplotype(this->file.index.size(), file.ploidy));
 	this->range.start = 0;
 	this->range.end = this->file.index.size();
 	this->numberOfSites = this->file.index.size();
@@ -130,7 +130,7 @@ void Genome::shuffle() {
 		auto ploidy = this->haplotypes.size();
 		auto length = this->haplotypes[0].size();
 		this->haplotypes.clear();
-		this->haplotypes = vector<Haplotype>(ploidy, Haplotype(length));
+		this->haplotypes = vector<Haplotype>(ploidy, Haplotype(length, ploidy));
 	}
 
 	for (auto& r : this->file.reads) {
@@ -194,7 +194,7 @@ void Genome::move() {
 		moveTo = !moveFrom;
 	} else {
 		size_t moveOffset = rand() % (ploidy - 1);
-		moveTo = moveFrom + moveOffset + 1;
+		moveTo = (moveFrom + moveOffset + 1) % ploidy;
 	}
 
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
@@ -206,6 +206,9 @@ void Genome::move() {
 		r = this->haplotypes[moveFrom].pick(this->randomEngine);
 	}
 #endif
+
+	// std::cout << "From: " << moveFrom << ", To: " << moveTo << std::endl;
+
 	this->haplotypes[moveTo].add(r);
 	this->haplotypes[moveFrom].remove(r);
 
@@ -302,7 +305,7 @@ void Genome::optimize(bool debug) {
 	double PTARGET_MEC = totalWindowCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-	assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
+	// assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
@@ -489,7 +492,7 @@ dnacnt_t Genome::compareGroundTruth() {
 	return la < lb ? la : lb;
 }
 
-dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth) {
+dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<int>& truth) {
 	dnacnt_t loss = 0;
 	for (size_t i = 0; i < ch.size(); ++i) {
 		if (ch.solution[i] != truth[i]) {
@@ -505,8 +508,12 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 		stream << "BLOCK " << blockNum++ << endl;
 		for (size_t i = 0; i < ge.haplotypes.size(); ++i) {
 			for (size_t j = 0; j < ge.haplotypes[i].size(); ++j) {
-				if (j >= r.start && j <= r.end)
-					stream << ge.haplotypes[i].solution[j];
+				if (j >= r.start && j <= r.end) {
+					if (ge.haplotypes[i].solution[j] < 0)
+						stream << 'X';
+					else
+						stream << ge.haplotypes[i].solution[j];
+				}
 				else
 					stream << '-';
 			}
