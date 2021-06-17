@@ -22,7 +22,8 @@ typedef double dnaweight_t;
 typedef unsigned long long iteration_t;
 
 struct Site {
-	Allele value = Allele::UNKNOWN;
+	// Allele value = Allele::UNKNOWN;
+	int value = -1; // -1 for UNKNOWN
 	dnapos_t pos;
 	double weight = 1;
 };
@@ -54,7 +55,7 @@ struct InputFile {
 	vector<dnapos_t> sites;
 	vector<Read> reads;
 	vector<Zygosity> zygosity;
-	vector<vector<Allele>> groundTruth;
+	vector<vector<int>> groundTruth;
 	dnacnt_t groundTruthNotCovered = 0;
 	dnacnt_t averageReadLength = 0;
 	bool hasZygosity = false; // For MEC/GI and WMEC/GI

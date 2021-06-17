@@ -113,7 +113,7 @@ protected:
 
 	double acceptance(double newScore, double curScore);
 	double getTemperature(iteration_t iteration);
-	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<Allele>& truth);
+	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<int>& truth);
 	
 	friend ostream& operator << (ostream& stream, const Genome& ge);
 

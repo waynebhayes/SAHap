@@ -13,7 +13,7 @@ namespace SAHap {
 
 class Haplotype {
 public:
-	Haplotype(dnapos_t length);
+	Haplotype(dnapos_t length, unsigned ploidyCount);
 	Haplotype(const Haplotype& ch);
 	~Haplotype();
 
@@ -85,11 +85,11 @@ public:
 	 */
 	void incrementWindow();
 
-	vector<Allele> solution;
+	vector<int> solution;
 
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
-	void print_mec(); // Only for debugging
+	// void print_mec(); // Only for debugging
 	void printCoverages();
 protected:
 	struct VoteInfo {
@@ -104,12 +104,14 @@ protected:
 
 	dnapos_t length;
 	// vector<VoteInfo> votes;
-	vector<array<double, 2>> weights;
+	vector<vector<double>> weights;
 	vector<dnacnt_t> siteCoverages;
 
 	double total_mec = 0; // cached MEC
 	double window_mec = 0; // cached current window's MEC
 	double isitecost = 0; // cached site-based cost
+
+	unsigned ploidyCount;
 
 	unordered_set<Read *> reads;
 	unordered_set<Read *> saved_reads;
@@ -122,6 +124,12 @@ protected:
 	void saveReads();
 	void pickReads(unsigned overlap);
 
+	bool isInRangeOf(Range r, dnapos_t pos);
+
+	void subtractMECValuesAt(dnapos_t pos);
+	void addMECValuesAt(dnapos_t pos);
+	void addSite(const Site &s);
+	void removeSite(const Site &s);
 };
 
 ostream & operator << (ostream& stream, Haplotype& ch);

@@ -35,34 +35,10 @@ int main(int argc, char *argv[]) {
 			} catch (const char * e) {
 				cerr << e << endl;
 			}
-		// }
-
-		/*
-		// cout << ge.haplotypes[0].percentAgree() << endl;
-		for (float e = -5; e <= 2; e += 0.1) {
-			float temp = pow(10, e);
-			auto pbad = ge.findPbad(temp);
-			cout << temp << " " << pbad << endl;
-		}
-		*/
 
 	} catch (const char* e) {
 		cout << e << endl;
 	}
-
-	// ge.optimize();
-
-	// /*
-	// for (float e = -10; e <= 10; ++e) {
-	// 	float temp = pow(10, e);
-	// 	cout << temp << ": " << ge.findPbad(temp) << endl;
-	// }
-	// */
-	// /*
-	// for (float i = 1; i > 0; i -= 0.1f) {
-	// 	cout << "pBad @ " << i << " = " << ge.findPbad(100) << endl;
-	// }
-	// */
 
 	return 0;
 }
