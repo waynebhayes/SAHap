@@ -32,7 +32,7 @@ TRIES=0
 NEED='MEC Poisson'
 echo "Running tests in parallel with $CORES cores"
 while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
-    echo "Before try #$TRIES, need '$NEED'"
+    echo "Before try #$TRIES, still need success on '$NEED'"
     for OBJ in $NEED; do
 	echo "time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt $SAHAP_ITERS > $REG_DIR/$OBJ.out 2>$REG_DIR/$OBJ.err; cat $REG_DIR/$OBJ.err | tee -a $REG_DIR/$OBJ.out"
     done | eval $PARALLEL
@@ -41,24 +41,34 @@ while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     NUM_FAILS=0
     for OBJ in $NEED; do
 	echo --- $REG_DIR/$OBJ.out ---
-	fgrep '(100.0000%' $REG_DIR/$OBJ.out |
-	    awk 'BEGIN{
-		best["MEC"]=71;
+	fgrep '(100.0' $REG_DIR/$OBJ.out | fgrep '%' |
+	    awk 'function MIN(a,b){if(a<=b)return a; else return b;}
+	    BEGIN{
+		# Best possible, so far as I know:
+		# 10k (0.0%,1s)  T 0.259  fA 0.000  pBad 0.0000  MEC 4.88  ( Err_vs_truth    13 Err_Pct 1.34% [486 486])
+		best["MEC"]=4.27;
 		best["Err_vs_truth"]=4;
-		best["Err_Pct"]=0.411523
+		best["Err_Pct"]=0.41;
 	    }
 	    /\(100\.0*%/{
+		#print;
 		for(i=1;i<NF;i++)if($i in best){
-		    got=$(i+1); printf "%s best %d got %s: ", $i,best[$i],got;
-		    if(got>2*best[$i]){
-			print "FAIL";
-			++NUM_FAILS;
-		    }
-		    else print "GOOD"
+		    got=$(i+1);
+		    if(!($i in GOT))GOT[$i]=got;
+		    else GOT[$i]=MIN(GOT[$i],got);
 		}
 	    }
 	    END {
-		exit(NUM_FAILS);
+		for(m in best) {
+		    printf "%s best %g got \"%s\": ", m,best[m],GOT[m];
+		    if(!(m in GOT)) print "FAIL: NO RESULT"
+		    else if(GOT[m]<=1*best[m]) {++NUM_GOOD; print "BEST!!";}
+		    else if(GOT[m]<=2*best[m]) {++NUM_GOOD; print "GOOD";}
+		    else if(GOT[m]<=3*best[m]) {++NUM_GOOD; print "FAIR";}
+		    else if(GOT[m]<=4*best[m]) {++NUM_GOOD; print "BORDERLINE";}
+		    else print "FAIL"
+		}
+		exit(length(best)-NUM_GOOD);
 	    }'
 	NEW_FAILS=$?
 	if [ $NEW_FAILS -eq 0 ]; then
@@ -67,9 +77,8 @@ while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
 	    (( NUM_FAILS+=$NEW_FAILS ))
 	fi
     done
-    echo "After try #$TRIES, NUM_FAILS is $NUM_FAILS, still need '$NEED'"
+    echo "After try #$TRIES, NUM_FAILS is $NUM_FAILS, still looking for success on '$NEED'"
     (( ++TRIES ))
 done
-echo "Needed a total of $TRIES attempts to get all regressions to pass"
-[ "$TRIES" -gt 1 ] && warn "Needed more than one try??"
+echo "After $TRIES tries, NUM_FAILS is $NUM_FAILS; still looking for success on '$NEED'"
 exit $NUM_FAILS

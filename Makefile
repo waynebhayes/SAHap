@@ -15,7 +15,7 @@ INCLUDES := include/Allele.hpp include/Genome.hpp include/Haplotype.hpp include/
 sahap.$(OBJECTIVE): src/main.o src/Allele.o src/Haplotype.o src/Genome.o src/InputReader.o src/utils.o
 	g++ -std=c++11 -o sahap.$(OBJECTIVE) src/*.o
 
-all: MEC Poisson
+all: MEC Poisson parallel
 
 MEC:
 	grep -q MEC .last-made || rm -f *.o */*.o && echo MEC > .last-made
