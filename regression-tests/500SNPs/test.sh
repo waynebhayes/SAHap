@@ -1,6 +1,7 @@
 #!/bin/bash
 USAGE=' '
 REG_DIR=${REG_DIR:?"needs to be set"}
+SAHAP_ITERS=${SAHAP_ITERS:=1}
 
 # Temporary Filename + Directory (both, you can use either, note they'll have different random stuff in the XXXXXX part)
 TMP=`mktemp /tmp/$BASENAME.XXXXXX`
@@ -33,7 +34,7 @@ echo "Running tests in parallel with $CORES cores"
 while [ "$NEED" != "" -a $TRIES -lt 10 ]; do
     echo "Before try #$TRIES, need '$NEED'"
     for OBJ in $NEED; do
-	echo "(time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt 1) > $REG_DIR/$OBJ.out 2>&1"
+	echo "time ./sahap.$OBJ data/500SNPs_30x/Model_14.wif data/500SNPs_30x/Model_14.txt $SAHAP_ITERS > $REG_DIR/$OBJ.out 2>$REG_DIR/$OBJ.err; cat $REG_DIR/$OBJ.err | tee -a $REG_DIR/$OBJ.out"
     done | eval $PARALLEL
     (( NUM_FAILS+=$? ))
 

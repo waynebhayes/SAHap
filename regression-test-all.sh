@@ -7,10 +7,10 @@ newlines(){ awk '{for(i=1; i<=NF;i++)print $i}' "$@"; }
 parse(){ awk "BEGIN{print $@}" </dev/null; }
 cpus() {
     TMP=/tmp/cpus.$$
-    trap "/bin/rm -f $TMP" 0 1 2 3 15
 
     # Most Linux machines:
-    lscpu >$TMP 2>/dev/null && awk '/^CPU[(s)]*:/{cpus=$NF}END{if(cpus)print cpus; else exit 1}' $TMP && return
+    lscpu >$TMP 2>/dev/null && awk '/^CPU[(s)]*:/{cpus=$NF}END{if(cpus)print cpus; else exit 1}' $TMP && rm $TMP && return
+    rm $TMP
 
     # MacOS:
     ([ `arch` = Darwin -o `uname` = Darwin ] || uname -a | grep Darwin >/dev/null) && sysctl -n hw.ncpu && return
