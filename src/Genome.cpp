@@ -182,12 +182,22 @@ void Genome::move() {
 	size_t moveFrom = rand() % ploidy;
 	size_t moveTo;
 
+	// FIXME1: why are we picking the source haplotype FIRST when it's possible there's no
+	// reads in it? This while() loop checks for this condition and keeps looping until it finds a haplotype
+	// with reads in it... but it's probably better to pick a READ from the entire universe first, the FIND
+	// it's haploptype, then choose ANOTHER haplotype to move it to.
+	// In any case the current code *should* work... but it's ugly.
+	// It's also bad in a WINDOWING system because if the read we pick is one we shouldn't touch, we have to
+	// come back all the way to here to start again... which means TWO nested while loops. Very bad.
+	// FIXME1: so, pick the read FIRST.
+	int numTries = 0;
 	while (!this->haplotypes[moveFrom].readSize()) {
 		if (ploidy == 2) {
 			moveFrom = !moveFrom;
 		} else {
 			moveFrom = rand() % ploidy;
 		}
+		assert(numTries++ < 10*ploidy); // this should be MORE than enough to NEVER iterate forever
 	}
 
 	if (ploidy == 2) {
@@ -197,7 +207,11 @@ void Genome::move() {
 		moveTo = (moveFrom + moveOffset + 1) % ploidy;
 	}
 
+	// Move this "pick the read" up above FIXME1, but choose among the entire universe of reads, not just those on
+	// "moveFrom". Instead, pick the read, then set moveFrom to it's current haplotype, then choose moveTo as above.
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
+	// HERE is where you put your code to check if this read shouldn't be touched because it has substantial
+	// overlap with the previous window. (And you can make that decision even before looking at it's haplotype.
 
 #if SAHAP_GENOME_DEBUG
 	if (!r) {
@@ -305,7 +319,7 @@ void Genome::optimize(bool debug) {
 	double PTARGET_MEC = totalWindowCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
-	// assert(this->haplotypes.size() == 2); // otherwise need to change a few things below that assume only 0 and 1 exist.
+	// assert(this->haplotypes.size() == 2); // FIXME need to change a few things below that assume only 0 and 1 exist.
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
