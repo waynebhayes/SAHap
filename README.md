@@ -4,4 +4,6 @@ Simulated Annealing Haplotype Aligner
 
 ## Building
 
-Run `make`. The Makefile will produce an executable named `sahap`.
+To build and test SAHap, run the following command in a BASH shell:
+
+```./regression-test-all.sh -make```
