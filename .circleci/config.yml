@@ -5,31 +5,24 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  test:
+  test-ubuntu:
     machine:
       image: ubuntu-2004:202010-01
       
     steps:
       - checkout
       
-      # - run:
-      #     name: "first stack check"
-      #     command: "ulimit -s"
+      - run:
+          name: "run regression test"
+          command: "./regression-test-all.sh -make"
 
-      # - run:
-      #     name: "set unlimited stack space"
-      #     command: "ulimit -s unlimited;ulimit -s"
-          
-      # - run:
-      #     name: "second stack check"
-      #     command: "ulimit -s"
+  test-MacOS-Intel:
+    macos:
+      xcode: "14.2.0"
       
-      # - run:
-      #     name: "check g++ version"
-      #     command: "g++ -v"
-      # - run: 
-      #     name: "checkout libwayne"
-      #     command: "git submodule init libwayne && git submodule update libwayne && cd libwayne && git checkout master && git pull"
+    steps:
+      - checkout
+      
       - run:
           name: "run regression test"
           command: "./regression-test-all.sh -make"
@@ -40,4 +33,5 @@ jobs:
 workflows:
   test-workflow:
     jobs:
-      - test
+      - test-ubuntu
+      - test-MacOS-Intel
