@@ -7,6 +7,8 @@
 using namespace SAHap;
 using namespace std;
 
+# intentional error
+
 int main(int argc, char *argv[]) {
 	if (argc < 2 || argc > 4) {
 		cerr << "Usage: " << argv[0] << " <reads> [gt] [millions of iterations = 10]" << endl;
