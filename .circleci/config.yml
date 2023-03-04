@@ -8,7 +8,7 @@ jobs:
   test-ubuntu:
     machine:
       image: ubuntu-2004:202010-01
-    resource_class: small
+    resource_class: medium
       
     steps:
       - checkout
@@ -19,7 +19,7 @@ jobs:
   test-MacOS-Intel:
     macos:
       xcode: "14.2.0"
-    resource_class: small
+    resource_class: medium
       
     steps:
       - checkout
