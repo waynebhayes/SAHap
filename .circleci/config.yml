@@ -8,10 +8,10 @@ jobs:
   test-ubuntu:
     machine:
       image: ubuntu-2004:202010-01
+    resource_class: small
       
     steps:
       - checkout
-      
       - run:
           name: "run regression test"
           command: "./regression-test-all.sh -make"
@@ -19,10 +19,10 @@ jobs:
   test-MacOS-Intel:
     macos:
       xcode: "14.2.0"
+    resource_class: small
       
     steps:
       - checkout
-      
       - run:
           name: "run regression test"
           command: "./regression-test-all.sh -make"
