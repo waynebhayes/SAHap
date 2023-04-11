@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
 	ifstream file;
 	file.open(argv[1]);
-	auto parsed = WIFInputReader::read(file, 4); // ploidy is 2nd arg
+	auto parsed = WIFInputReader::read(file, 2); // ploidy is 2nd arg
 
 	if (argc > 3) {
 		ifstream gtruth;
