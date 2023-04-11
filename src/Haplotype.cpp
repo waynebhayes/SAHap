@@ -81,19 +81,22 @@ double Haplotype::mec() {
 
 double Haplotype::mec(dnapos_t s, dnapos_t e) {
 	double out = 0;
+	assert(e>=s);
 
 	for (auto i = s; i <= e && i < this->length; i++) {
 		for (unsigned j = 0; j < ploidyCount; j++) {
 			if (j == solution[i])
 				continue;
+			assert(weights[i][j]>=0);
 			out += weights[i][j];
 		}
 	}
-
+	assert(out>=0);
 	return out;
 }
 
 double Haplotype::windowMec() {
+	assert(this->window_mec>=0);
 	return this->window_mec;
 }
 
@@ -205,11 +208,13 @@ void Haplotype::subtractMECValuesAt(dnapos_t pos) {
 			continue;
 		auto mec = weights[pos][i];
 		total_mec -= mec;
+		assert(total_mec>=0);
 
 		if (isInRangeOf(window, pos))
 			window_mec -= mec;
+		assert(window_mec>=0);
 
-		isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
+		if(siteCoverages[i]) isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
 	}
 }
 
@@ -222,8 +227,9 @@ void Haplotype::addMECValuesAt(dnapos_t pos) {
 
 		if (isInRangeOf(window, pos))
 			window_mec += mec;
+		assert(window_mec>=0);
 
-		isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
+		if(siteCoverages[i]) isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
 	}
 }
 

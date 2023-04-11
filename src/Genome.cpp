@@ -67,7 +67,9 @@ dnaweight_t Genome::mec() {
 dnaweight_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
+		assert(haplotypes[i].windowMec()>=0);
 		out += haplotypes[i].windowMec();
+		assert(out>=0);
 	}
 	return out;
 }
@@ -399,6 +401,7 @@ Range Genome::combineBlocks(Range a, Range b) {
 }
 
 void Genome::Report(int cpuSeconds, bool final) {
+    assert(this->pmec() >= 0);
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
 	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
     if (this->file.hasGroundTruth) {

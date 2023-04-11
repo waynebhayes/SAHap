@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CXXFLAGS = -g -I"include" -Wall -std=c++11 -O3 #-ggdb -pg
+CXXFLAGS = -ggdb -I"include" -Wall -std=c++11 -O0 #-O3 #-pg
 
 ifeq ($(OBJECTIVE),MEC)
     found=1

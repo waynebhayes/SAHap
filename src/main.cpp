@@ -8,6 +8,7 @@ using namespace SAHap;
 using namespace std;
 
 int main(int argc, char *argv[]) {
+
 	if (argc < 2 || argc > 4) {
 		cerr << "Usage: " << argv[0] << " <reads> [gt] [millions of iterations = 10]" << endl;
 		return 1;
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]) {
 
 	ifstream file;
 	file.open(argv[1]);
-	auto parsed = WIFInputReader::read(file, 2);
+	auto parsed = WIFInputReader::read(file, 4); // ploidy is 2nd arg
 
 	if (argc > 3) {
 		ifstream gtruth;

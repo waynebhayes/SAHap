@@ -10,6 +10,8 @@
 
 extern "C" {
 
+void Fatal(const char *fmt, const char *msg) { fprintf(stderr, fmt, msg); exit(1);}
+
 /*
 function LogPoissonPMF(l,k, pr,r,i){
   pr=0;r=-l;
@@ -42,8 +44,15 @@ function LogPoisson1_CDF(l,k, i,sum,psum){
   else return max/.894
 }
 */
+
+// l = lambda = expectde rate of Poisson process
+// k = observed value.
+// This function computes the logarithm of (1-CDF(k))... so for example if k >> l, the probability should be close to 0,
+// but the CDF at k should be close to 1.... so this function will return something close to 0 (ie., very negative logarithm)
+// OTOH, if k << l, then the CDF will be close to 0, so (1-CDF) will be close to 1, and this function will return a value
+// just slightly below zero, ie log(0.999) is about -0.001.
 double log_poisson_1_cdf(double l, unsigned k) {
-  /*
+#if 0
   if (log_poisson_1_cdf_l != l) {
     fill(log_poisson_1_cdf_memo, log_poisson_1_cdf_memo + 1000, 10);
     log_poisson_1_cdf_l = l;
@@ -52,9 +61,10 @@ double log_poisson_1_cdf(double l, unsigned k) {
   if (k < 1000 && log_poisson_1_cdf_memo[k] < 0) {
     return log_poisson_1_cdf_memo[k];
   }
-  */
+#endif
   // cout << "log_poisson_1_cdf(" << l << ", " << k << ")" << endl;
 
+  assert(l>0);
   double pmax = 2, max = -1e30;
   for (unsigned i = k; pmax != max; ++i) {
     pmax = max;
@@ -76,8 +86,6 @@ double log_poisson_1_cdf(double l, unsigned k) {
 
   return r;
 }
-
-void Fatal(const char *fmt, const char *msg) { fprintf(stderr, fmt, msg); exit(1);}
 
 FILE *Popen(const char *cmd, const char *mode) {
 #if POPEN
