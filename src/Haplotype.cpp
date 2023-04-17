@@ -1,6 +1,6 @@
 #include "Haplotype.hpp"
 
-#define SAHAP_CHROMOSOME_DEBUG_MEC 0
+#define SAHAP_CHROMOSOME_DEBUG_MEC 0 // Not sure what this is meant to debug.... chromosome?
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 #include <csignal>
 #endif
@@ -64,10 +64,10 @@ double Haplotype::mec() {
 #if SAHAP_CHROMOSOME_DEBUG_MEC
 	double imec = 0;
 	for (dnapos_t i = 0; i < this->length; ++i) {
-		this->tally(i);
-		auto majority = this->solution[i];
-		if (majority != Allele::UNKNOWN) {
-			imec += this->weights[i][flip_allele_i(majority)];
+		this->findSolution(i);
+		auto solution = this->solution[i]; // "majority" if ploidy==2 so "max"
+		if (solution != Allele::UNKNOWN) {
+			imec += this->weights[i][0 /* FIXME: all the disagreeing reads at this position */ ];
 		}
 	}
 	if (imec != this->total_mec) {
@@ -246,7 +246,7 @@ void Haplotype::removeSite(const Site &s) {
 	weights[s.pos][s.value] -= s.weight;
 
 	if (solution[s.pos] == s.value)
-		tally(s.pos);
+		findSolution(s.pos);
 
 	siteCoverages[s.pos]--;
 }
@@ -270,7 +270,7 @@ void Haplotype::vote(Read& read, bool retract) {
 #endif
 }
 
-void Haplotype::tally(dnapos_t site) {
+void Haplotype::findSolution(dnapos_t site) {
 	for (unsigned i = 0; i < ploidyCount; i++) 
 		if (weights[site][i] > weights[site][solution[site]])
 			solution[site] = i;

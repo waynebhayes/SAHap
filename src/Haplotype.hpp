@@ -119,7 +119,7 @@ protected:
 	Range window;
 	unsigned increment_window_by;
 
-	void tally(dnapos_t site);
+	void findSolution(dnapos_t site);
 	void vote(Read& read, bool retract=false);
 	void saveReads();
 	void pickReads(unsigned overlap);

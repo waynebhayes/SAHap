@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CXXFLAGS = -ggdb -I"include" -Wall -std=c++11 -O0 #-O3 #-pg
+CXXFLAGS = -ggdb -I"src" -Wall -std=c++11 -O0 #-O3 #-pg
 
 ifeq ($(OBJECTIVE),MEC)
     found=1
@@ -10,7 +10,7 @@ else
     OBJECTIVE=MEC
 endif
 CXXFLAGS := $(CXXFLAGS) '-DOBJECTIVE=OBJ_$(OBJECTIVE)'
-INCLUDES := include/Allele.hpp include/Genome.hpp include/Haplotype.hpp include/InputReader.hpp include/ScoringModel.hpp include/types.hpp include/utils.hpp
+INCLUDES := src/Allele.hpp src/Genome.hpp src/Haplotype.hpp src/InputReader.hpp src/ScoringModel.hpp src/types.hpp src/utils.hpp
 
 sahap.$(OBJECTIVE): src/main.o src/Allele.o src/Haplotype.o src/Genome.o src/InputReader.o src/utils.o
 	g++ -std=c++11 -o sahap.$(OBJECTIVE) src/*.o
