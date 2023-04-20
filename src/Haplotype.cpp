@@ -67,7 +67,12 @@ double Haplotype::mec() {
 		this->findSolution(i);
 		auto solution = this->solution[i]; // "majority" if ploidy==2 so "max"
 		if (solution != Allele::UNKNOWN) {
-			imec += this->weights[i][0 /* FIXME: all the disagreeing reads at this position */ ];
+			for (unsigned j = 0; j < ploidyCount; j++) {
+				if(j != this->solution[i]){
+					imec += this->weights[i][j];
+				}	
+			}
+		
 		}
 	}
 	if (imec != this->total_mec) {
