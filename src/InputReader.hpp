@@ -16,11 +16,13 @@ namespace SAHap {
 
 class WIFInputReader {
 public:
-	static InputFile read(ifstream& file, dnacnt_t ploidy);
+	static InputFile read(ifstream& file);
 	static void readGroundTruth(ifstream& file, InputFile& parsed);
 	static Site parseSNP(string snp);
 	// Map: actual pos -> matrix pos
 	static Read parseRead(unordered_map<dnapos_t, dnapos_t>& index, string line);
+	static dnacnt_t getPloidy(string line);
+
 };
 
 }

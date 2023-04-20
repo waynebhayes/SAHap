@@ -4,13 +4,19 @@ using namespace std;
 
 namespace SAHap {
 
-InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
+InputFile WIFInputReader::read(ifstream& file) {
 	InputFile result;
 	string buf;
 
 	dnacnt_t totalReadLength = 0;
+	
+	result.ploidy = 0;
 	while (!file.eof()) {
+		
 		getline(file, buf);
+		result.ploidy = max(WIFInputReader::getPloidy(buf)+1,result.ploidy);
+
+		
 		if (buf.size() == 0 || buf.find("#") == 0) continue;
 
 		Read read = WIFInputReader::parseRead(result.index, buf);
@@ -20,11 +26,13 @@ InputFile WIFInputReader::read(ifstream& file, dnacnt_t ploidy) {
 		totalReadLength += read.range.end - read.range.start + 1;
 	}
 	result.averageReadLength = totalReadLength / result.reads.size();
-	result.ploidy = ploidy;
+
 	// std::cout << "Total: " << totalReadLength << std::endl;
 	// std::cout << "Average Read Length: " << result.averageReadLength << std::endl;
 	return result;
 }
+
+
 
 void WIFInputReader::readGroundTruth(ifstream& file, InputFile& parsed) {
 	// Obtain sorted list of sites covered
@@ -92,6 +100,8 @@ Site WIFInputReader::parseSNP(string snp) {
 	return s;
 }
 
+
+
 Read WIFInputReader::parseRead(unordered_map<dnapos_t, dnapos_t>& index, string line) {
 	Read result;
 	istringstream iss(line);
@@ -122,5 +132,33 @@ Read WIFInputReader::parseRead(unordered_map<dnapos_t, dnapos_t>& index, string 
 
 	return result;
 }
+
+dnacnt_t WIFInputReader::getPloidy(string line) {
+	int result = 0;
+	istringstream iss(line);
+	string buf;
+	while (getline(iss, buf, ':')) {
+		istringstream siss(buf);
+		char a;
+		siss >> a;
+		if (a == '#') break;
+
+		int throwaway;
+
+		istringstream onesite(buf);
+		onesite >> throwaway;
+
+		onesite.ignore(256, ' ');
+		onesite.ignore(256, ' ');
+
+		int weight, value;
+		onesite >> value >> weight;
+		result = max(result,value);
+
+	}
+	return result;
+}
+
+
 
 }
