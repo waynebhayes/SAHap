@@ -325,7 +325,7 @@ void Genome::optimize(bool debug) {
 	assert(this->haplotypes[0].size() == this->haplotypes[1].size());
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
-	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %.4f\n",
+	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %g\n",
 	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
 
 	

@@ -5,7 +5,7 @@
 #include <csignal>
 #endif
 #define SAHAP_CHROMOSOME_ALT_MEC 0
-#define SMALL_ENOUGH_TO_IGNORE 1e-11
+#define SMALL_ENOUGH_TO_IGNORE 1e-10
 
 namespace SAHap {
 
