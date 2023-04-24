@@ -5,6 +5,7 @@
 #include <csignal>
 #endif
 #define SAHAP_CHROMOSOME_ALT_MEC 0
+#define SMALL_ENOUGH_TO_IGNORE 1e-11
 
 namespace SAHap {
 
@@ -92,6 +93,7 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
 		for (unsigned j = 0; j < ploidyCount; j++) {
 			if (j == solution[i])
 				continue;
+			if(weights[i][j] < 0 && weights[i][j] > -SMALL_ENOUGH_TO_IGNORE) weights[i][j] = 0;
 			assert(weights[i][j]>=0);
 			out += weights[i][j];
 		}
@@ -217,6 +219,7 @@ void Haplotype::subtractMECValuesAt(dnapos_t pos) {
 
 		if (isInRangeOf(window, pos))
 			window_mec -= mec;
+		if(window_mec < 0 && window_mec > -SMALL_ENOUGH_TO_IGNORE) window_mec = 0;
 		assert(window_mec>=0);
 
 		if(siteCoverages[i]) isitecost -= -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
@@ -232,6 +235,7 @@ void Haplotype::addMECValuesAt(dnapos_t pos) {
 
 		if (isInRangeOf(window, pos))
 			window_mec += mec;
+		if(window_mec < 0 && window_mec > -SMALL_ENOUGH_TO_IGNORE) window_mec = 0;
 		assert(window_mec>=0);
 
 		if(siteCoverages[i]) isitecost += -log_poisson_1_cdf(READ_ERROR_RATE * siteCoverages[i], mec);
