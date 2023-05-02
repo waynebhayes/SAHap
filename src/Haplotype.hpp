@@ -95,16 +95,16 @@ protected:
 	struct VoteInfo {
 		dnacnt_t ref_c = 0;
 		dnacnt_t alt_c = 0;
-		double ref_w = 0;
-		double alt_w = 0;
+		int ref_w = 0;
+		int alt_w = 0;
 
 		dnacnt_t& vote(Allele allele);
-		double& weight(Allele allele);
+		int& weight(Allele allele);
 	};
 
 	dnapos_t length;
 	// vector<VoteInfo> votes;
-	vector<vector<double>> weights;
+	vector<vector<int>> weights;
 	vector<dnacnt_t> siteCoverages;
 
 	double total_mec = 0; // cached MEC

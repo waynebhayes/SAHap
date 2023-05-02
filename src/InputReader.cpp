@@ -82,9 +82,9 @@ Site WIFInputReader::parseSNP(string snp) {
 	int weight, value;
 	iss >> value >> weight;
 
-	if (s.weight > 0 && s.weight <= 100) {
-		s.weight = (double)weight / 100;
-	} else {
+	if (s.weight <= 0 || s.weight > 100) {
+	// 	s.weight = (double)weight/100;
+	// } else 
 		throw "Invalid weight value";
 	}
 	//s.weight = 1; // HACK
