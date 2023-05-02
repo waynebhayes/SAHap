@@ -25,7 +25,7 @@ struct Site {
 	// Allele value = Allele::UNKNOWN;
 	int value = -1; // -1 for UNKNOWN
 	dnapos_t pos;
-	double weight = 1;
+	int weight = 1;
 };
 
 enum class Zygosity {

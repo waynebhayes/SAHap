@@ -14,14 +14,14 @@ Haplotype::Haplotype(dnapos_t length, unsigned ploidyCount)
 {
 	this->ploidyCount = ploidyCount;
 	this->solution = vector<int>(this->length, -1);
-	this->weights = vector<vector<double>>(this->length);
+	this->weights = vector<vector<int>>(this->length);
 	this->siteCoverages = vector<dnacnt_t>(this->length);
 	this->window.start = 0;
 	this->window.end = this->length;
 
 	for (dnapos_t i = 0; i < this->length; ++i) {
 		this->solution[i] = -1;
-		this->weights[i] = vector<double>(this->ploidyCount, 0);
+		this->weights[i] = vector<int>(this->ploidyCount, 0);
 		this->siteCoverages[i] = 0;
 	}
 }
@@ -294,7 +294,7 @@ dnacnt_t& Haplotype::VoteInfo::vote(Allele allele) {
 	throw "vote: Invalid allele value";
 }
 
-double& Haplotype::VoteInfo::weight(Allele allele) {
+int& Haplotype::VoteInfo::weight(Allele allele) {
 	if (allele == Allele::REF) {
 		return this->ref_w;
 	} else if (allele == Allele::ALT) {
