@@ -498,15 +498,53 @@ double Genome::AcceptBuffer::getAverage() {
 }
 
 dnacnt_t Genome::compareGroundTruth() {
-	auto l00 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
-	auto l11 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
-	auto la = l00 + l11;
 
-	auto l01 = this->compareGroundTruth(haplotypes[0], file.groundTruth[1]);
-	auto l10 = this->compareGroundTruth(haplotypes[1], file.groundTruth[0]);
-	auto lb = l01 + l10;
+	if(haplotypes.size()==4){
+		auto l0 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
+		auto l1 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
+		auto l2 = this->compareGroundTruth(haplotypes[2], file.groundTruth[2]);
+		auto l3 = this->compareGroundTruth(haplotypes[3], file.groundTruth[3]);
+		auto lowest = l0+l1+l2+l3;
 
-	return la < lb ? la : lb;
+		vector<int> a(4);
+		for(int i =0;i<haplotypes.size();i++){
+			a[i] = i;
+		}
+
+		do{
+			l0 = this->compareGroundTruth(haplotypes[0], file.groundTruth[a[0]]);
+			l1 = this->compareGroundTruth(haplotypes[1], file.groundTruth[a[1]]);
+			l2 = this->compareGroundTruth(haplotypes[2], file.groundTruth[a[2]]);
+			l3 = this->compareGroundTruth(haplotypes[3], file.groundTruth[a[3]]);
+		
+			if(lowest > l0+l1+l2+l3){
+				lowest = l0+l1+l2+l3;
+			}
+    	}while(next_permutation(a.begin(), a.end()));
+
+		// cout<<"winning combo is ";
+		// for (int i = 3; i >= 0; i--) 
+    	// 	cout << combo[i]<<",";
+		return lowest;
+	}
+	else {
+		auto l00 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
+		auto l11 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
+		auto la = l00 + l11;
+
+		auto l01 = this->compareGroundTruth(haplotypes[0], file.groundTruth[1]);
+		auto l10 = this->compareGroundTruth(haplotypes[1], file.groundTruth[0]);
+		auto lb = l01 + l10;
+
+		return la < lb ? la : lb;
+	}
+
+
+	
+
+
+
+
 }
 
 dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<int>& truth) {
