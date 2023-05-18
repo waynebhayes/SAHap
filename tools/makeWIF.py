@@ -62,7 +62,7 @@ for start in ks:
             temp_wif.write(f'{i} X {haplotypes[H][i]} 61 : ')
             if i == err_pos:
                 haplotypes[H][i] = int(not haplotypes[H][i])
-        temp_wif.write("# 60 : NA")
+        temp_wif.write("# 60 : NA\n")
         
 temp_wif.close()
 
