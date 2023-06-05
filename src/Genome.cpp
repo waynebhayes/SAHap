@@ -528,8 +528,6 @@ dnacnt_t Genome::compareGroundTruth() {
 
 
 	return lowest;
-
-	
 }
 
 dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<int>& truth) {
@@ -562,7 +560,6 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 	}
 	return stream;
 }
-
 
 void Genome::DynamicSchedule(double pBad, double TARGET_MEC)
 {

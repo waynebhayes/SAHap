@@ -5,25 +5,25 @@ import numpy as np
 
 # Create WIF files from scratch
 
-if len(sys.argv) != 4:
-    print("Usage: {} <Target SNPs> <Target Coverage> <Read Error Rate>".format(sys.argv[0]))
+if len(sys.argv) != 5:
+    print("Usage: {} <Ploidy Count> <Target SNPs> <Target Coverage> <Read Error Rate>".format(sys.argv[0]))
     sys.exit(1)
 
-snp_count = int(sys.argv[1])
-target_coverage =  int(sys.argv[2])
-read_errors = float(sys.argv[3])
+ploidy = int(sys.argv[1])
+snp_count = int(sys.argv[2])
+target_coverage =  int(sys.argv[3])
+read_errors = float(sys.argv[4])
 
 if read_errors >= 1:
     read_errors /= 100.0
 
-haplotypes = []
-haplotypes.append([])
-haplotypes.append([])
+haplotypes = [[] for i in range(ploidy)]
 
 for i in range(snp_count):
-    tmp = np.random.randint(2)
-    haplotypes[0].append(tmp)
-    haplotypes[1].append((tmp + 1) % 2)
+    haplist = list(range(0, ploidy))
+    np.random.shuffle(haplist)
+    for h in range(0, ploidy):
+        haplotypes[h].append(haplist[h])
 
 #WIF FILE
 cur_coverage = 0.0
@@ -47,23 +47,36 @@ while cur_coverage < target_coverage:
 ks = list(reads.keys())
 ks.sort()
 
+
+temp_wif = open('data/temp/temp.wif', 'w')
+
 for start in ks:
     for end in reads[start]:
         H = np.random.randint(2)
         err_pos = -1
         if np.random.random_sample() <= read_errors:
             err_pos = np.random.randint(end + 1)
-        for i in range(start,end + 1):
+        for i in range(int(start),int(end) + 1):
             if i == err_pos:
                 haplotypes[H][i] = int(not haplotypes[H][i])
-            print("{} X {} 61".format(i, haplotypes[H][i]), end=" : ")
+            temp_wif.write(f'{i} X {haplotypes[H][i]} 61 : ')
             if i == err_pos:
                 haplotypes[H][i] = int(not haplotypes[H][i])
-        print("# 60 : NA")
+        temp_wif.write("# 60 : NA\n")
+        
+temp_wif.close()
+
 
 # 4492 C 1 61 : 14636 T 0 61 :
 #GROUND TRUTH
+
+tempGT_txt = open('data/temp/tempGT.txt', 'w')
+
 for haplotype in haplotypes:
-    for i in haplotype[min_snp:max_snp+1]:
-        print(i, end="", file=sys.stderr)
-    print("", file=sys.stderr)
+    for i in haplotype[int(min_snp):int(max_snp)+1]:
+        tempGT_txt.write(str(i))
+    tempGT_txt.write("\n")
+
+tempGT_txt.close()
+
+print("data files located in 'SAHap/data/temp/'")
