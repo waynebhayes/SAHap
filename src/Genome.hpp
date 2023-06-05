@@ -103,6 +103,9 @@ protected:
 	dnapos_t numberOfSites = 0;
 	dnacnt_t increments = 0;
 
+	double lastErrorRate = 1;
+	double lastCpuTime = 0;
+
 	// The last move performed
 	struct Move {
 		size_t from;
