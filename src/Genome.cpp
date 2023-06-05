@@ -404,7 +404,7 @@ void Genome::Report(int cpuSeconds, bool final) {
     assert(this->pmec() >= 0);
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
 	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
-    if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .5) || final)) {
+    if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .25) || final || this->curIteration>=this->maxIterations)) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
