@@ -404,11 +404,13 @@ void Genome::Report(int cpuSeconds, bool final) {
     assert(this->pmec() >= 0);
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
 	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
-    if (this->file.hasGroundTruth) {
+    if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .25) || final || this->curIteration>=this->maxIterations)) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
 	    double he = (double)gt / (this->haplotypes[0].size() * haplotypes.size());
+		this->lastErrorRate = he;
+		this->lastCpuTime = cpuSeconds;
 	    printf("  ( Err_vs_truth %5d Err_Pct %.2f%% [%d %d])", (int)gt, 100*he,hapSize0,hapSize1);
 	    if(final) {
 		printf("\nEnding ground truth ");
@@ -499,52 +501,33 @@ double Genome::AcceptBuffer::getAverage() {
 
 dnacnt_t Genome::compareGroundTruth() {
 
-	if(haplotypes.size()==4){
-		auto l0 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
-		auto l1 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
-		auto l2 = this->compareGroundTruth(haplotypes[2], file.groundTruth[2]);
-		auto l3 = this->compareGroundTruth(haplotypes[3], file.groundTruth[3]);
-		auto lowest = l0+l1+l2+l3;
-
-		vector<int> a(4);
-		for(int i =0;i<haplotypes.size();i++){
-			a[i] = i;
-		}
-
-		do{
-			l0 = this->compareGroundTruth(haplotypes[0], file.groundTruth[a[0]]);
-			l1 = this->compareGroundTruth(haplotypes[1], file.groundTruth[a[1]]);
-			l2 = this->compareGroundTruth(haplotypes[2], file.groundTruth[a[2]]);
-			l3 = this->compareGroundTruth(haplotypes[3], file.groundTruth[a[3]]);
-		
-			if(lowest > l0+l1+l2+l3){
-				lowest = l0+l1+l2+l3;
-			}
-    	}while(next_permutation(a.begin(), a.end()));
-
-		// cout<<"winning combo is ";
-		// for (int i = 3; i >= 0; i--) 
-    	// 	cout << combo[i]<<",";
-		return lowest;
+	if(haplotypes.size()<=0){
+		return -1;
 	}
-	else {
-		auto l00 = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
-		auto l11 = this->compareGroundTruth(haplotypes[1], file.groundTruth[1]);
-		auto la = l00 + l11;
-
-		auto l01 = this->compareGroundTruth(haplotypes[0], file.groundTruth[1]);
-		auto l10 = this->compareGroundTruth(haplotypes[1], file.groundTruth[0]);
-		auto lb = l01 + l10;
-
-		return la < lb ? la : lb;
-	}
-
 
 	
+	auto lowest = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
+	for(int i = 1; i<haplotypes.size();i++){
+		lowest += this->compareGroundTruth(haplotypes[i], file.groundTruth[i]);
+	}
+	vector<int> a(haplotypes.size());
+	for(int i =0;i<haplotypes.size();i++){
+		a[i] = i;
+	}
+
+	do{
+		auto temp = this->compareGroundTruth(haplotypes[0], file.groundTruth[a[0]]);
+		for(int i = 1; i<haplotypes.size();i++){
+			temp += this->compareGroundTruth(haplotypes[i], file.groundTruth[a[i]]);
+		}
+
+		if(lowest > temp){
+			lowest = temp;
+		}
+	}while(next_permutation(a.begin(), a.end()));
 
 
-
-
+	return lowest;
 }
 
 dnacnt_t Genome::compareGroundTruth(const Haplotype& ch, const vector<int>& truth) {
@@ -577,7 +560,6 @@ ostream& operator << (ostream& stream, const Genome& ge) {
 	}
 	return stream;
 }
-
 
 void Genome::DynamicSchedule(double pBad, double TARGET_MEC)
 {
