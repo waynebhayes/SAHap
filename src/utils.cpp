@@ -117,13 +117,18 @@ void  Pclose(FILE *fp) {
 unsigned long GetFancySeed(Boolean trulyRandom)
 {
     unsigned long seed = 0;
-    const char *cmd = "hostname -i | awk '{for(i=1;i<=NF;i++)if(match($i,\"^[0-9]*\\\\.[0-9]*\\\\.[0-9]*\\\\.[0-9]*$\")){IP=$i;exit}}END{if(!IP)IP=\"127.0.0.1\"; print IP}'";
 
-    FILE *fp=Popen(cmd,"r");
-    int i, ip[4], host_ip=0;
-    if(4!=fscanf(fp," %d.%d.%d.%d ", ip, ip+1, ip+2, ip+3)) Fatal("Attempt to get IPv4 address failed:\n%s\n",cmd);
+    FILE *fp=Popen("hostname","r");
+    int host_ip=0, c;
+    while((c=getc(fp)) > 0) {
+	int mul, base;
+	if(isdigit(c)) { mul=10; base='0'; }
+	else if(islower(c)) {mul=26; base='a';}
+	else if(isupper(c)) {mul=26; base='A';}
+	else {mul = 127; base=0;}
+	host_ip = mul*host_ip + (c-base);
+    }
     Pclose(fp);
-    for(i=0;i<4;i++) host_ip = 256*host_ip + ip[i];
     unsigned long dev_random=0;
     if(trulyRandom) {
 	fp = fopen("/dev/urandom","r");

@@ -110,7 +110,7 @@ double Genome::siteCostScore() {
 
 	// cout << "siteCost: " << out << endl;
 
-	double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
+	// double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
 	return out;// / maxCost;
 }
 
