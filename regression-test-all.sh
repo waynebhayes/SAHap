@@ -5,28 +5,29 @@ warn(){ (echo "WARNING: $@")>&2; }
 not(){ if eval "$@"; then return 1; else return 0; fi; }
 newlines(){ awk '{for(i=1; i<=NF;i++)print $i}' "$@"; }
 parse(){ awk "BEGIN{print $@}" </dev/null; }
-cpus() {
-    TMP=/tmp/cpus.$$
 
+TMP=/tmp/cpus.$$
+ trap "/bin/rm -rf $TMP $TMP.?" 0 1 2 3 15
+
+cpus_output(){ [ -f $TMP ] && awk '{cpus=$1; av=(cpus-int('"$load"')+0*int('"$myload"')); printf "%d\n", (av<0)?0:av}' $TMP | tee $MY_CPUS_USED && exit 0; }
+
+cpus() {
     # Most Linux machines:
-    lscpu >$TMP 2>/dev/null && awk '/^CPU[(s)]*:/{cpus=$NF}END{if(cpus)print cpus; else exit 1}' $TMP && rm $TMP && return
-    rm $TMP
+    lscpu >$TMP.2 2>/dev/null &&
+	awk '/^CPU[(s)]*:/{cpus=$NF}END{if(cpus)print cpus; else exit 1}' $TMP.2 > $TMP && cpus_output
 
     # MacOS:
-    ([ `arch` = Darwin -o `uname` = Darwin ] || uname -a | grep Darwin >/dev/null) && sysctl -n hw.ncpu && return
+    (arch;uname -a) | egrep 'Darwin|arm64' >/dev/null && sysctl -n hw.ncpu > $TMP && cpus_output
 
     # Cygwin:
-    case `arch` in
-    CYGWIN*) grep -c '^processor[ 	]*:' /proc/cpuinfo; return ;;
-    *) if [ -d /dev/cpu -a ! -f /dev/cpu/microcode ]; then
-	ls -F /dev/cpu | fgrep -c
-	return
-       fi
-	;;
-    esac
-
-    # Oops
-    echo "couldn't figure out number of CPUs" >&2; exit 1
+    if (arch; uname -a) | grep CYGWIN >/dev/null; then
+	grep '^cpu cores[ 	]*:' /proc/cpuinfo > $TMP || die "shouldn't get here since CYGWIN has /proc/cpuinfo"
+	cat $TMP | uniq | awk '{print $NF}'
+    elif [ -d /dev/cpu -a ! -f /dev/cpu/microcode ]; then
+	ls -F /dev/cpu | fgrep -c > $TMP && cpus_output
+    else
+	echo "couldn't figure out number of CPUs" >&2; exit 1
+    fi
 }
 
 # generally useful Variables
@@ -60,7 +61,7 @@ while [ $# -gt -0 ]; do
     esac
 done
 
-CORES=${CORES:=`cpus 2>/dev/null | awk '{c2=int($1); if(c2>0)print c2; else print 1}'`}
+CORES=${CORES:=`cpus | awk '{c2=int($1); if(c2>0)print c2; else print 1}'`}
 [ "$CORES" -gt 0 ] || die "can't figure out how many cores this machine has"
 MAKE_CORES=$CORES
 [ `hostname` = Jenkins ] && MAKE_CORES=2 # only use 2 cores to make on Jenkins
