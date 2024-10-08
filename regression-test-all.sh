@@ -9,7 +9,7 @@ parse(){ awk "BEGIN{print $@}" </dev/null; }
 TMP=/tmp/cpus.$$
  trap "/bin/rm -rf $TMP $TMP.?" 0 1 2 3 15
 
-cpus_output(){ [ -f $TMP ] && awk '{cpus=$1; av=(cpus-int('"$load"')+0*int('"$myload"')); printf "%d\n", (av<0)?0:av}' $TMP | tee $MY_CPUS_USED && exit 0; }
+cpus_output(){ [ -f $TMP ] && awk '{cpus=$1; av=(cpus); printf "%d\n", (av<0)?0:av}' $TMP | tee $MY_CPUS_USED && exit 0; }
 
 cpus() {
     # Most Linux machines:
