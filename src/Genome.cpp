@@ -241,7 +241,9 @@ void Genome::revertMove() {
 
 void Genome::iteration() {
 	// Run an iteration
+
 	auto oldScore = this->siteCostScore();
+	// FIXME: these lines recomputes ALL the sites?? It should only incrementally compute the old and new scores at the sites touched by this read! Inefficient!
 	this->move();
 	auto newScore = this->siteCostScore();
 
