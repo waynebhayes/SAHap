@@ -38,6 +38,8 @@ using namespace std;
 
 namespace SAHap {
 
+//Expects; file of type InputFile, probably test data
+//Returns: nothing, however it updates local variables
 Genome::Genome(InputFile file)
 {
 	long int seed = GetFancySeed(true);
@@ -55,6 +57,8 @@ Genome::Genome(InputFile file)
 Genome::~Genome() {
 }
 
+//Expected: nothing
+//Returns: minimum error correction for the genome
 dnaweight_t Genome::mec() {
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
@@ -64,6 +68,8 @@ dnaweight_t Genome::mec() {
 	return out;
 }
 
+//Expected: nothing
+//Returns: partial minimum error correction (is partial because it only calculates MEC for the window)
 dnaweight_t Genome::pmec() { //Partial MEC
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
@@ -74,11 +80,16 @@ dnaweight_t Genome::pmec() { //Partial MEC
 	return out;
 }
 
+//Expected: nothing
+//Returns: mec that is a member variable
+//Questions: what does 60 stand for?
 double Genome::mecScore() {
 	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * 60;
 	return this->mec() / maxMec;
 }
 
+//Expected: nothing
+//Returns: sum of mean coverages from the haplotype vector
 double Genome::totalCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
@@ -86,6 +97,8 @@ double Genome::totalCoverage() {
     return coverage;
 }
 
+//Expected: Nothing
+//Returns: sum of mean coverages from the haplotype vector within a specific window
 double Genome::totalWindowCoverage() {
 	double coverage = 0;
 	for (size_t i = 0; i < this->haplotypes.size(); i++)
@@ -93,6 +106,8 @@ double Genome::totalWindowCoverage() {
 	return coverage;
 }
 
+//Expected: nothing
+//Returns: (probably) max cost of the all sites in haplotype
 double Genome::siteCostScore() {
 	double out = 0;
 
@@ -114,15 +129,24 @@ double Genome::siteCostScore() {
 	return out;// / maxCost;
 }
 
+
+//Expected: nothing
+//Returns: percentage of mec over maxMEC
+//Question: what is maxMEC?
 double Genome::score(dnaweight_t mec) {
 	double maxMec = this->haplotypes.size() * this->haplotypes[0].size();
 	return mec / maxMec;
 }
 
+
+//Expected: nothing
+//Returns: score of the Genome object's MEC
 double Genome::score() {
 	return this->score(this->mec());
 }
 
+//Expected: nothing
+//Returns: nothing, however it shuffles the reads 
 void Genome::shuffle() {
 	uniform_int_distribution<size_t> distribution(0, this->haplotypes.size() - 1);
 
@@ -146,6 +170,8 @@ void Genome::shuffle() {
 	// }
 }
 
+//Expected: updated score and the current (previous) score
+//Returns: number that states whether to accept a move or not
 double Genome::acceptance(double newScore, double curScore) {
 	if (newScore < curScore) return 1;
 	if (this->t == 0) return 0;
@@ -156,6 +182,8 @@ double Genome::acceptance(double newScore, double curScore) {
 	return exp(energyDiff / this->t);
 }
 
+//Expected: nothing
+//Returns: true or false based on if the program is done running
 bool Genome::done() {
 	return this->curIteration >= this->maxIterations;
 }
