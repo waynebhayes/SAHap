@@ -83,7 +83,8 @@ dnaweight_t Genome::windowMEC() {
 //Questions: what does 60 stand for?
 //FIXME: NOT BEING CALLED AT ALL
 double Genome::mecScore() {
-	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * (maxCoverageAssumption/2);
+	auto ploidy = this->haplotypes.size();
+	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * (maxCoverageAssumption/ploidy);
 	return this->mec() / maxMec;
 }
 
