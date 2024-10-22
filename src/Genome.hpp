@@ -25,13 +25,13 @@ public:
 	Genome(InputFile file);
 	~Genome();
 	dnaweight_t mec();
-	dnaweight_t pmec();
+	dnaweight_t windowMEC();
 	double mecScore();
 	double siteCostScore();
 	double score();
 	double score(dnaweight_t mec);
-	double totalCoverage();
-	double totalWindowCoverage();
+	double meanCoverage();
+	double windowMeanCoverage();
 	double fracTime();
 
 	void shuffle();

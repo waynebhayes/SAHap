@@ -33,10 +33,13 @@ const char *schedName[] = {"SCHED_NONE",       "RETREAT",       "Betz"};
 #error "invalid schedule"
 #endif
 
+int maxCoverageAssumption = 120;
+
 
 using namespace std;
 
 namespace SAHap {
+
 
 Genome::Genome(InputFile file)
 {
@@ -55,6 +58,7 @@ Genome::Genome(InputFile file)
 Genome::~Genome() {
 }
 
+
 dnaweight_t Genome::mec() {
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
@@ -64,7 +68,9 @@ dnaweight_t Genome::mec() {
 	return out;
 }
 
-dnaweight_t Genome::pmec() { //Partial MEC
+//Expected: nothing
+//Returns: partial minimum error correction (is partial because it only calculates MEC for the window)
+dnaweight_t Genome::windowMEC() { 
 	dnaweight_t out = 0;
 	for (size_t i = 0; i < haplotypes.size(); i++) {
 		assert(haplotypes[i].windowMec()>=0);
@@ -74,25 +80,35 @@ dnaweight_t Genome::pmec() { //Partial MEC
 	return out;
 }
 
+//Questions: what does 60 stand for?
+//FIXME: NOT BEING CALLED AT ALL
 double Genome::mecScore() {
-	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * 60;
+	auto ploidy = this->haplotypes.size();
+	double maxMec = this->haplotypes.size() * this->haplotypes[0].size() * (maxCoverageAssumption/ploidy);
 	return this->mec() / maxMec;
 }
 
-double Genome::totalCoverage() {
+
+//FIXME: NOT BEING CALLED AT ALL
+double Genome::meanCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
 		coverage += this->haplotypes[i].meanCoverage();
     return coverage;
 }
 
-double Genome::totalWindowCoverage() {
+//Expected: Nothing
+//Returns: sum of mean coverages from the haplotype vector within a specific window
+double Genome::windowMeanCoverage() {
 	double coverage = 0;
 	for (size_t i = 0; i < this->haplotypes.size(); i++)
 		coverage += this->haplotypes[i].windowMeanCoverage();
 	return coverage;
 }
 
+//Expected: nothing
+//Returns: (probably) max cost of the all sites in haplotype
+//CHECKME: only score calculating function that is being called
 double Genome::siteCostScore() {
 	double out = 0;
 
@@ -114,15 +130,22 @@ double Genome::siteCostScore() {
 	return out;// / maxCost;
 }
 
+
+//Expected: nothing
+//Returns: percentage of mec over maxMEC
+//Question: what is maxMEC?
 double Genome::score(dnaweight_t mec) {
 	double maxMec = this->haplotypes.size() * this->haplotypes[0].size();
 	return mec / maxMec;
 }
 
+
 double Genome::score() {
 	return this->score(this->mec());
 }
 
+//Expected: nothing
+//Returns: nothing, however it shuffles the reads 
 void Genome::shuffle() {
 	uniform_int_distribution<size_t> distribution(0, this->haplotypes.size() - 1);
 
@@ -146,6 +169,8 @@ void Genome::shuffle() {
 	// }
 }
 
+//Expected: updated score and the current (previous) score
+//Returns: number that states whether to accept a move or not
 double Genome::acceptance(double newScore, double curScore) {
 	if (newScore < curScore) return 1;
 	if (this->t == 0) return 0;
@@ -156,6 +181,8 @@ double Genome::acceptance(double newScore, double curScore) {
 	return exp(energyDiff / this->t);
 }
 
+//Expected: nothing
+//Returns: true or false based on if the program is done running
 bool Genome::done() {
 	return this->curIteration >= this->maxIterations;
 }
@@ -320,7 +347,7 @@ void Genome::optimize(bool debug) {
 	}
 
 	// Target MEC for the Window
-	double PTARGET_MEC = totalWindowCoverage() * ERROR;
+	double PTARGET_MEC = windowMeanCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	// assert(this->haplotypes.size() == 2); // FIXME need to change a few things below that assume only 0 and 1 exist.
@@ -328,7 +355,7 @@ void Genome::optimize(bool debug) {
 	printf("Performing %ld meta-iterations of %d each using schedule %s,\n",
 	    (long)(this->maxIterations/META_ITER), META_ITER, schedName[SCHEDULE]);
 	printf("optimizing objective %s across %lu sites with total coverage %g, target MEC %g\n",
-	    objName[OBJECTIVE], this->haplotypes[0].size(), this->totalCoverage(), PTARGET_MEC);
+	    objName[OBJECTIVE], this->haplotypes[0].size(), this->meanCoverage(), PTARGET_MEC);
 
 	
 	int cpuSeconds = 0;
@@ -361,10 +388,10 @@ void Genome::optimize(bool debug) {
 			}
 
 			add = 0;
-			PTARGET_MEC = totalWindowCoverage() * ERROR;
+			PTARGET_MEC = windowMeanCoverage() * ERROR;
 		} else if (prev > curIteration) {
 			add += 0.0005;
-			PTARGET_MEC = totalWindowCoverage() * (ERROR + add);
+			PTARGET_MEC = windowMeanCoverage() * (ERROR + add);
 		}
 
 		if (cpuSeconds  > tmp + 50){ // For Debugging to break out if program can't find optimal solution
@@ -403,9 +430,9 @@ Range Genome::combineBlocks(Range a, Range b) {
 }
 
 void Genome::Report(int cpuSeconds, bool final) {
-    assert(this->pmec() >= 0);
+    assert(this->windowMEC() >= 0);
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->pmec());
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->windowMEC());
     if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .25) || final || this->curIteration>=this->maxIterations)) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
@@ -608,12 +635,12 @@ the other remain constant.
 #define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
 #define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
     if(curIteration % (REPORT_INTERVAL/2) == 0) {
-	double factor = (double)pmec()/TARGET_MEC;
+	double factor = (double)windowMEC()/TARGET_MEC;
 	// double factor = (double)pmec()/(TARGET_MEC == 0 ? 0.5 : TARGET_MEC);
 	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
 	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
 	     ((fracTime()>0.5||pBad<0.1) && factor >  8) )){  // quarter to half the above works well?
-	    retreat = factor * SMALL_RETREAT / totalCoverage() * log(num_meta_iters);
+	    retreat = factor * SMALL_RETREAT / meanCoverage() * log(num_meta_iters);
 	}
 	if(fracTime()>FULL_RETREAT && factor > 1.3) {//pmec() != 0){
 	    retreat = FULL_RETREAT;
@@ -623,9 +650,9 @@ the other remain constant.
 	    cout << "Retreat " << 100*retreat << "% from " << 100 * fracTime();
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
-	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << pmec();
+	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << windowMEC();
 	    cout << ", too big by a factor of " << factor << "(" << TARGET_MEC << 
-			", " << totalWindowCoverage() << ")" << endl;
+			", " << windowMeanCoverage() << ")" << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }
