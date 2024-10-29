@@ -85,6 +85,7 @@ double Haplotype::mec() {
 	return this->total_mec;
 }
 
+// Compute the MEC across a window [s,e] for this haplotype ("side")
 double Haplotype::mec(dnapos_t s, dnapos_t e) {
 	double out = 0;
 	assert(e>=s);
@@ -150,7 +151,7 @@ void Haplotype::incrementWindow() {
 	this->window_mec = mec(this->window.start, this->window.end);
 }
 
-double Haplotype::windowMeanCoverage() {
+double Haplotype::windowTotalCoverage() {
     double result = 0.0;
     for (dnapos_t i = this->window.start; i < this->window.end; ++i) {
 		result += this->siteCoverages[i];
@@ -165,6 +166,8 @@ void Haplotype::printCoverages() {
 	cerr << endl;
 }
 
+// FIXME: is this at one site, or across a window?? Should probably be named "window" since the code works and it's called
+// from above based on a window.
 double Haplotype::siteCost() {
 	return this->isitecost;
 }

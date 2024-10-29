@@ -47,7 +47,7 @@ public:
 	/**
 	 * Compute average coverage of SNPs within the Window
 	 */
-	double windowMeanCoverage();
+	double windowTotalCoverage();
 
 	/**
 	 * Compute the site-based cost
@@ -85,7 +85,7 @@ public:
 	 */
 	void incrementWindow();
 
-	vector<int> solution;
+	vector<int> solution; // FIXME: is this a list of reads and which side they're on, or a list of sites with expected letter?
 
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 

@@ -27,11 +27,11 @@ public:
 	dnaweight_t mec();
 	dnaweight_t windowMEC();
 	double mecScore();
-	double siteCostScore();
+	double windowMec();
 	double score();
 	double score(dnaweight_t mec);
 	double meanCoverage();
-	double windowMeanCoverage();
+	double windowTotalCoverage();
 	double fracTime();
 
 	void shuffle();

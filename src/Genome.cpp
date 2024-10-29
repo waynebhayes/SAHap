@@ -99,17 +99,17 @@ double Genome::meanCoverage() {
 
 //Expected: Nothing
 //Returns: sum of mean coverages from the haplotype vector within a specific window
-double Genome::windowMeanCoverage() {
+double Genome::windowTotalCoverage() {
 	double coverage = 0;
 	for (size_t i = 0; i < this->haplotypes.size(); i++)
-		coverage += this->haplotypes[i].windowMeanCoverage();
+		coverage += this->haplotypes[i].windowTotalCoverage();
 	return coverage;
 }
 
 //Expected: nothing
 //Returns: (probably) max cost of the all sites in haplotype
 //CHECKME: only score calculating function that is being called
-double Genome::siteCostScore() {
+double Genome::windowMec() {
 	double out = 0;
 
 	for (size_t i = 0; i < haplotypes.size(); i++) {
@@ -117,7 +117,7 @@ double Genome::siteCostScore() {
 #if OBJECTIVE == OBJ_MEC
 		out = out + haplotypes[i].windowMec();
 #elif OBJECTIVE == OBJ_Poisson
-		out = out + haplotypes[i].siteCost();
+		out = out + haplotypes[i].siteCost(); // siteCost() should probably be renamed to PoissonWindowMec
 #else
 #error "No objective chosen"
 #endif
@@ -210,7 +210,6 @@ void Genome::move() {
 	auto ploidy = this->haplotypes.size();
 	size_t moveFrom = rand() % ploidy;
 	size_t moveTo;
-
 	// FIXME1: why are we picking the source haplotype FIRST when it's possible there's no
 	// reads in it? This while() loop checks for this condition and keeps looping until it finds a haplotype
 	// with reads in it... but it's probably better to pick a READ from the entire universe first, the FIND
@@ -220,7 +219,7 @@ void Genome::move() {
 	// come back all the way to here to start again... which means TWO nested while loops. Very bad.
 	// FIXME1: so, pick the read FIRST.
 	int numTries = 0;
-	while (!this->haplotypes[moveFrom].readSize()) {
+	while (!this->haplotypes[moveFrom].readSize()) { // chose moveFrom (keep choosing until we find a non-empty haplotype)
 		if (ploidy == 2) {
 			moveFrom = !moveFrom;
 		} else {
@@ -228,14 +227,13 @@ void Genome::move() {
 		}
 		assert(numTries++ < 10*ploidy); // this should be MORE than enough to NEVER iterate forever
 	}
-
+	// now choose where to move *to* (someplace other than from)
 	if (ploidy == 2) {
 		moveTo = !moveFrom;
 	} else {
 		size_t moveOffset = rand() % (ploidy - 1);
 		moveTo = (moveFrom + moveOffset + 1) % ploidy;
 	}
-
 	// Move this "pick the read" up above FIXME1, but choose among the entire universe of reads, not just those on
 	// "moveFrom". Instead, pick the read, then set moveFrom to it's current haplotype, then choose moveTo as above.
 	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
@@ -267,24 +265,22 @@ void Genome::revertMove() {
 }
 
 void Genome::iteration() {
-	// Run an iteration
-
-	auto oldScore = this->siteCostScore();
+	auto oldScore = this->windowMec();
 	// FIXME: these lines recomputes ALL the sites?? It should only incrementally compute the old and new scores at the sites touched by this read! Inefficient!
 	this->move();
-	auto newScore = this->siteCostScore();
+	auto newScore = this->windowMec();
 
 	uniform_real_distribution<double> distribution(0, 1);
 	double chanceToKeep = this->acceptance(newScore, oldScore);
 	double randomIndex = distribution(this->randomEngine);
 
-	bool isGood = oldScore > newScore;
+	bool isGood = newScore < oldScore;
 	bool accept = randomIndex <= chanceToKeep;
 	assert(!isGood || accept);
 
 	if (isGood) {
 		// always accept
-	} else if (!isGood && !accept) {
+	} else if (!accept) {
 		// reject
 		this->revertMove();
 	}
@@ -299,14 +295,14 @@ void Genome::iteration() {
 		this->pBad.record(chanceToKeep);
 	}
 
-	/*
+#if 0
 	uniform_real_distribution<double> d(0, 3);
 	if (d(this->randomEngine) <= 1) {
 		this->pBad.record(false);
 	} else {
 		this->pBad.record(true);
 	}
-	*/
+#endif
 }
 
 double Genome::getTemperature(iteration_t iteration) {
@@ -339,7 +335,7 @@ void Genome::optimize(bool debug) {
 
 	unsigned WINDOW_SIZE = increments * 2;
 	double ERROR = READ_ERROR_RATE;
-	double add = 0.0001;
+	double add = 0.0001; // FIXME: WTF is this?
 	range.end = WINDOW_SIZE;
 	
 	for (auto& haplotype : this->haplotypes) {
@@ -347,7 +343,7 @@ void Genome::optimize(bool debug) {
 	}
 
 	// Target MEC for the Window
-	double PTARGET_MEC = windowMeanCoverage() * ERROR;
+	double PTARGET_MEC = windowTotalCoverage() * ERROR;
 
 	auto start_time = duration_cast<seconds>(system_clock::now().time_since_epoch());
 	// assert(this->haplotypes.size() == 2); // FIXME need to change a few things below that assume only 0 and 1 exist.
@@ -388,10 +384,10 @@ void Genome::optimize(bool debug) {
 			}
 
 			add = 0;
-			PTARGET_MEC = windowMeanCoverage() * ERROR;
+			PTARGET_MEC = windowTotalCoverage() * ERROR;
 		} else if (prev > curIteration) {
-			add += 0.0005;
-			PTARGET_MEC = windowMeanCoverage() * (ERROR + add);
+			add += 0.0005; // FIXME: WTF is this magic number?
+			PTARGET_MEC = windowTotalCoverage() * (ERROR + add);
 		}
 
 		if (cpuSeconds  > tmp + 50){ // For Debugging to break out if program can't find optimal solution
@@ -652,7 +648,7 @@ the other remain constant.
 	    assert(this->curIteration>=0);
 	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << windowMEC();
 	    cout << ", too big by a factor of " << factor << "(" << TARGET_MEC << 
-			", " << windowMeanCoverage() << ")" << endl;
+			", " << windowTotalCoverage() << ")" << endl;
 	    prev_retreat_frac = fracTime();
 	}
     }
