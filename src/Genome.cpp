@@ -218,8 +218,8 @@ void Genome::move() {
 	// It's also bad in a WINDOWING system because if the read we pick is one we shouldn't touch, we have to
 	// come back all the way to here to start again... which means TWO nested while loops. Very bad.
 	// FIXME1: so, pick the read FIRST.
-	int numTries = 0;
-	while (!this->haplotypes[moveFrom].readSize()) { // chose moveFrom (keep choosing until we find a non-empty haplotype)
+	unsigned numTries = 0;
+	while (!this->haplotypes[moveFrom].numReads()) { // chose moveFrom (keep choosing until we find a non-empty haplotype)
 		if (ploidy == 2) {
 			moveFrom = !moveFrom;
 		} else {
@@ -234,17 +234,19 @@ void Genome::move() {
 		size_t moveOffset = rand() % (ploidy - 1);
 		moveTo = (moveFrom + moveOffset + 1) % ploidy;
 	}
+	assert(moveFrom != moveTo);
 	// Move this "pick the read" up above FIXME1, but choose among the entire universe of reads, not just those on
 	// "moveFrom". Instead, pick the read, then set moveFrom to it's current haplotype, then choose moveTo as above.
-	Read * r = this->haplotypes[moveFrom].pick(this->randomEngine);
+	Read * r = this->haplotypes[moveFrom].randomRead(this->randomEngine);
 	// HERE is where you put your code to check if this read shouldn't be touched because it has substantial
 	// overlap with the previous window. (And you can make that decision even before looking at it's haplotype.
 
 #if SAHAP_GENOME_DEBUG
+	printf("move read %p from %d to %d\n", r, moveFrom, moveTo);
 	if (!r) {
 		cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
 		std::raise(SIGINT);
-		r = this->haplotypes[moveFrom].pick(this->randomEngine);
+		r = this->haplotypes[moveFrom].randomRead(this->randomEngine);
 	}
 #endif
 
@@ -532,17 +534,17 @@ dnacnt_t Genome::compareGroundTruth() {
 
 	
 	auto lowest = this->compareGroundTruth(haplotypes[0], file.groundTruth[0]);
-	for(int i = 1; i<haplotypes.size();i++){
+	for(unsigned i = 1; i<haplotypes.size();i++){
 		lowest += this->compareGroundTruth(haplotypes[i], file.groundTruth[i]);
 	}
 	vector<int> a(haplotypes.size());
-	for(int i =0;i<haplotypes.size();i++){
+	for(unsigned i =0;i<haplotypes.size();i++){
 		a[i] = i;
 	}
 
 	do{
 		auto temp = this->compareGroundTruth(haplotypes[0], file.groundTruth[a[0]]);
-		for(int i = 1; i<haplotypes.size();i++){
+		for(unsigned i = 1; i<haplotypes.size();i++){
 			temp += this->compareGroundTruth(haplotypes[i], file.groundTruth[a[i]]);
 		}
 

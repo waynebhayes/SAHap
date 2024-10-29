@@ -27,7 +27,7 @@ public:
 	/**
 	 * Returns the number of reads in the Haplotype
 	 */
-	size_t readSize() const;
+	size_t numReads() const;
 
 	/**
 	 * Compute the total MEC
@@ -55,20 +55,20 @@ public:
 	double siteCost();
 
 	/**
-	 * Add a Read to a chromosome
+	 * Add a Read to this haplotype
 	 */
 	void add(Read * r);
 
 	/**
-	 * Remove a Read to a chromosome
+	 * Remove a Read to this haplotype
 	 */
 	void remove(Read * r);
 
 	/**
 	 * Randomly pick a Read
 	 */
-	Read * pick();
-	Read * pick(mt19937& engine);
+	Read * randomRead();
+	Read * randomRead(mt19937& engine);
 
 	/**
 	 * Print chromosome

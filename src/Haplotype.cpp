@@ -57,7 +57,7 @@ dnapos_t Haplotype::size() const {
 	return this->length;
 }
 
-size_t Haplotype::readSize() const {
+size_t Haplotype::numReads() const {
 	return this->reads.size();
 }
 
@@ -87,20 +87,20 @@ double Haplotype::mec() {
 
 // Compute the MEC across a window [s,e] for this haplotype ("side")
 double Haplotype::mec(dnapos_t s, dnapos_t e) {
-	double out = 0;
-	assert(e>=s);
+    double out = 0;
+    assert(e>=s);
 
-	for (auto i = s; i <= e && i < this->length; i++) {
-		for (unsigned j = 0; j < ploidyCount; j++) {
-			if (j == solution[i])
-				continue;
-			if(weights[i][j] < 0 && weights[i][j] > -SMALL_ENOUGH_TO_IGNORE) weights[i][j] = 0;
-			assert(weights[i][j]>=0);
-			out += weights[i][j];
-		}
+    for (unsigned j = 0; j < ploidyCount; j++) {
+	for (dnapos_t i = s; i <= e && i < this->length; i++) {
+	    if (solution[i] == (int)j) // solution is signed since (-1) is used to mean "undefined"
+		continue;
+	    if(weights[i][j] < 0 && weights[i][j] > -SMALL_ENOUGH_TO_IGNORE) weights[i][j] = 0;
+	    assert(weights[i][j]>=0);
+	    out += weights[i][j];
 	}
-	assert(out>=0);
-	return out;
+    }
+    assert(out>=0);
+    return out;
 }
 
 double Haplotype::windowMec() {
@@ -192,16 +192,16 @@ void Haplotype::remove(Read * r) {
 	this->vote(*r, true);
 }
 
-Read * Haplotype::pick() {
+Read * Haplotype::randomRead() {
 	long int seed = GetFancySeed(true);
 	cout << "Haplotype seed " << seed << endl;
 	mt19937 engine(seed);
 
-	return this->pick(engine);
+	return this->randomRead(engine);
 }
 
-Read * Haplotype::pick(mt19937& engine) {
-	if (!this->reads.size()) return nullptr;
+Read * Haplotype::randomRead(mt19937& engine) {
+	if (this->reads.size()==0) return nullptr;
 
 	uniform_int_distribution<size_t> distribution(0, this->reads.size() - 1);
 	size_t rd = distribution(engine);
@@ -214,7 +214,7 @@ bool Haplotype::isInRangeOf(Range r, dnapos_t pos) {
 
 void Haplotype::subtractMECValuesAt(dnapos_t pos) {
 	for (unsigned i = 0; i < ploidyCount; i++) {
-		if (i == solution[pos])
+		if ((int)i == solution[pos])
 			continue;
 		auto mec = weights[pos][i];
 		total_mec -= mec;
@@ -231,7 +231,7 @@ void Haplotype::subtractMECValuesAt(dnapos_t pos) {
 
 void Haplotype::addMECValuesAt(dnapos_t pos) {
 	for (unsigned i = 0; i < ploidyCount; i++) {
-		if (i == solution[pos])
+		if ((int)i == solution[pos])
 			continue;
 		auto mec = weights[pos][i];
 		total_mec += mec;
