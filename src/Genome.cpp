@@ -204,6 +204,54 @@ void Genome::setTemperature(double t) {
 	this->t = t;
 }
 
+
+void Genome::move() {
+    // Perform a random move, selecting a read first from the entire set of reads across haplotypes
+    auto ploidy = this->haplotypes.size();
+    size_t moveFrom;
+    size_t moveTo;
+
+    // First, pick a read from the entire set of reads
+    Read* r = nullptr;
+    unsigned numTries = 0;
+
+    while (!r) {  // Keep trying until we find a valid read
+        moveFrom = rand() % ploidy;
+        r = this->haplotypes[moveFrom].pick(this->randomEngine);
+        
+        assert(numTries++ < 10 * ploidy);  // Ensure we don't get stuck in an infinite loop
+    }
+
+    // Now choose where to move to (other than moveFrom)
+    if (ploidy == 2) {
+        moveTo = !moveFrom;
+    } else {
+        size_t moveOffset = rand() % (ploidy - 1);
+        moveTo = (moveFrom + moveOffset + 1) % ploidy;
+    }
+
+    assert(moveFrom != moveTo);
+
+#if SAHAP_GENOME_DEBUG
+    printf("move read %p from %d to %d\n", r, moveFrom, moveTo);
+    if (!r) {
+        cerr << "DEBUG: Haplotype " << moveFrom << " has no reads remaining" << endl;
+        std::raise(SIGINT);
+    }
+#endif
+
+    // Perform the move by adding the read to moveTo and removing it from moveFrom
+    this->haplotypes[moveTo].add(r);
+    this->haplotypes[moveFrom].remove(r);
+
+    // Save the move information for potential rollback
+    this->lastMove.from = moveFrom;
+    this->lastMove.to = moveTo;
+    this->lastMove.read = r;
+}
+
+
+/*
 void Genome::move() {
 	// Perform a random move, saving enough information so we can revert later
 
@@ -259,6 +307,7 @@ void Genome::move() {
 	this->lastMove.to = moveTo;
 	this->lastMove.read = r;
 }
+*/
 
 void Genome::revertMove() {
 	const auto& move = this->lastMove;
