@@ -206,7 +206,8 @@ void Genome::setTemperature(double t) {
 
 void Genome::move() {
 	// Perform a random move, saving enough information so we can revert later
-
+	// Read * r = this->haplotypes[moveFrom].randomRead(this->randomEngine);
+	// ASKPROF: ask dr. hayes if this is a better idea to pick a read
 	auto ploidy = this->haplotypes.size();
 	size_t moveFrom = rand() % ploidy;
 	size_t moveTo;
@@ -238,6 +239,7 @@ void Genome::move() {
 	// Move this "pick the read" up above FIXME1, but choose among the entire universe of reads, not just those on
 	// "moveFrom". Instead, pick the read, then set moveFrom to it's current haplotype, then choose moveTo as above.
 	Read * r = this->haplotypes[moveFrom].randomRead(this->randomEngine);
+	// ASKPROF: should we remove this line when we add it back on 209
 	// HERE is where you put your code to check if this read shouldn't be touched because it has substantial
 	// overlap with the previous window. (And you can make that decision even before looking at it's haplotype.
 
@@ -268,6 +270,7 @@ void Genome::revertMove() {
 
 void Genome::iteration() {
 	auto oldScore = this->windowMec();
+	// ASKPROF: use windowMEC code in order to call only for the range.start and range.end and find difference between old and new socre and add to MEC
 	// FIXME: these lines recomputes ALL the sites?? It should only incrementally compute the old and new scores at the sites touched by this read! Inefficient!
 	this->move();
 	auto newScore = this->windowMec();
@@ -329,6 +332,8 @@ void Genome::ResetBuffers() {
     this->totalBadAccepted = this->totalGood = 0;
 }
 
+
+// add is the error that we might make if we make a bad move (0.005 is its bad) or will keep it the same
 void Genome::optimize(bool debug) {
 	// unsigned int TARGET_MEC = 0;//this->haplotypes[0].size() * this->totalCoverage() * READ_ERROR_RATE;
 	// Reset state
