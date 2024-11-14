@@ -34,7 +34,7 @@ typedef struct _haplotype {
 } HAPLOTYPE;
 
 typedef struct _genome {
-    int len; // how long is the genome?
+    HAPLOTYPE haps[PLOIDY];
     int totalMEC;
     short *MEC; // the current error at each site (per-site, summed across haplotypes)
 } GENOME;
@@ -43,54 +43,36 @@ typedef struct _genome {
 static READ _read[NUM_READS]; // the global list of reads
 static SITE _site[GENOME_LEN]; // we know which reads touch each site
 
-// per-site functions
 
-char HaplotypeComputeSiteMajority(HAPLOTYPE *h, SITE *site, int *pNumTouch) {
-    assert(0<=h->id && h->id<PLOIDY);
+// Compute the per-haplotype MEC at this site for each haplotpye, and return the sum (ie totalMEC at this site)
+// On the way we also compute and assign the solution at this site for each haplotpye
+int ComputeSiteMEC(GENOME *G, SITE *site) {
     unsigned readsThatTouch[NUM_READS]; // outrageously over-sized array of reads that touch this site
     unsigned numReads = SetToArray(readsThatTouch, site->readsThatTouch);
-    int count[NUM_LETTERS]; // keep count to find majority later
-    unsigned i, r;
-    *pNumTouch=0;
-    for(i=0;i<NUM_LETTERS;i++) count[i]=0;
+    int count[PLOIDY][NUM_LETTERS], not[PLOIDY][NUM_LETTERS]; // count of letter[h][X] and disagreeing count
+    unsigned h, i, j, r, numTouch;
+    for(h=0;h<PLOIDY;h++) for(i=0;i<NUM_LETTERS;i++) count[h][i]=not[h][i]=0;
     for(i=0; i<numReads; i++) {
 	READ *r = &_read[readsThatTouch[i]]; // get pointer to each read (globally) that touches this site
 	assert(0 <= r->hap && r->hap < PLOIDY);
-	if(r->hap == h->id) { // would be more efficient to have per-hap readsThatTouch, but this'll do for now
-	    ++*pNumTouch;
-	    assert(r->start <= site->location && site->location < r->top);
-	    int readLoc = site->location - r->start;
-	    int letter = r->let[readLoc];
-	    assert(0 <= letter && letter < NUM_LETTERS);
-	    ++count[letter];
-	}
+	assert(r->start <= site->location && site->location < r->top);
+	int readLoc = site->location - r->start;
+	int letter = r->let[readLoc];
+	assert(0 <= letter && letter < NUM_LETTERS);
+	++count[r->hap][letter];
+	for(j=0;j<NUM_LETTERS;j++) if(j!=letter) ++not[r->hap][j];
     }
-    if(*pNumTouch==0) return -1; // haplotype has no reads at this site
-    int maxCount=-1, maxLet=-1;
-    for(i=0;i<NUM_LETTERS;i++) if(count[i] >= maxCount) {maxCount=count[i]; maxLet=i;}
-    assert(0<=maxCount && maxCount<=*pNumTouch && 0<=maxLet && maxLet<NUM_LETTERS);
-    return maxLet;
+    int siteMEC = 0;
+    for(h=0;h<PLOIDY;h++) {
+	int maxCount=-1, maxLet=-1;
+	for(i=0;i<NUM_LETTERS;i++) if(count[h][i] >= maxCount) {maxCount=count[h][i]; maxLet=i;}
+	G->haps[h].sol[site->location] = maxLet;
+	G->haps[h].MEC[site->location] = not[h][maxLet];
+	siteMEC += G->haps[h].MEC[site->location];
+    }
+    return siteMEC;
 }
 
-
-int HaplotypeComputeSiteMEC(HAPLOTYPE *h, SITE *site, int *pNumTouch) {
-    char majority = HaplotypeComputeSiteMajority(h, site, pNumTouch);
-    if(majority<0) return 0; // no reads touch this site at all, so MEC is 0
-    unsigned readsThatTouch[NUM_READS]; // outrageously over-sized array of reads that touch this site
-    unsigned numReads = SetToArray(readsThatTouch, site->readsThatTouch);
-    int i, MEC=0;
-    for(i=0; i<numReads; i++) {
-	READ *r = &_read[readsThatTouch[i]]; // get pointer to each read (globally) that touches this site
-	assert(0 <= r->hap && r->hap < PLOIDY);
-	if(r->hap == h->id) { // would be more efficient to have per-hap readsThatTouch, but this'll do for now
-	    assert(r->start <= site->location && site->location < r->top);
-	    int readLoc = site->location - r->start;
-	    int letter = r->let[readLoc];
-	    if(letter != majority) ++MEC;
-	}
-    }
-    return MEC;
-}
 
 // Create the ground truth genome + haplotypes (though the haplotypes will be erased after this function call).
 // Then generate the reads: each comes from a random (true) haplotype at a certain location.
@@ -115,7 +97,7 @@ static void CreateReads(void) {
     // Generate the reads
     for(int r=0; r<NUM_READS; r++) {
 	_read[r].id=r;
-	_read[r].start = drand48()*(GENOME_LEN-READ_LEN);
+	_read[r].start = drand48()*(GENOME_LEN-READ_LEN+1);
 	assert(_read[r].start >=0);
 	_read[r].top = _read[r].start+READ_LEN;
 	assert(_read[r].top <= GENOME_LEN);
@@ -146,45 +128,99 @@ static void CreateReads(void) {
     }
 }
 
+void Report(GENOME *G) {
+#if VERBOSE>1
+    for(int h=0; h<PLOIDY; h++) printf("Haplotype %d currently has %d reads\n", h, SetCardinality(G->haps[h].readSet));
+#endif
+    int genomeMEC=0;
+    for(int i=0; i<GENOME_LEN; i++) {
+	genomeMEC += ComputeSiteMEC(G, &_site[i]);
+#if VERBOSE>1
+	printf("site %d touches %d reads\n", i, SetCardinality(_site[i].readsThatTouch));
+	for(int h=0;h<PLOIDY;h++) {
+	    static SET *intersect;
+	    if(!intersect) intersect=SetAlloc(NUM_READS); else SetReset(intersect);
+	    SetIntersect(intersect, G->haps[h].readSet, _site[i].readsThatTouch);
+	    printf("\thap[%d] touches %d reads, is majority %d, with MEC %d\n", h, SetCardinality(intersect),
+		G->haps[h].sol[i], G->haps[h].MEC[i]);
+	}
+#endif
+    }
+    printf("\ngenomeMEC %d", genomeMEC);
+}
+
+void FlipRead(READ *r) {
+
+}
+
+void HillClimb(GENOME *G) {
+    int maxMEC=0, iter=0, stagnant=0;
+    while(stagnant<1000) {
+	++iter;
+	Report(G);
+	int r=drand48()*NUM_READS; // pick a read at random
+	int hap=_read[r].hap;
+	assert(hap==0 || hap==1); // the negation below only works if PLOIDY==2
+#if VERBOSE
+	printf(" Read %d is current in H%d...", r, hap);
+#endif
+	int beforeMEC=0, afterMEC=0;
+	for(int i=_read[r].start; i<_read[r].top;i++) {
+	    beforeMEC += ComputeSiteMEC(G, &_site[i]);
+	}
+	// Now flip it and recompute the MEC along its sites
+	SetDelete(G->haps[hap].readSet, r);
+	SetAdd  (G->haps[!hap].readSet, r);
+	_read[r].hap=!hap;
+	for(int i=_read[r].start; i<_read[r].top;i++) afterMEC += ComputeSiteMEC(G, &_site[i]);
+	if(beforeMEC>maxMEC || afterMEC>maxMEC) maxMEC=MAX(beforeMEC,afterMEC);
+#if VERBOSE
+	printf("before %d, after %d...", beforeMEC, afterMEC);
+#endif
+	if(afterMEC < beforeMEC) {
+	    stagnant=0;
+#if VERBOSE
+	    printf("accept ") ; // accept the move (do nothing, it's already moved)
+#endif
+	}
+	else { // reject
+	    ++stagnant;
+#if VERBOSE
+	    printf("reject(%d) ", stagnant);
+#endif
+	    afterMEC=0;
+	    _read[r].hap=hap;
+	    SetDelete(G->haps[!hap].readSet, r);
+	    SetAdd    (G->haps[hap].readSet, r);
+	    for(int i=_read[r].start; i<_read[r].top;i++) afterMEC += ComputeSiteMEC(G, &_site[i]);
+	    assert(afterMEC == beforeMEC);
+	}
+    }
+    printf("\nHill Climbing stagnated\n");
+}
+
 int main(int argc, char *argv)
 {
     srand48(time(NULL)+getpid());
 
     CreateReads(); // reads "created" from the true (but unknown here) haplotype set
 
-    HAPLOTYPE hapSol[PLOIDY]; // These are the constructed haplotypes, initially empty.
+    GENOME G;
+
     for(int h=0; h<PLOIDY; h++) {
-	hapSol[h].id=h;
-	hapSol[h].totalMEC=0;
-	hapSol[h].readSet = SetAlloc(NUM_READS);
-	hapSol[h].sol = Calloc(GENOME_LEN,sizeof(hapSol[h].sol[0])); // computed from the most common element
-	hapSol[h].MEC = Calloc(GENOME_LEN,sizeof(hapSol[h].MEC[0])); // number of differences from most common element
+	G.haps[h].id=h;
+	G.haps[h].totalMEC=0;
+	G.haps[h].readSet = SetAlloc(NUM_READS);
+	G.haps[h].sol = Calloc(GENOME_LEN,sizeof(G.haps[h].sol[0])); // computed from the most common element
+	G.haps[h].MEC = Calloc(GENOME_LEN,sizeof(G.haps[h].MEC[0])); // number of differences from most common element
     }
 
     // Initially, assign each read to a random haplotype
     for(int r=0; r<NUM_READS; r++) {
 	int hap = _read[r].hap = PLOIDY*drand48();
-	SetAdd(hapSol[hap].readSet, r);
+	SetAdd(G.haps[hap].readSet, r);
     }
 
-    // Initialize the solutions and MEC values
-    for(int i=0; i<GENOME_LEN; i++) {
-	for(int h=0; h<PLOIDY; h++) {
-	    int numTouch, majority, MEC;
-	    hapSol[h].sol[i] = HaplotypeComputeSiteMajority(&hapSol[h], &_site[i], &numTouch);
-	    hapSol[h].MEC[i] = HaplotypeComputeSiteMEC(&hapSol[h], &_site[i], &numTouch);
-	}
-    }
-#if VERBOSE
-    printf("Genome len %d, coverage %d, numReads %d, numHap %d\n", GENOME_LEN, COVERAGE, NUM_READS, PLOIDY);
-    for(int h=0; h<PLOIDY; h++) printf("Haplotype %d currently has %d reads\n", h, SetCardinality(hapSol[h].readSet));
-#endif
-    for(int i=0; i<GENOME_LEN; i++) {
-	printf("site %d touches %d reads\n", i, SetCardinality(_site[i].readsThatTouch));
-	for(int h=0;h<PLOIDY;h++) {
-	    int numTouch, majority = HaplotypeComputeSiteMajority(&hapSol[h], &_site[i], &numTouch);
-	    assert(majority == hapSol[h].sol[i]);
-	    printf("\thap[%d] touches %d reads, is majority %d, with MEC %d\n", h, numTouch, majority, hapSol[h].MEC[i]);
-	}
-    }
+    printf("Genome len %d, coverage %d, %d reads of length %d, numHap %d\n", GENOME_LEN, COVERAGE, NUM_READS, READ_LEN, PLOIDY);
+    HillClimb(&G);
 }
