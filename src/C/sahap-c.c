@@ -155,20 +155,20 @@ void FlipRead(READ *r) {
 
 void HillClimb(GENOME *G) {
     int maxMEC=0, iter=0, stagnant=0;
-    while(stagnant<1000) {
+    // Note: the "stagnant" variable isn't needed in SA, it's only needed in Hill Climbing, because if we've
+    // tried 1000 moves without any improvement, it's probably time to give up because we're at a local minimum.
+    while(stagnant<1000) { // for SA, this "while" will be replace with a loop over the temperature range estimated first by SA
 	++iter;
 	Report(G);
 	int r=drand48()*NUM_READS; // pick a read at random
 	int hap=_read[r].hap;
-	assert(hap==0 || hap==1); // the negation below only works if PLOIDY==2
+	assert(hap==0 || hap==1); // C code limitation: the negation below only works if PLOIDY==2
 #if VERBOSE
 	printf(" Read %d is current in H%d...", r, hap);
 #endif
 	int beforeMEC=0, afterMEC=0;
-	for(int i=_read[r].start; i<_read[r].top;i++) {
-	    beforeMEC += ComputeSiteMEC(G, &_site[i]);
-	}
-	// Now flip it and recompute the MEC along its sites
+	for(int i=_read[r].start; i<_read[r].top;i++) beforeMEC += ComputeSiteMEC(G, &_site[i]);
+	// Now flip it and recompute the MEC along its sites (assumes PLOIDY==1)
 	SetDelete(G->haps[hap].readSet, r);
 	SetAdd  (G->haps[!hap].readSet, r);
 	_read[r].hap=!hap;
@@ -177,6 +177,7 @@ void HillClimb(GENOME *G) {
 #if VERBOSE
 	printf("before %d, after %d...", beforeMEC, afterMEC);
 #endif
+	// Here is where SA might choose to accept a bad move rather than rejecting all bad moves.
 	if(afterMEC < beforeMEC) {
 	    stagnant=0;
 #if VERBOSE
