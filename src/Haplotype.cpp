@@ -61,33 +61,9 @@ size_t Haplotype::numReads() const {
 	return this->reads.size();
 }
 
-double Haplotype::mec() {
-#if SAHAP_CHROMOSOME_DEBUG_MEC
-	double imec = 0;
-	for (dnapos_t i = 0; i < this->length; ++i) {
-		this->findSolution(i);
-		auto solution = this->solution[i]; // "majority" if ploidy==2 so "max"
-		if (solution != Allele::UNKNOWN) {
-			for (unsigned j = 0; j < ploidyCount; j++) {
-				if(j != this->solution[i]){
-					imec += this->weights[i][j];
-				}	
-			}
-		
-		}
-	}
-	if (imec != this->total_mec) {
-		cerr << "DEBUG: Bad MEC value " << this->total_mec << ", should be " << imec << endl;
-		raise(SIGINT);
-	}
-#endif
-
-	return this->total_mec;
-}
-
 // Compute the MEC across a window [s,e] for this haplotype ("side")
-double Haplotype::mec(dnapos_t s, dnapos_t e) {
-    double out = 0;
+dnaweight_t Haplotype::windowMEC(dnapos_t s, dnapos_t e) {
+    dnaweight_t out = 0;
     assert(e>=s);
 
     for (unsigned j = 0; j < ploidyCount; j++) {
@@ -103,9 +79,9 @@ double Haplotype::mec(dnapos_t s, dnapos_t e) {
     return out;
 }
 
-double Haplotype::windowMec() {
-	assert(this->window_mec>=0);
-	return this->window_mec;
+dnaweight_t Haplotype::windowCost() {
+    cerr << "H:windowCost should choose between Poisson and MEC and call the appropriate function";
+    return -1;
 }
 
 void Haplotype::saveReads() {
@@ -166,10 +142,9 @@ void Haplotype::printCoverages() {
 	cerr << endl;
 }
 
-// FIXME: is this at one site, or across a window?? Should probably be named "window" since the code works and it's called
-// from above based on a window.
-double Haplotype::siteCost() {
-	return this->isitecost;
+// FIXME: most functions returing "double" should probably return dnaweight_t instead.
+dnaweight_t Haplotype::siteCost(const Site &s) {
+	cerr << "siteCost needs to be implemented\n";
 }
 
 void Haplotype::add(Read * r) {

@@ -24,10 +24,8 @@ class Genome {
 public:
 	Genome(InputFile file);
 	~Genome();
-	dnaweight_t mec();
-	dnaweight_t windowMEC();
+	dnaweight_t windowCost();
 	double mecScore();
-	double windowMec();
 	double score();
 	double score(dnaweight_t mec);
 	double meanCoverage();

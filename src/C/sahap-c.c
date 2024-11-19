@@ -44,8 +44,10 @@ static READ _read[NUM_READS]; // the global list of reads
 static SITE _site[GENOME_LEN]; // we know which reads touch each site
 
 
-// Compute the per-haplotype MEC at this site for each haplotpye, and return the sum (ie totalMEC at this site)
+// Computes the whole-genome MEC at a particular site by summing across the per-Haplotype MECs.
 // On the way we also compute and assign the solution at this site for each haplotpye
+// It MIGHT have made more sense to have a function that explicitly computes the MEC only for 1 haplotype,
+// but I don't want to change that right now.
 int ComputeSiteMEC(GENOME *G, SITE *site) {
     unsigned readsThatTouch[NUM_READS]; // outrageously over-sized array of reads that touch this site
     unsigned numReads = SetToArray(readsThatTouch, site->readsThatTouch);

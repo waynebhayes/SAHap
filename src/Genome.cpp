@@ -68,18 +68,6 @@ dnaweight_t Genome::mec() {
 	return out;
 }
 
-//Expected: nothing
-//Returns: partial minimum error correction (is partial because it only calculates MEC for the window)
-dnaweight_t Genome::windowMEC() { 
-	dnaweight_t out = 0;
-	for (size_t i = 0; i < haplotypes.size(); i++) {
-		assert(haplotypes[i].windowMec()>=0);
-		out += haplotypes[i].windowMec();
-		assert(out>=0);
-	}
-	return out;
-}
-
 //Questions: what does 60 stand for?
 //FIXME: NOT BEING CALLED AT ALL
 double Genome::mecScore() {
@@ -107,27 +95,16 @@ double Genome::windowTotalCoverage() {
 }
 
 //Expected: nothing
-//Returns: (probably) max cost of the all sites in haplotype
-//CHECKME: only score calculating function that is being called
-double Genome::windowMec() {
-	double out = 0;
-
+//Returns: partial minimum error correction (is partial because it only calculates MEC for the window)
+dnaweight_t Genome::windowCost() { 
+	dnaweight_t out = 0;
+	assert(PLOIDY_COUNT == haplotypes.size());
 	for (size_t i = 0; i < haplotypes.size(); i++) {
-		// -logT_p(lambda_i, k_i)
-#if OBJECTIVE == OBJ_MEC
-		out = out + haplotypes[i].windowMec();
-#elif OBJECTIVE == OBJ_Poisson
-		out = out + haplotypes[i].siteCost(); // siteCost() should probably be renamed to PoissonWindowMec
-#else
-#error "No objective chosen"
-#endif
-
+		assert(haplotypes[i].windowCost()>=0);
+		out += haplotypes[i].windowCost();
+		assert(out>=0);
 	}
-
-	// cout << "siteCost: " << out << endl;
-
-	// double maxCost = this->haplotypes.size() * this->haplotypes[0].size();
-	return out;// / maxCost;
+	return out;
 }
 
 
@@ -267,10 +244,10 @@ void Genome::revertMove() {
 }
 
 void Genome::iteration() {
-	auto oldScore = this->windowMec();
+	auto oldScore = this->windowCost();
 	// FIXME: these lines recomputes ALL the sites?? It should only incrementally compute the old and new scores at the sites touched by this read! Inefficient!
 	this->move();
-	auto newScore = this->windowMec();
+	auto newScore = this->windowCost();
 
 	uniform_real_distribution<double> distribution(0, 1);
 	double chanceToKeep = this->acceptance(newScore, oldScore);
@@ -428,9 +405,9 @@ Range Genome::combineBlocks(Range a, Range b) {
 }
 
 void Genome::Report(int cpuSeconds, bool final) {
-    assert(this->windowMEC() >= 0);
+    assert(this->windowCost() >= 0);
     printf("%2dk (%.1f%%,%ds)  T %.3f  fA %.3f  pBad %.4f  MEC %.2f", (int)this->curIteration/1000, (100*fracTime()),
-	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->windowMEC());
+	cpuSeconds, this->t, this->fAccept.getAverage(), this->pBad.getAverage(), this->windowCost());
     if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .25) || final || this->curIteration>=this->maxIterations)) {
 	    auto gt = this->compareGroundTruth();
 	    int hapSize0=this->haplotypes[0].size(),hapSize1=this->haplotypes[1].size();
@@ -633,7 +610,7 @@ the other remain constant.
 #define SMALL_RETREAT 0.01 // Let it grow with number of meta-iters? (0.01*(1+2*log(num_meta_iters)))
 #define FULL_RETREAT 0.94 // this needs to be less than (1-(REPORT_INTERVAL/2)) from the next line
     if(curIteration % (REPORT_INTERVAL/2) == 0) {
-	double factor = (double)windowMEC()/TARGET_MEC;
+	double factor = (double)windowCost()/TARGET_MEC;
 	// double factor = (double)pmec()/(TARGET_MEC == 0 ? 0.5 : TARGET_MEC);
 	if(fracTime() - prev_retreat_frac > 2*SMALL_RETREAT &&
 	    (((fracTime()>0.3||pBad<0.2) && factor > 16) ||   // 14 to 22 seems to work well
@@ -648,7 +625,7 @@ the other remain constant.
 	    cout << "Retreat " << 100*retreat << "% from " << 100 * fracTime();
 	    this->curIteration -= retreat * this->maxIterations;
 	    assert(this->curIteration>=0);
-	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << windowMEC();
+	    cout << "% to "  << 100 * fracTime() << "% because MEC is " << windowCost();
 	    cout << ", too big by a factor of " << factor << "(" << TARGET_MEC << 
 			", " << windowTotalCoverage() << ")" << endl;
 	    prev_retreat_frac = fracTime();

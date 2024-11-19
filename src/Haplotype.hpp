@@ -30,29 +30,20 @@ public:
 	size_t numReads() const;
 
 	/**
-	 * Compute the total MEC
+	 * Compute the total Cost across all sites.
 	 */
-	double mec();
+	double totalCost();
 
 	/**
-	 * Compute partial MEC 
+	 * Compute cost across a window
 	 */ 
-	double mec(dnapos_t start, dnapos_t end);
+	double windowCost(dnapos_t start, dnapos_t end);
 
-	/**
-	 * Compute current window's MEC
-	 */
-	double windowMec();
-
+	dnaweight_t siteCost(const Site &s);
 	/**
 	 * Compute average coverage of SNPs within the Window
 	 */
 	double windowTotalCoverage();
-
-	/**
-	 * Compute the site-based cost
-	 */
-	double siteCost();
 
 	/**
 	 * Add a Read to this haplotype
