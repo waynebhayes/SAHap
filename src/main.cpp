@@ -32,9 +32,9 @@ int main(int argc, char *argv[]) {
 	
 	try {
 		Genome ge(parsed);
-		ge.autoSchedule(iterations);
+		ge.AutoSchedule(iterations);
 			try {
-				ge.optimize(true);
+				ge.Optimize(true);
 				cout << ge;
 			} catch (const char * e) {
 				cerr << e << endl;
