@@ -57,9 +57,10 @@ dnapos_t Haplotype::size() const {
 	return this->length;
 }
 
-size_t Haplotype::readSize() const {
-	return this->reads.size();
-}
+// size_t Haplotype::readSize() const {
+// 	std::cout << "PSGAD Haplotype::readSize\n";
+// 	return this->reads.size();
+// }
 
 double Haplotype::mec() {
 #if SAHAP_CHROMOSOME_DEBUG_MEC
@@ -158,16 +159,6 @@ double Haplotype::windowMeanCoverage() {
     return result;//(this->window.end - this->window.start);
 }
 
-void Haplotype::printCoverages() {
-	for (auto siteCoverage : siteCoverages) {
-		cerr << siteCoverage << " ";
-	}
-	cerr << endl;
-}
-
-double Haplotype::siteCost() {
-	return this->isitecost;
-}
 
 void Haplotype::add(Read * r) {
 	if (this->reads.find(r) != this->reads.end()) {
@@ -180,21 +171,14 @@ void Haplotype::add(Read * r) {
 
 void Haplotype::remove(Read * r) {
 	if (this->reads.find(r) == this->reads.end()) {
-		cout << "Offending read is " << r << endl;
+		// REMOVED COUT HERE
+		// cout << "Offending read is " << r << endl;
 		// cout << "Offending read has #sites=" << r->sites.size();
 		throw "Haplotype does not contain read";
 	}
 
 	this->reads.erase(r);
 	this->vote(*r, true);
-}
-
-Read * Haplotype::pick() {
-	long int seed = GetFancySeed(true);
-	cout << "Haplotype seed " << seed << endl;
-	mt19937 engine(seed);
-
-	return this->pick(engine);
 }
 
 Read * Haplotype::pick(mt19937& engine) {
@@ -283,24 +267,6 @@ void Haplotype::findSolution(dnapos_t site) {
 	for (unsigned i = 0; i < ploidyCount; i++) 
 		if (weights[site][i] > weights[site][solution[site]])
 			solution[site] = i;
-}
-
-dnacnt_t& Haplotype::VoteInfo::vote(Allele allele) {
-	if (allele == Allele::REF) {
-		return this->ref_c;
-	} else if (allele == Allele::ALT) {
-		return this->alt_c;
-	}
-	throw "vote: Invalid allele value";
-}
-
-int& Haplotype::VoteInfo::weight(Allele allele) {
-	if (allele == Allele::REF) {
-		return this->ref_w;
-	} else if (allele == Allele::ALT) {
-		return this->alt_w;
-	}
-	throw "weight: Invalid allele value";
 }
 	
 ostream & operator << (ostream& stream, Haplotype& ch) {
