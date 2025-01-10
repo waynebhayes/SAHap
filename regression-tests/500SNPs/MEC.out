@@ -1,0 +1,1307 @@
+Genome seed -969678559964931864
+Finding optimal temperature schedule...
+temperature 1 gives Pbad 0.00614843 after 578 iterations
+temperature 2 gives Pbad 0.041485 after 45 iterations
+temperature 4 gives Pbad 0.0670957 after 43 iterations
+temperature 8 gives Pbad 0.0537176 after 534 iterations
+temperature 16 gives Pbad 0.179057 after 253 iterations
+temperature 32 gives Pbad 0.565289 after 30 iterations
+temperature 64 gives Pbad 0.792894 after 31 iterations
+temperature 128 gives Pbad 0.855292 after 30 iterations
+temperature 128 gives Pbad 0.807162 after 30 iterations
+temperature 128 gives Pbad 0.895387 after 30 iterations
+tInitial found: 128
+temperature 128 gives Pbad 0.826328 after 48 iterations
+temperature 64 gives Pbad 0.719127 after 30 iterations
+temperature 32 gives Pbad 0.497567 after 66 iterations
+temperature 16 gives Pbad 0.358257 after 34 iterations
+temperature 8 gives Pbad 0.114486 after 334 iterations
+temperature 4 gives Pbad 0.0569453 after 96 iterations
+temperature 2 gives Pbad 0.00343186 after 34 iterations
+temperature 1 gives Pbad 0.00756383 after 507 iterations
+temperature 0.5 gives Pbad 0.00119418 after 52 iterations
+temperature 0.25 gives Pbad 0.000198067 after 715 iterations
+temperature 0.25 gives Pbad 0.000308331 after 741 iterations
+temperature 0.3 gives Pbad 0.00108487 after 596 iterations
+tInitial = 128, tEnd = 0.3
+decay is 6.056
+Performing 1 meta-iterations of 10000 each using schedule RETREAT,
+optimizing objective MEC across 486 sites with total coverage 15.1214, target MEC 20.07
+ 1k (10.0%,0s)  T 69.898  fA 0.368  pBad 0.8029  MEC 971.00  ( Err_vs_truth   233 Err_Pct 23.97% [486 486]) 0->98
+ 2k (20.0%,0s)  T 38.147  fA 0.344  pBad 0.7324  MEC 740.00 0->98
+ 3k (30.0%,0s)  T 20.818  fA 0.265  pBad 0.4531  MEC 783.00 0->98
+ 4k (40.0%,0s)  T 11.362  fA 0.077  pBad 0.1016  MEC 541.00 0->98
+ 5k (50.0%,0s)  T 6.201  fA 0.029  pBad 0.0316  MEC 491.00 0->98
+ 6k (60.0%,0s)  T 3.384  fA 0.019  pBad 0.0142  MEC 482.00 0->98
+ 7k (70.0%,0s)  T 1.847  fA 0.009  pBad 0.0119  MEC 483.00 0->98
+ 8k (80.0%,0s)  T 1.008  fA 0.009  pBad 0.0074  MEC 483.00 0->98
+ 9k (90.0%,0s)  T 0.550  fA 0.009  pBad 0.0115  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 24.0159(20.07, 1338)
+ 1k (10.0%,0s)  T 69.898  fA 0.360  pBad 0.7946  MEC 1053.00 0->98
+ 2k (20.0%,0s)  T 38.147  fA 0.340  pBad 0.6851  MEC 918.00 0->98
+ 3k (30.0%,1s)  T 20.818  fA 0.249  pBad 0.3902  MEC 768.00 0->98
+ 4k (40.0%,1s)  T 11.362  fA 0.079  pBad 0.0812  MEC 490.00 0->98
+ 5k (50.0%,1s)  T 6.201  fA 0.027  pBad 0.0267  MEC 490.00 0->98
+ 6k (60.0%,1s)  T 3.384  fA 0.019  pBad 0.0189  MEC 483.00 0->98
+ 7k (70.0%,1s)  T 1.847  fA 0.011  pBad 0.0124  MEC 483.00 0->98
+ 8k (80.0%,1s)  T 1.008  fA 0.009  pBad 0.0082  MEC 483.00 0->98
+ 9k (90.0%,1s)  T 0.550  fA 0.011  pBad 0.0061  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 23.0923(20.8728, 1338)
+ 1k (10.0%,1s)  T 69.898  fA 0.358  pBad 0.7622  MEC 1020.00 0->98
+ 2k (20.0%,1s)  T 38.147  fA 0.334  pBad 0.6969  MEC 960.00 0->98
+ 3k (30.0%,1s)  T 20.818  fA 0.241  pBad 0.3811  MEC 588.00 0->98
+ 4k (40.0%,1s)  T 11.362  fA 0.067  pBad 0.0771  MEC 491.00 0->98
+ 5k (50.0%,1s)  T 6.201  fA 0.022  pBad 0.0232  MEC 491.00 0->98
+ 6k (60.0%,1s)  T 3.384  fA 0.021  pBad 0.0219  MEC 483.00 0->98
+ 7k (70.0%,1s)  T 1.847  fA 0.012  pBad 0.0129  MEC 483.00 0->98
+ 8k (80.0%,1s)  T 1.008  fA 0.010  pBad 0.0074  MEC 483.00 0->98
+ 9k (90.0%,1s)  T 0.550  fA 0.007  pBad 0.0081  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 22.3751(21.5418, 1338)
+ 1k (10.0%,1s)  T 69.898  fA 0.337  pBad 0.7937  MEC 968.00 0->98
+ 2k (20.0%,1s)  T 38.147  fA 0.329  pBad 0.6717  MEC 832.00 0->98
+ 3k (30.0%,1s)  T 20.818  fA 0.219  pBad 0.3609  MEC 620.00 0->98
+ 4k (40.0%,1s)  T 11.362  fA 0.051  pBad 0.0684  MEC 482.00 0->98
+ 5k (50.0%,1s)  T 6.201  fA 0.025  pBad 0.0224  MEC 490.00 0->98
+ 6k (60.0%,1s)  T 3.384  fA 0.018  pBad 0.0174  MEC 483.00 0->98
+ 7k (70.0%,1s)  T 1.847  fA 0.018  pBad 0.0190  MEC 482.00 0->98
+ 8k (80.0%,2s)  T 1.008  fA 0.009  pBad 0.0102  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,2s)  T 0.550  fA 0.011  pBad 0.0100  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 21.7012(22.2108, 1338)
+ 1k (10.0%,2s)  T 69.898  fA 0.351  pBad 0.7548  MEC 933.00 0->98
+ 2k (20.0%,2s)  T 38.147  fA 0.333  pBad 0.6647  MEC 988.00 0->98
+ 3k (30.0%,2s)  T 20.818  fA 0.230  pBad 0.3728  MEC 643.00 0->98
+ 4k (40.0%,2s)  T 11.362  fA 0.080  pBad 0.0741  MEC 526.00 0->98
+ 5k (50.0%,2s)  T 6.201  fA 0.028  pBad 0.0330  MEC 483.00 0->98
+ 6k (60.0%,2s)  T 3.384  fA 0.021  pBad 0.0221  MEC 483.00 0->98
+ 7k (70.0%,2s)  T 1.847  fA 0.008  pBad 0.0109  MEC 483.00 0->98
+ 8k (80.0%,2s)  T 1.008  fA 0.011  pBad 0.0126  MEC 483.00 0->98
+ 9k (90.0%,2s)  T 0.550  fA 0.008  pBad 0.0074  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 21.0666(22.8798, 1338)
+ 1k (10.0%,2s)  T 69.898  fA 0.369  pBad 0.7992  MEC 1017.00 0->98
+ 2k (20.0%,2s)  T 38.147  fA 0.328  pBad 0.7135  MEC 1090.00 0->98
+ 3k (30.0%,2s)  T 20.818  fA 0.238  pBad 0.3944  MEC 777.00 0->98
+ 4k (40.0%,2s)  T 11.362  fA 0.075  pBad 0.0675  MEC 576.00 0->98
+ 5k (50.0%,2s)  T 6.201  fA 0.026  pBad 0.0182  MEC 482.00 0->98
+ 6k (60.0%,2s)  T 3.384  fA 0.018  pBad 0.0173  MEC 483.00 0->98
+ 7k (70.0%,2s)  T 1.847  fA 0.015  pBad 0.0109  MEC 482.00 0->98
+ 8k (80.0%,2s)  T 1.008  fA 0.012  pBad 0.0136  MEC 482.00 0->98
+ 9k (90.0%,2s)  T 0.550  fA 0.007  pBad 0.0087  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 20.4681(23.5488, 1338)
+ 1k (10.0%,2s)  T 69.898  fA 0.357  pBad 0.7927  MEC 1070.00 0->98
+ 2k (20.0%,2s)  T 38.147  fA 0.360  pBad 0.7111  MEC 927.00 0->98
+ 3k (30.0%,2s)  T 20.818  fA 0.243  pBad 0.3897  MEC 639.00 0->98
+ 4k (40.0%,2s)  T 11.362  fA 0.076  pBad 0.0786  MEC 491.00 0->98
+ 5k (50.0%,3s)  T 6.201  fA 0.033  pBad 0.0262  MEC 483.00 0->98
+ 6k (60.0%,3s)  T 3.384  fA 0.016  pBad 0.0168  MEC 490.00 0->98
+ 7k (70.0%,3s)  T 1.847  fA 0.013  pBad 0.0111  MEC 482.00 0->98
+ 8k (80.0%,3s)  T 1.008  fA 0.010  pBad 0.0132  MEC 483.00 0->98
+ 9k (90.0%,3s)  T 0.550  fA 0.008  pBad 0.0053  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 19.9027(24.2178, 1338)
+ 1k (10.0%,3s)  T 69.898  fA 0.377  pBad 0.8032  MEC 1056.00 0->98
+ 2k (20.0%,3s)  T 38.147  fA 0.343  pBad 0.6994  MEC 824.00 0->98
+ 3k (30.0%,3s)  T 20.818  fA 0.278  pBad 0.4513  MEC 559.00 0->98
+ 4k (40.0%,3s)  T 11.362  fA 0.080  pBad 0.0709  MEC 533.00 0->98
+ 5k (50.0%,3s)  T 6.201  fA 0.031  pBad 0.0276  MEC 490.00 0->98
+ 6k (60.0%,3s)  T 3.384  fA 0.017  pBad 0.0168  MEC 482.00 0->98
+ 7k (70.0%,3s)  T 1.847  fA 0.018  pBad 0.0175  MEC 482.00 0->98
+ 8k (80.0%,3s)  T 1.008  fA 0.005  pBad 0.0057  MEC 482.00 0->98
+ 9k (90.0%,3s)  T 0.550  fA 0.006  pBad 0.0071  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 19.3677(24.8868, 1338)
+ 1k (10.0%,3s)  T 69.898  fA 0.362  pBad 0.7858  MEC 931.00 0->98
+ 2k (20.0%,3s)  T 38.147  fA 0.351  pBad 0.6987  MEC 877.00 0->98
+ 3k (30.0%,3s)  T 20.818  fA 0.198  pBad 0.3243  MEC 736.00 0->98
+ 4k (40.0%,3s)  T 11.362  fA 0.149  pBad 0.1714  MEC 604.00 0->98
+ 5k (50.0%,3s)  T 6.201  fA 0.053  pBad 0.0657  MEC 592.00 0->98
+ 6k (60.0%,3s)  T 3.384  fA 0.029  pBad 0.0387  MEC 595.00 0->98
+ 7k (70.0%,3s)  T 1.847  fA 0.019  pBad 0.0207  MEC 591.00 0->98
+ 8k (80.0%,3s)  T 1.008  fA 0.011  pBad 0.0087  MEC 592.00 0->98
+ 9k (90.0%,4s)  T 0.550  fA 0.006  pBad 0.0045  MEC 592.00  ( Err_vs_truth   302 Err_Pct 31.07% [486 486]) 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 23.1259(25.5558, 1338)
+ 1k (10.0%,4s)  T 69.898  fA 0.350  pBad 0.7871  MEC 1011.00  ( Err_vs_truth   260 Err_Pct 26.75% [486 486]) 0->98
+ 2k (20.0%,4s)  T 38.147  fA 0.336  pBad 0.6731  MEC 836.00  ( Err_vs_truth   143 Err_Pct 14.71% [486 486]) 0->98
+ 3k (30.0%,4s)  T 20.818  fA 0.245  pBad 0.4006  MEC 799.00 0->98
+ 4k (40.0%,4s)  T 11.362  fA 0.148  pBad 0.1832  MEC 595.00 0->98
+ 5k (50.0%,4s)  T 6.201  fA 0.063  pBad 0.0682  MEC 592.00 0->98
+ 6k (60.0%,4s)  T 3.384  fA 0.039  pBad 0.0358  MEC 599.00 0->98
+ 7k (70.0%,4s)  T 1.847  fA 0.020  pBad 0.0180  MEC 595.00 0->98
+ 8k (80.0%,4s)  T 1.008  fA 0.012  pBad 0.0094  MEC 591.00 0->98
+ 9k (90.0%,4s)  T 0.550  fA 0.007  pBad 0.0053  MEC 592.00 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 22.5359(26.2248, 1338)
+ 1k (10.0%,4s)  T 69.898  fA 0.378  pBad 0.7866  MEC 978.00 0->98
+ 2k (20.0%,4s)  T 38.147  fA 0.338  pBad 0.7201  MEC 1029.00 0->98
+ 3k (30.0%,4s)  T 20.818  fA 0.264  pBad 0.4878  MEC 544.00 0->98
+ 4k (40.0%,4s)  T 11.362  fA 0.064  pBad 0.0715  MEC 540.00 0->98
+ 5k (50.0%,4s)  T 6.201  fA 0.023  pBad 0.0247  MEC 491.00 0->98
+ 6k (60.0%,4s)  T 3.384  fA 0.016  pBad 0.0168  MEC 483.00 0->98
+ 7k (70.0%,4s)  T 1.847  fA 0.014  pBad 0.0193  MEC 482.00 0->98
+ 8k (80.0%,4s)  T 1.008  fA 0.008  pBad 0.0092  MEC 483.00 0->98
+ 9k (90.0%,4s)  T 0.550  fA 0.004  pBad 0.0070  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 17.9223(26.8938, 1338)
+ 1k (10.0%,4s)  T 69.898  fA 0.368  pBad 0.8286  MEC 1013.00 0->98
+ 2k (20.0%,4s)  T 38.147  fA 0.322  pBad 0.7020  MEC 928.00 0->98
+ 3k (30.0%,4s)  T 20.818  fA 0.215  pBad 0.3619  MEC 585.00 0->98
+ 4k (40.0%,4s)  T 11.362  fA 0.057  pBad 0.0746  MEC 581.00 0->98
+ 5k (50.0%,5s)  T 6.201  fA 0.026  pBad 0.0208  MEC 483.00 0->98
+ 6k (60.0%,5s)  T 3.384  fA 0.020  pBad 0.0182  MEC 491.00 0->98
+ 7k (70.0%,5s)  T 1.847  fA 0.010  pBad 0.0123  MEC 483.00 0->98
+ 8k (80.0%,5s)  T 1.008  fA 0.011  pBad 0.0105  MEC 483.00 0->98
+ 9k (90.0%,5s)  T 0.550  fA 0.007  pBad 0.0045  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 17.4873(27.5628, 1338)
+ 1k (10.0%,5s)  T 69.898  fA 0.369  pBad 0.8019  MEC 1070.00 0->98
+ 2k (20.0%,5s)  T 38.147  fA 0.324  pBad 0.7118  MEC 862.00 0->98
+ 3k (30.0%,5s)  T 20.818  fA 0.185  pBad 0.2922  MEC 540.00 0->98
+ 4k (40.0%,5s)  T 11.362  fA 0.057  pBad 0.0722  MEC 543.00 0->98
+ 5k (50.0%,5s)  T 6.201  fA 0.032  pBad 0.0292  MEC 491.00 0->98
+ 6k (60.0%,5s)  T 3.384  fA 0.017  pBad 0.0146  MEC 482.00 0->98
+ 7k (70.0%,5s)  T 1.847  fA 0.018  pBad 0.0172  MEC 483.00 0->98
+ 8k (80.0%,5s)  T 1.008  fA 0.008  pBad 0.0100  MEC 482.00 0->98
+ 9k (90.0%,5s)  T 0.550  fA 0.005  pBad 0.0056  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 17.0729(28.2318, 1338)
+ 1k (10.0%,5s)  T 69.898  fA 0.359  pBad 0.7412  MEC 693.00 0->98
+ 2k (20.0%,5s)  T 38.147  fA 0.321  pBad 0.6421  MEC 819.00 0->98
+ 3k (30.0%,5s)  T 20.818  fA 0.214  pBad 0.3248  MEC 536.00 0->98
+ 4k (40.0%,5s)  T 11.362  fA 0.068  pBad 0.0749  MEC 536.00 0->98
+ 5k (50.0%,5s)  T 6.201  fA 0.033  pBad 0.0254  MEC 483.00 0->98
+ 6k (60.0%,5s)  T 3.384  fA 0.018  pBad 0.0156  MEC 483.00 0->98
+ 7k (70.0%,5s)  T 1.847  fA 0.011  pBad 0.0114  MEC 482.00 0->98
+ 8k (80.0%,5s)  T 1.008  fA 0.009  pBad 0.0113  MEC 482.00 0->98
+ 9k (90.0%,5s)  T 0.550  fA 0.009  pBad 0.0045  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 16.7123(28.9008, 1338)
+ 1k (10.0%,5s)  T 69.898  fA 0.364  pBad 0.8053  MEC 1035.00 0->98
+ 2k (20.0%,6s)  T 38.147  fA 0.335  pBad 0.7297  MEC 949.00  ( Err_vs_truth   283 Err_Pct 29.12% [486 486]) 0->98
+ 3k (30.0%,6s)  T 20.818  fA 0.251  pBad 0.4309  MEC 778.00  ( Err_vs_truth   169 Err_Pct 17.39% [486 486]) 0->98
+ 4k (40.0%,6s)  T 11.362  fA 0.070  pBad 0.0806  MEC 491.00 0->98
+ 5k (50.0%,6s)  T 6.201  fA 0.026  pBad 0.0269  MEC 490.00 0->98
+ 6k (60.0%,6s)  T 3.384  fA 0.013  pBad 0.0157  MEC 483.00 0->98
+ 7k (70.0%,6s)  T 1.847  fA 0.014  pBad 0.0155  MEC 483.00 0->98
+ 8k (80.0%,6s)  T 1.008  fA 0.007  pBad 0.0109  MEC 483.00 0->98
+ 9k (90.0%,6s)  T 0.550  fA 0.006  pBad 0.0057  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 16.3004(29.5698, 1338)
+ 1k (10.0%,6s)  T 69.898  fA 0.360  pBad 0.8248  MEC 983.00 0->98
+ 2k (20.0%,6s)  T 38.147  fA 0.343  pBad 0.7173  MEC 991.00 0->98
+ 3k (30.0%,6s)  T 20.818  fA 0.244  pBad 0.3919  MEC 583.00 0->98
+ 4k (40.0%,6s)  T 11.362  fA 0.061  pBad 0.0654  MEC 483.00 0->98
+ 5k (50.0%,6s)  T 6.201  fA 0.025  pBad 0.0270  MEC 491.00 0->98
+ 6k (60.0%,6s)  T 3.384  fA 0.024  pBad 0.0196  MEC 483.00 0->98
+ 7k (70.0%,6s)  T 1.847  fA 0.016  pBad 0.0171  MEC 482.00 0->98
+ 8k (80.0%,6s)  T 1.008  fA 0.013  pBad 0.0078  MEC 482.00 0->98
+ 9k (90.0%,6s)  T 0.550  fA 0.008  pBad 0.0062  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 15.9398(30.2388, 1338)
+ 1k (10.0%,6s)  T 69.898  fA 0.361  pBad 0.8169  MEC 1015.00 0->98
+ 2k (20.0%,6s)  T 38.147  fA 0.324  pBad 0.6548  MEC 834.00 0->98
+ 3k (30.0%,6s)  T 20.818  fA 0.233  pBad 0.3596  MEC 633.00 0->98
+ 4k (40.0%,6s)  T 11.362  fA 0.062  pBad 0.0715  MEC 491.00 0->98
+ 5k (50.0%,6s)  T 6.201  fA 0.027  pBad 0.0254  MEC 491.00 0->98
+ 6k (60.0%,6s)  T 3.384  fA 0.020  pBad 0.0157  MEC 483.00 0->98
+ 7k (70.0%,7s)  T 1.847  fA 0.010  pBad 0.0130  MEC 482.00 0->98
+ 8k (80.0%,7s)  T 1.008  fA 0.008  pBad 0.0079  MEC 482.00 0->98
+ 9k (90.0%,7s)  T 0.550  fA 0.008  pBad 0.0073  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 15.5948(30.9078, 1338)
+ 1k (10.0%,7s)  T 69.898  fA 0.376  pBad 0.7841  MEC 959.00 0->98
+ 2k (20.0%,7s)  T 38.147  fA 0.334  pBad 0.6714  MEC 908.00 0->98
+ 3k (30.0%,7s)  T 20.818  fA 0.249  pBad 0.4088  MEC 755.00 0->98
+ 4k (40.0%,7s)  T 11.362  fA 0.080  pBad 0.0771  MEC 536.00 0->98
+ 5k (50.0%,7s)  T 6.201  fA 0.030  pBad 0.0235  MEC 490.00 0->98
+ 6k (60.0%,7s)  T 3.384  fA 0.020  pBad 0.0228  MEC 490.00 0->98
+ 7k (70.0%,7s)  T 1.847  fA 0.013  pBad 0.0114  MEC 482.00 0->98
+ 8k (80.0%,7s)  T 1.008  fA 0.010  pBad 0.0122  MEC 482.00 0->98
+ 9k (90.0%,7s)  T 0.550  fA 0.009  pBad 0.0065  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 15.2644(31.5768, 1338)
+ 1k (10.0%,7s)  T 69.898  fA 0.356  pBad 0.7615  MEC 979.00 0->98
+ 2k (20.0%,7s)  T 38.147  fA 0.348  pBad 0.6666  MEC 933.00 0->98
+ 3k (30.0%,7s)  T 20.818  fA 0.205  pBad 0.3364  MEC 605.00 0->98
+ 4k (40.0%,7s)  T 11.362  fA 0.062  pBad 0.0811  MEC 490.00 0->98
+ 5k (50.0%,7s)  T 6.201  fA 0.026  pBad 0.0283  MEC 491.00 0->98
+ 6k (60.0%,7s)  T 3.384  fA 0.020  pBad 0.0179  MEC 483.00 0->98
+ 7k (70.0%,7s)  T 1.847  fA 0.013  pBad 0.0122  MEC 483.00 0->98
+ 8k (80.0%,7s)  T 1.008  fA 0.010  pBad 0.0086  MEC 482.00 0->98
+ 9k (90.0%,7s)  T 0.550  fA 0.005  pBad 0.0069  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 14.9477(32.2458, 1338)
+ 1k (10.0%,7s)  T 69.898  fA 0.358  pBad 0.7808  MEC 941.00 0->98
+ 2k (20.0%,7s)  T 38.147  fA 0.358  pBad 0.7157  MEC 990.00 0->98
+ 3k (30.0%,7s)  T 20.818  fA 0.228  pBad 0.3981  MEC 825.00 0->98
+ 4k (40.0%,8s)  T 11.362  fA 0.077  pBad 0.0792  MEC 542.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 5k (50.0%,8s)  T 6.201  fA 0.022  pBad 0.0279  MEC 483.00 0->98
+ 6k (60.0%,8s)  T 3.384  fA 0.022  pBad 0.0203  MEC 483.00 0->98
+ 7k (70.0%,8s)  T 1.847  fA 0.012  pBad 0.0123  MEC 482.00 0->98
+ 8k (80.0%,8s)  T 1.008  fA 0.006  pBad 0.0053  MEC 482.00 0->98
+ 9k (90.0%,8s)  T 0.550  fA 0.006  pBad 0.0073  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 14.6742(32.9148, 1338)
+ 1k (10.0%,8s)  T 69.898  fA 0.372  pBad 0.7750  MEC 963.00 0->98
+ 2k (20.0%,8s)  T 38.147  fA 0.346  pBad 0.7077  MEC 876.00 0->98
+ 3k (30.0%,8s)  T 20.818  fA 0.258  pBad 0.4275  MEC 582.00 0->98
+ 4k (40.0%,8s)  T 11.362  fA 0.058  pBad 0.0758  MEC 541.00 0->98
+ 5k (50.0%,8s)  T 6.201  fA 0.034  pBad 0.0289  MEC 491.00 0->98
+ 6k (60.0%,8s)  T 3.384  fA 0.018  pBad 0.0258  MEC 483.00 0->98
+ 7k (70.0%,8s)  T 1.847  fA 0.008  pBad 0.0124  MEC 482.00 0->98
+ 8k (80.0%,8s)  T 1.008  fA 0.012  pBad 0.0099  MEC 482.00 0->98
+ 9k (90.0%,8s)  T 0.550  fA 0.003  pBad 0.0065  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 14.3522(33.5838, 1338)
+ 1k (10.0%,8s)  T 69.898  fA 0.346  pBad 0.7837  MEC 1028.00 0->98
+ 2k (20.0%,8s)  T 38.147  fA 0.364  pBad 0.6815  MEC 880.00 0->98
+ 3k (30.0%,8s)  T 20.818  fA 0.211  pBad 0.3207  MEC 622.00 0->98
+ 4k (40.0%,8s)  T 11.362  fA 0.063  pBad 0.0738  MEC 539.00 0->98
+ 5k (50.0%,8s)  T 6.201  fA 0.019  pBad 0.0213  MEC 483.00 0->98
+ 6k (60.0%,8s)  T 3.384  fA 0.018  pBad 0.0182  MEC 483.00 0->98
+ 7k (70.0%,8s)  T 1.847  fA 0.010  pBad 0.0120  MEC 483.00 0->98
+ 8k (80.0%,9s)  T 1.008  fA 0.012  pBad 0.0102  MEC 483.00 0->98
+ 9k (90.0%,9s)  T 0.550  fA 0.006  pBad 0.0052  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 14.0718(34.2528, 1338)
+ 1k (10.0%,9s)  T 69.898  fA 0.343  pBad 0.7828  MEC 956.00 0->98
+ 2k (20.0%,9s)  T 38.147  fA 0.359  pBad 0.6666  MEC 911.00 0->98
+ 3k (30.0%,9s)  T 20.818  fA 0.266  pBad 0.4834  MEC 705.00 0->98
+ 4k (40.0%,9s)  T 11.362  fA 0.122  pBad 0.1690  MEC 482.00 0->98
+ 5k (50.0%,9s)  T 6.201  fA 0.025  pBad 0.0305  MEC 491.00 0->98
+ 6k (60.0%,9s)  T 3.384  fA 0.016  pBad 0.0141  MEC 482.00 0->98
+ 7k (70.0%,9s)  T 1.847  fA 0.014  pBad 0.0153  MEC 482.00 0->98
+ 8k (80.0%,9s)  T 1.008  fA 0.012  pBad 0.0082  MEC 482.00 0->98
+ 9k (90.0%,9s)  T 0.550  fA 0.006  pBad 0.0051  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 13.8309(34.9218, 1338)
+ 1k (10.0%,9s)  T 69.898  fA 0.370  pBad 0.8001  MEC 1087.00 0->98
+ 2k (20.0%,9s)  T 38.147  fA 0.345  pBad 0.7173  MEC 948.00 0->98
+ 3k (30.0%,9s)  T 20.818  fA 0.234  pBad 0.3915  MEC 491.00 0->98
+ 4k (40.0%,9s)  T 11.362  fA 0.069  pBad 0.0768  MEC 536.00 0->98
+ 5k (50.0%,9s)  T 6.201  fA 0.031  pBad 0.0294  MEC 483.00 0->98
+ 6k (60.0%,9s)  T 3.384  fA 0.017  pBad 0.0156  MEC 483.00 0->98
+ 7k (70.0%,9s)  T 1.847  fA 0.013  pBad 0.0113  MEC 482.00 0->98
+ 8k (80.0%,9s)  T 1.008  fA 0.008  pBad 0.0120  MEC 482.00 0->98
+ 9k (90.0%,9s)  T 0.550  fA 0.007  pBad 0.0069  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 13.5709(35.5908, 1338)
+ 1k (10.0%,9s)  T 69.898  fA 0.368  pBad 0.7969  MEC 893.00 0->98
+ 2k (20.0%,9s)  T 38.147  fA 0.329  pBad 0.6966  MEC 1036.00 0->98
+ 3k (30.0%,9s)  T 20.818  fA 0.226  pBad 0.3694  MEC 828.00 0->98
+ 4k (40.0%,9s)  T 11.362  fA 0.068  pBad 0.0784  MEC 490.00 0->98
+ 5k (50.0%,10s)  T 6.201  fA 0.030  pBad 0.0298  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 6k (60.0%,10s)  T 3.384  fA 0.015  pBad 0.0136  MEC 482.00 0->98
+ 7k (70.0%,10s)  T 1.847  fA 0.013  pBad 0.0130  MEC 482.00 0->98
+ 8k (80.0%,10s)  T 1.008  fA 0.010  pBad 0.0089  MEC 482.00 0->98
+ 9k (90.0%,10s)  T 0.550  fA 0.007  pBad 0.0064  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 13.293(36.2598, 1338)
+ 1k (10.0%,10s)  T 69.898  fA 0.377  pBad 0.7854  MEC 843.00 0->98
+ 2k (20.0%,10s)  T 38.147  fA 0.326  pBad 0.6713  MEC 1003.00 0->98
+ 3k (30.0%,10s)  T 20.818  fA 0.278  pBad 0.4666  MEC 739.00 0->98
+ 4k (40.0%,10s)  T 11.362  fA 0.083  pBad 0.0850  MEC 491.00 0->98
+ 5k (50.0%,10s)  T 6.201  fA 0.028  pBad 0.0208  MEC 491.00 0->98
+ 6k (60.0%,10s)  T 3.384  fA 0.021  pBad 0.0187  MEC 490.00 0->98
+ 7k (70.0%,10s)  T 1.847  fA 0.013  pBad 0.0126  MEC 483.00 0->98
+ 8k (80.0%,10s)  T 1.008  fA 0.009  pBad 0.0099  MEC 482.00 0->98
+ 9k (90.0%,10s)  T 0.550  fA 0.004  pBad 0.0040  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 13.0521(36.9288, 1338)
+ 1k (10.0%,10s)  T 69.898  fA 0.347  pBad 0.8183  MEC 957.00 0->98
+ 2k (20.0%,10s)  T 38.147  fA 0.360  pBad 0.7268  MEC 911.00 0->98
+ 3k (30.0%,10s)  T 20.818  fA 0.234  pBad 0.3850  MEC 640.00 0->98
+ 4k (40.0%,10s)  T 11.362  fA 0.065  pBad 0.0770  MEC 483.00 0->98
+ 5k (50.0%,10s)  T 6.201  fA 0.025  pBad 0.0256  MEC 483.00 0->98
+ 6k (60.0%,10s)  T 3.384  fA 0.014  pBad 0.0142  MEC 483.00 0->98
+ 7k (70.0%,10s)  T 1.847  fA 0.012  pBad 0.0117  MEC 483.00 0->98
+ 8k (80.0%,10s)  T 1.008  fA 0.011  pBad 0.0077  MEC 482.00 0->98
+ 9k (90.0%,10s)  T 0.550  fA 0.004  pBad 0.0076  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 12.8199(37.5978, 1338)
+ 1k (10.0%,11s)  T 69.898  fA 0.374  pBad 0.7799  MEC 945.00 0->98
+ 2k (20.0%,11s)  T 38.147  fA 0.349  pBad 0.6936  MEC 889.00 0->98
+ 3k (30.0%,11s)  T 20.818  fA 0.233  pBad 0.3846  MEC 867.00 0->98
+ 4k (40.0%,11s)  T 11.362  fA 0.063  pBad 0.0898  MEC 491.00 0->98
+ 5k (50.0%,11s)  T 6.201  fA 0.027  pBad 0.0268  MEC 483.00 0->98
+ 6k (60.0%,11s)  T 3.384  fA 0.020  pBad 0.0220  MEC 482.00 0->98
+ 7k (70.0%,11s)  T 1.847  fA 0.014  pBad 0.0147  MEC 483.00 0->98
+ 8k (80.0%,11s)  T 1.008  fA 0.015  pBad 0.0130  MEC 482.00 0->98
+ 9k (90.0%,11s)  T 0.550  fA 0.004  pBad 0.0067  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 12.5958(38.2668, 1338)
+ 1k (10.0%,11s)  T 69.898  fA 0.377  pBad 0.7731  MEC 898.00 0->98
+ 2k (20.0%,11s)  T 38.147  fA 0.340  pBad 0.7079  MEC 1039.00 0->98
+ 3k (30.0%,11s)  T 20.818  fA 0.210  pBad 0.3506  MEC 677.00 0->98
+ 4k (40.0%,11s)  T 11.362  fA 0.078  pBad 0.0736  MEC 535.00 0->98
+ 5k (50.0%,11s)  T 6.201  fA 0.020  pBad 0.0223  MEC 490.00 0->98
+ 6k (60.0%,11s)  T 3.384  fA 0.026  pBad 0.0210  MEC 483.00 0->98
+ 7k (70.0%,11s)  T 1.847  fA 0.018  pBad 0.0158  MEC 483.00 0->98
+ 8k (80.0%,11s)  T 1.008  fA 0.012  pBad 0.0095  MEC 483.00 0->98
+ 9k (90.0%,11s)  T 0.550  fA 0.007  pBad 0.0047  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 12.3794(38.9358, 1338)
+ 1k (10.0%,11s)  T 69.898  fA 0.376  pBad 0.7989  MEC 867.00 0->98
+ 2k (20.0%,11s)  T 38.147  fA 0.358  pBad 0.7100  MEC 895.00 0->98
+ 3k (30.0%,11s)  T 20.818  fA 0.214  pBad 0.3537  MEC 581.00 0->98
+ 4k (40.0%,11s)  T 11.362  fA 0.074  pBad 0.0744  MEC 491.00 0->98
+ 5k (50.0%,12s)  T 6.201  fA 0.028  pBad 0.0290  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 6k (60.0%,12s)  T 3.384  fA 0.018  pBad 0.0159  MEC 491.00 0->98
+ 7k (70.0%,12s)  T 1.847  fA 0.016  pBad 0.0152  MEC 483.00 0->98
+ 8k (80.0%,12s)  T 1.008  fA 0.008  pBad 0.0065  MEC 483.00 0->98
+ 9k (90.0%,12s)  T 0.550  fA 0.007  pBad 0.0074  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 12.1702(39.6048, 1338)
+ 1k (10.0%,12s)  T 69.898  fA 0.390  pBad 0.7889  MEC 981.00 0->98
+ 2k (20.0%,12s)  T 38.147  fA 0.331  pBad 0.7043  MEC 888.00 0->98
+ 3k (30.0%,12s)  T 20.818  fA 0.223  pBad 0.3917  MEC 877.00 0->98
+ 4k (40.0%,12s)  T 11.362  fA 0.076  pBad 0.0818  MEC 538.00 0->98
+ 5k (50.0%,12s)  T 6.201  fA 0.028  pBad 0.0306  MEC 491.00 0->98
+ 6k (60.0%,12s)  T 3.384  fA 0.019  pBad 0.0197  MEC 491.00 0->98
+ 7k (70.0%,12s)  T 1.847  fA 0.012  pBad 0.0122  MEC 483.00 0->98
+ 8k (80.0%,12s)  T 1.008  fA 0.012  pBad 0.0095  MEC 483.00 0->98
+ 9k (90.0%,12s)  T 0.550  fA 0.008  pBad 0.0057  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.9681(40.2738, 1338)
+ 1k (10.0%,12s)  T 69.898  fA 0.371  pBad 0.7829  MEC 856.00 0->98
+ 2k (20.0%,12s)  T 38.147  fA 0.323  pBad 0.6985  MEC 926.00 0->98
+ 3k (30.0%,12s)  T 20.818  fA 0.268  pBad 0.4136  MEC 702.00 0->98
+ 4k (40.0%,12s)  T 11.362  fA 0.072  pBad 0.0810  MEC 531.00 0->98
+ 5k (50.0%,12s)  T 6.201  fA 0.036  pBad 0.0293  MEC 483.00 0->98
+ 6k (60.0%,12s)  T 3.384  fA 0.017  pBad 0.0152  MEC 491.00 0->98
+ 7k (70.0%,12s)  T 1.847  fA 0.014  pBad 0.0136  MEC 483.00 0->98
+ 8k (80.0%,12s)  T 1.008  fA 0.006  pBad 0.0070  MEC 483.00 0->98
+ 9k (90.0%,12s)  T 0.550  fA 0.009  pBad 0.0079  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.7725(40.9428, 1338)
+ 1k (10.0%,13s)  T 69.898  fA 0.344  pBad 0.8042  MEC 1034.00 0->98
+ 2k (20.0%,13s)  T 38.147  fA 0.331  pBad 0.6864  MEC 858.00 0->98
+ 3k (30.0%,13s)  T 20.818  fA 0.246  pBad 0.4185  MEC 842.00 0->98
+ 4k (40.0%,13s)  T 11.362  fA 0.159  pBad 0.2046  MEC 634.00 0->98
+ 5k (50.0%,13s)  T 6.201  fA 0.028  pBad 0.0259  MEC 491.00 0->98
+ 6k (60.0%,13s)  T 3.384  fA 0.021  pBad 0.0168  MEC 482.00 0->98
+ 7k (70.0%,13s)  T 1.847  fA 0.011  pBad 0.0140  MEC 482.00 0->98
+ 8k (80.0%,13s)  T 1.008  fA 0.007  pBad 0.0064  MEC 482.00 0->98
+ 9k (90.0%,13s)  T 0.550  fA 0.005  pBad 0.0075  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.5833(41.6118, 1338)
+ 1k (10.0%,13s)  T 69.898  fA 0.359  pBad 0.7643  MEC 1010.00 0->98
+ 2k (20.0%,13s)  T 38.147  fA 0.328  pBad 0.6800  MEC 791.00 0->98
+ 3k (30.0%,13s)  T 20.818  fA 0.205  pBad 0.3101  MEC 483.00 0->98
+ 4k (40.0%,13s)  T 11.362  fA 0.055  pBad 0.0698  MEC 542.00 0->98
+ 5k (50.0%,13s)  T 6.201  fA 0.023  pBad 0.0278  MEC 491.00 0->98
+ 6k (60.0%,13s)  T 3.384  fA 0.016  pBad 0.0157  MEC 483.00 0->98
+ 7k (70.0%,13s)  T 1.847  fA 0.014  pBad 0.0108  MEC 483.00 0->98
+ 8k (80.0%,13s)  T 1.008  fA 0.009  pBad 0.0115  MEC 482.00 0->98
+ 9k (90.0%,13s)  T 0.550  fA 0.010  pBad 0.0082  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.4(42.2808, 1338)
+ 1k (10.0%,13s)  T 69.898  fA 0.354  pBad 0.7748  MEC 918.00 0->98
+ 2k (20.0%,13s)  T 38.147  fA 0.355  pBad 0.6846  MEC 933.00 0->98
+ 3k (30.0%,13s)  T 20.818  fA 0.217  pBad 0.3338  MEC 719.00 0->98
+ 4k (40.0%,13s)  T 11.362  fA 0.060  pBad 0.0730  MEC 490.00 0->98
+ 5k (50.0%,13s)  T 6.201  fA 0.026  pBad 0.0255  MEC 483.00 0->98
+ 6k (60.0%,14s)  T 3.384  fA 0.022  pBad 0.0213  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 7k (70.0%,14s)  T 1.847  fA 0.017  pBad 0.0159  MEC 482.00 0->98
+ 8k (80.0%,14s)  T 1.008  fA 0.007  pBad 0.0065  MEC 483.00 0->98
+ 9k (90.0%,14s)  T 0.550  fA 0.005  pBad 0.0032  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.2224(42.9498, 1338)
+ 1k (10.0%,14s)  T 69.898  fA 0.363  pBad 0.7600  MEC 1057.00 0->98
+ 2k (20.0%,14s)  T 38.147  fA 0.321  pBad 0.6680  MEC 981.00 0->98
+ 3k (30.0%,14s)  T 20.818  fA 0.196  pBad 0.2879  MEC 736.00 0->98
+ 4k (40.0%,14s)  T 11.362  fA 0.071  pBad 0.0780  MEC 535.00 0->98
+ 5k (50.0%,14s)  T 6.201  fA 0.026  pBad 0.0259  MEC 483.00 0->98
+ 6k (60.0%,14s)  T 3.384  fA 0.018  pBad 0.0206  MEC 491.00 0->98
+ 7k (70.0%,14s)  T 1.847  fA 0.012  pBad 0.0101  MEC 483.00 0->98
+ 8k (80.0%,14s)  T 1.008  fA 0.007  pBad 0.0110  MEC 482.00 0->98
+ 9k (90.0%,14s)  T 0.550  fA 0.008  pBad 0.0050  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 11.0503(43.6188, 1338)
+ 1k (10.0%,14s)  T 69.898  fA 0.377  pBad 0.7597  MEC 979.00 0->98
+ 2k (20.0%,14s)  T 38.147  fA 0.326  pBad 0.6363  MEC 842.00 0->98
+ 3k (30.0%,14s)  T 20.818  fA 0.215  pBad 0.3423  MEC 640.00 0->98
+ 4k (40.0%,14s)  T 11.362  fA 0.064  pBad 0.0729  MEC 491.00 0->98
+ 5k (50.0%,14s)  T 6.201  fA 0.028  pBad 0.0266  MEC 483.00 0->98
+ 6k (60.0%,14s)  T 3.384  fA 0.020  pBad 0.0205  MEC 483.00 0->98
+ 7k (70.0%,14s)  T 1.847  fA 0.010  pBad 0.0105  MEC 482.00 0->98
+ 8k (80.0%,14s)  T 1.008  fA 0.009  pBad 0.0067  MEC 482.00 0->98
+ 9k (90.0%,14s)  T 0.550  fA 0.005  pBad 0.0069  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 10.9059(44.2878, 1338)
+ 1k (10.0%,14s)  T 69.898  fA 0.349  pBad 0.7780  MEC 931.00 0->98
+ 2k (20.0%,15s)  T 38.147  fA 0.346  pBad 0.7300  MEC 974.00 0->98
+ 3k (30.0%,15s)  T 20.818  fA 0.227  pBad 0.4151  MEC 638.00 0->98
+ 4k (40.0%,15s)  T 11.362  fA 0.068  pBad 0.0756  MEC 483.00 0->98
+ 5k (50.0%,15s)  T 6.201  fA 0.032  pBad 0.0276  MEC 491.00 0->98
+ 6k (60.0%,15s)  T 3.384  fA 0.017  pBad 0.0146  MEC 491.00 0->98
+ 7k (70.0%,15s)  T 1.847  fA 0.012  pBad 0.0129  MEC 483.00 0->98
+ 8k (80.0%,15s)  T 1.008  fA 0.013  pBad 0.0106  MEC 482.00 0->98
+ 9k (90.0%,15s)  T 0.550  fA 0.010  pBad 0.0070  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 10.7214(44.9568, 1338)
+ 1k (10.0%,15s)  T 69.898  fA 0.353  pBad 0.8070  MEC 1014.00 0->98
+ 2k (20.0%,15s)  T 38.147  fA 0.300  pBad 0.6473  MEC 837.00 0->98
+ 3k (30.0%,15s)  T 20.818  fA 0.231  pBad 0.3452  MEC 756.00 0->98
+ 4k (40.0%,15s)  T 11.362  fA 0.089  pBad 0.1221  MEC 491.00 0->98
+ 5k (50.0%,15s)  T 6.201  fA 0.028  pBad 0.0332  MEC 483.00 0->98
+ 6k (60.0%,15s)  T 3.384  fA 0.019  pBad 0.0248  MEC 483.00 0->98
+ 7k (70.0%,15s)  T 1.847  fA 0.011  pBad 0.0096  MEC 483.00 0->98
+ 8k (80.0%,15s)  T 1.008  fA 0.014  pBad 0.0128  MEC 483.00 0->98
+ 9k (90.0%,15s)  T 0.550  fA 0.008  pBad 0.0059  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 10.5642(45.6258, 1338)
+ 1k (10.0%,15s)  T 69.898  fA 0.372  pBad 0.8017  MEC 1022.00 0->98
+ 2k (20.0%,15s)  T 38.147  fA 0.331  pBad 0.6624  MEC 945.00 0->98
+ 3k (30.0%,15s)  T 20.818  fA 0.259  pBad 0.3951  MEC 791.00 0->98
+ 4k (40.0%,15s)  T 11.362  fA 0.083  pBad 0.0887  MEC 483.00 0->98
+ 5k (50.0%,15s)  T 6.201  fA 0.025  pBad 0.0291  MEC 482.00 0->98
+ 6k (60.0%,15s)  T 3.384  fA 0.016  pBad 0.0189  MEC 482.00 0->98
+ 7k (70.0%,16s)  T 1.847  fA 0.010  pBad 0.0115  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,16s)  T 1.008  fA 0.009  pBad 0.0075  MEC 482.00 0->98
+ 9k (90.0%,16s)  T 0.550  fA 0.007  pBad 0.0094  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 10.4115(46.2948, 1338)
+ 1k (10.0%,16s)  T 69.898  fA 0.374  pBad 0.7999  MEC 983.00 0->98
+ 2k (20.0%,16s)  T 38.147  fA 0.313  pBad 0.6940  MEC 768.00 0->98
+ 3k (30.0%,16s)  T 20.818  fA 0.202  pBad 0.3123  MEC 578.00 0->98
+ 4k (40.0%,16s)  T 11.362  fA 0.081  pBad 0.0830  MEC 483.00 0->98
+ 5k (50.0%,16s)  T 6.201  fA 0.024  pBad 0.0298  MEC 483.00 0->98
+ 6k (60.0%,16s)  T 3.384  fA 0.013  pBad 0.0157  MEC 491.00 0->98
+ 7k (70.0%,16s)  T 1.847  fA 0.018  pBad 0.0153  MEC 483.00 0->98
+ 8k (80.0%,16s)  T 1.008  fA 0.011  pBad 0.0106  MEC 482.00 0->98
+ 9k (90.0%,16s)  T 0.550  fA 0.011  pBad 0.0091  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 10.2845(46.9638, 1338)
+ 1k (10.0%,16s)  T 69.898  fA 0.358  pBad 0.7863  MEC 1075.00 0->98
+ 2k (20.0%,16s)  T 38.147  fA 0.328  pBad 0.7055  MEC 925.00 0->98
+ 3k (30.0%,16s)  T 20.818  fA 0.219  pBad 0.3742  MEC 818.00 0->98
+ 4k (40.0%,16s)  T 11.362  fA 0.074  pBad 0.0780  MEC 535.00 0->98
+ 5k (50.0%,16s)  T 6.201  fA 0.020  pBad 0.0229  MEC 491.00 0->98
+ 6k (60.0%,16s)  T 3.384  fA 0.017  pBad 0.0153  MEC 483.00 0->98
+ 7k (70.0%,16s)  T 1.847  fA 0.015  pBad 0.0142  MEC 482.00 0->98
+ 8k (80.0%,16s)  T 1.008  fA 0.011  pBad 0.0125  MEC 483.00 0->98
+ 9k (90.0%,16s)  T 0.550  fA 0.008  pBad 0.0066  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 10.1191(47.6328, 1338)
+ 1k (10.0%,16s)  T 69.898  fA 0.364  pBad 0.8262  MEC 1025.00 0->98
+ 2k (20.0%,17s)  T 38.147  fA 0.329  pBad 0.6991  MEC 878.00 0->98
+ 3k (30.0%,17s)  T 20.818  fA 0.248  pBad 0.4187  MEC 737.00 0->98
+ 4k (40.0%,17s)  T 11.362  fA 0.061  pBad 0.0739  MEC 482.00 0->98
+ 5k (50.0%,17s)  T 6.201  fA 0.026  pBad 0.0254  MEC 483.00 0->98
+ 6k (60.0%,17s)  T 3.384  fA 0.020  pBad 0.0174  MEC 490.00 0->98
+ 7k (70.0%,17s)  T 1.847  fA 0.013  pBad 0.0125  MEC 483.00 0->98
+ 8k (80.0%,17s)  T 1.008  fA 0.008  pBad 0.0117  MEC 483.00 0->98
+ 9k (90.0%,17s)  T 0.550  fA 0.006  pBad 0.0067  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.97892(48.3018, 1338)
+ 1k (10.0%,17s)  T 69.898  fA 0.367  pBad 0.7970  MEC 908.00 0->98
+ 2k (20.0%,17s)  T 38.147  fA 0.324  pBad 0.7218  MEC 958.00 0->98
+ 3k (30.0%,17s)  T 20.818  fA 0.225  pBad 0.3601  MEC 826.00 0->98
+ 4k (40.0%,17s)  T 11.362  fA 0.067  pBad 0.0797  MEC 490.00 0->98
+ 5k (50.0%,17s)  T 6.201  fA 0.027  pBad 0.0250  MEC 483.00 0->98
+ 6k (60.0%,17s)  T 3.384  fA 0.017  pBad 0.0227  MEC 483.00 0->98
+ 7k (70.0%,17s)  T 1.847  fA 0.015  pBad 0.0151  MEC 483.00 0->98
+ 8k (80.0%,17s)  T 1.008  fA 0.016  pBad 0.0127  MEC 482.00 0->98
+ 9k (90.0%,17s)  T 0.550  fA 0.005  pBad 0.0094  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.8426(48.9708, 1338)
+ 1k (10.0%,17s)  T 69.898  fA 0.368  pBad 0.7410  MEC 968.00 0->98
+ 2k (20.0%,17s)  T 38.147  fA 0.316  pBad 0.6665  MEC 971.00 0->98
+ 3k (30.0%,17s)  T 20.818  fA 0.235  pBad 0.3714  MEC 642.00 0->98
+ 4k (40.0%,17s)  T 11.362  fA 0.061  pBad 0.0731  MEC 534.00 0->98
+ 5k (50.0%,17s)  T 6.201  fA 0.027  pBad 0.0217  MEC 483.00 0->98
+ 6k (60.0%,17s)  T 3.384  fA 0.016  pBad 0.0188  MEC 491.00 0->98
+ 7k (70.0%,18s)  T 1.847  fA 0.015  pBad 0.0128  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,18s)  T 1.008  fA 0.009  pBad 0.0080  MEC 483.00 0->98
+ 9k (90.0%,18s)  T 0.550  fA 0.008  pBad 0.0086  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.70995(49.6398, 1338)
+ 1k (10.0%,18s)  T 69.898  fA 0.370  pBad 0.8007  MEC 871.00 0->98
+ 2k (20.0%,18s)  T 38.147  fA 0.360  pBad 0.7043  MEC 927.00 0->98
+ 3k (30.0%,18s)  T 20.818  fA 0.202  pBad 0.3301  MEC 779.00 0->98
+ 4k (40.0%,18s)  T 11.362  fA 0.166  pBad 0.1768  MEC 638.00 0->98
+ 5k (50.0%,18s)  T 6.201  fA 0.074  pBad 0.0706  MEC 591.00 0->98
+ 6k (60.0%,18s)  T 3.384  fA 0.040  pBad 0.0420  MEC 591.00 0->98
+ 7k (70.0%,18s)  T 1.847  fA 0.010  pBad 0.0158  MEC 592.00 0->98
+ 8k (80.0%,18s)  T 1.008  fA 0.014  pBad 0.0115  MEC 591.00 0->98
+ 9k (90.0%,18s)  T 0.550  fA 0.006  pBad 0.0069  MEC 591.00 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 11.7474(50.3088, 1338)
+ 1k (10.0%,18s)  T 69.898  fA 0.363  pBad 0.7772  MEC 977.00 0->98
+ 2k (20.0%,18s)  T 38.147  fA 0.321  pBad 0.6708  MEC 947.00 0->98
+ 3k (30.0%,18s)  T 20.818  fA 0.206  pBad 0.3582  MEC 848.00 0->98
+ 4k (40.0%,18s)  T 11.362  fA 0.074  pBad 0.0780  MEC 491.00 0->98
+ 5k (50.0%,18s)  T 6.201  fA 0.026  pBad 0.0338  MEC 491.00 0->98
+ 6k (60.0%,18s)  T 3.384  fA 0.020  pBad 0.0197  MEC 490.00 0->98
+ 7k (70.0%,18s)  T 1.847  fA 0.013  pBad 0.0156  MEC 482.00 0->98
+ 8k (80.0%,18s)  T 1.008  fA 0.010  pBad 0.0092  MEC 483.00 0->98
+ 9k (90.0%,18s)  T 0.550  fA 0.008  pBad 0.0108  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.4551(50.9778, 1338)
+ 1k (10.0%,18s)  T 69.898  fA 0.352  pBad 0.7750  MEC 1052.00 0->98
+ 2k (20.0%,18s)  T 38.147  fA 0.317  pBad 0.6894  MEC 888.00 0->98
+ 3k (30.0%,19s)  T 20.818  fA 0.229  pBad 0.4021  MEC 634.00 0->98
+ 4k (40.0%,19s)  T 11.362  fA 0.071  pBad 0.0767  MEC 482.00 0->98
+ 5k (50.0%,19s)  T 6.201  fA 0.035  pBad 0.0353  MEC 491.00 0->98
+ 6k (60.0%,19s)  T 3.384  fA 0.019  pBad 0.0176  MEC 482.00 0->98
+ 7k (70.0%,19s)  T 1.847  fA 0.010  pBad 0.0113  MEC 482.00 0->98
+ 8k (80.0%,19s)  T 1.008  fA 0.009  pBad 0.0106  MEC 482.00 0->98
+ 9k (90.0%,19s)  T 0.550  fA 0.005  pBad 0.0072  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.33262(51.6468, 1338)
+ 1k (10.0%,19s)  T 69.898  fA 0.361  pBad 0.7968  MEC 941.00 0->98
+ 2k (20.0%,19s)  T 38.147  fA 0.338  pBad 0.7194  MEC 913.00 0->98
+ 3k (30.0%,19s)  T 20.818  fA 0.199  pBad 0.3454  MEC 691.00 0->98
+ 4k (40.0%,19s)  T 11.362  fA 0.065  pBad 0.0772  MEC 491.00 0->98
+ 5k (50.0%,19s)  T 6.201  fA 0.030  pBad 0.0332  MEC 490.00 0->98
+ 6k (60.0%,19s)  T 3.384  fA 0.015  pBad 0.0189  MEC 490.00 0->98
+ 7k (70.0%,19s)  T 1.847  fA 0.013  pBad 0.0153  MEC 482.00 0->98
+ 8k (80.0%,19s)  T 1.008  fA 0.012  pBad 0.0130  MEC 483.00 0->98
+ 9k (90.0%,19s)  T 0.550  fA 0.010  pBad 0.0043  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.21328(52.3158, 1338)
+ 1k (10.0%,19s)  T 69.898  fA 0.376  pBad 0.7509  MEC 959.00 0->98
+ 2k (20.0%,19s)  T 38.147  fA 0.330  pBad 0.6336  MEC 826.00 0->98
+ 3k (30.0%,19s)  T 20.818  fA 0.216  pBad 0.3318  MEC 528.00 0->98
+ 4k (40.0%,19s)  T 11.362  fA 0.070  pBad 0.0812  MEC 483.00 0->98
+ 5k (50.0%,19s)  T 6.201  fA 0.023  pBad 0.0226  MEC 491.00 0->98
+ 6k (60.0%,19s)  T 3.384  fA 0.017  pBad 0.0151  MEC 490.00 0->98
+ 7k (70.0%,20s)  T 1.847  fA 0.012  pBad 0.0098  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,20s)  T 1.008  fA 0.008  pBad 0.0107  MEC 483.00 0->98
+ 9k (90.0%,20s)  T 0.550  fA 0.005  pBad 0.0074  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 9.09695(52.9848, 1338)
+ 1k (10.0%,20s)  T 69.898  fA 0.369  pBad 0.7706  MEC 944.00 0->98
+ 2k (20.0%,20s)  T 38.147  fA 0.338  pBad 0.6875  MEC 1090.00 0->98
+ 3k (30.0%,20s)  T 20.818  fA 0.255  pBad 0.4269  MEC 705.00 0->98
+ 4k (40.0%,20s)  T 11.362  fA 0.154  pBad 0.1935  MEC 738.00 0->98
+ 5k (50.0%,20s)  T 6.201  fA 0.068  pBad 0.0818  MEC 604.00 0->98
+ 6k (60.0%,20s)  T 3.384  fA 0.039  pBad 0.0314  MEC 592.00 0->98
+ 7k (70.0%,20s)  T 1.847  fA 0.015  pBad 0.0193  MEC 591.00 0->98
+ 8k (80.0%,20s)  T 1.008  fA 0.009  pBad 0.0128  MEC 591.00 0->98
+ 9k (90.0%,20s)  T 0.550  fA 0.004  pBad 0.0052  MEC 591.00 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 11.0151(53.6538, 1338)
+ 1k (10.0%,20s)  T 69.898  fA 0.376  pBad 0.7770  MEC 915.00 0->98
+ 2k (20.0%,20s)  T 38.147  fA 0.363  pBad 0.7079  MEC 808.00 0->98
+ 3k (30.0%,20s)  T 20.818  fA 0.198  pBad 0.3560  MEC 641.00 0->98
+ 4k (40.0%,20s)  T 11.362  fA 0.065  pBad 0.0774  MEC 483.00 0->98
+ 5k (50.0%,20s)  T 6.201  fA 0.028  pBad 0.0218  MEC 490.00 0->98
+ 6k (60.0%,20s)  T 3.384  fA 0.020  pBad 0.0219  MEC 483.00 0->98
+ 7k (70.0%,20s)  T 1.847  fA 0.018  pBad 0.0164  MEC 482.00 0->98
+ 8k (80.0%,20s)  T 1.008  fA 0.009  pBad 0.0119  MEC 483.00 0->98
+ 9k (90.0%,20s)  T 0.550  fA 0.005  pBad 0.0077  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.87289(54.3228, 1338)
+ 1k (10.0%,20s)  T 69.898  fA 0.360  pBad 0.7552  MEC 981.00 0->98
+ 2k (20.0%,20s)  T 38.147  fA 0.318  pBad 0.6703  MEC 927.00 0->98
+ 3k (30.0%,21s)  T 20.818  fA 0.240  pBad 0.3635  MEC 682.00 0->98
+ 4k (40.0%,21s)  T 11.362  fA 0.060  pBad 0.0713  MEC 526.00 0->98
+ 5k (50.0%,21s)  T 6.201  fA 0.027  pBad 0.0237  MEC 483.00 0->98
+ 6k (60.0%,21s)  T 3.384  fA 0.018  pBad 0.0161  MEC 491.00 0->98
+ 7k (70.0%,21s)  T 1.847  fA 0.016  pBad 0.0155  MEC 483.00 0->98
+ 8k (80.0%,21s)  T 1.008  fA 0.009  pBad 0.0103  MEC 482.00 0->98
+ 9k (90.0%,21s)  T 0.550  fA 0.008  pBad 0.0101  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.76494(54.9918, 1338)
+ 1k (10.0%,21s)  T 69.898  fA 0.360  pBad 0.7967  MEC 981.00 0->98
+ 2k (20.0%,21s)  T 38.147  fA 0.332  pBad 0.6725  MEC 981.00 0->98
+ 3k (30.0%,21s)  T 20.818  fA 0.236  pBad 0.3835  MEC 536.00 0->98
+ 4k (40.0%,21s)  T 11.362  fA 0.080  pBad 0.0804  MEC 585.00 0->98
+ 5k (50.0%,21s)  T 6.201  fA 0.028  pBad 0.0294  MEC 482.00 0->98
+ 6k (60.0%,21s)  T 3.384  fA 0.017  pBad 0.0165  MEC 483.00 0->98
+ 7k (70.0%,21s)  T 1.847  fA 0.016  pBad 0.0143  MEC 482.00 0->98
+ 8k (80.0%,21s)  T 1.008  fA 0.010  pBad 0.0109  MEC 483.00 0->98
+ 9k (90.0%,21s)  T 0.550  fA 0.010  pBad 0.0032  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.6596(55.6608, 1338)
+ 1k (10.0%,21s)  T 69.898  fA 0.361  pBad 0.7948  MEC 907.00 0->98
+ 2k (20.0%,21s)  T 38.147  fA 0.323  pBad 0.6926  MEC 945.00 0->98
+ 3k (30.0%,21s)  T 20.818  fA 0.245  pBad 0.3870  MEC 634.00 0->98
+ 4k (40.0%,21s)  T 11.362  fA 0.072  pBad 0.0739  MEC 535.00 0->98
+ 5k (50.0%,21s)  T 6.201  fA 0.029  pBad 0.0292  MEC 483.00 0->98
+ 6k (60.0%,21s)  T 3.384  fA 0.020  pBad 0.0191  MEC 483.00 0->98
+ 7k (70.0%,21s)  T 1.847  fA 0.021  pBad 0.0174  MEC 482.00 0->98
+ 8k (80.0%,22s)  T 1.008  fA 0.011  pBad 0.0120  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,22s)  T 0.550  fA 0.008  pBad 0.0052  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.55675(56.3298, 1338)
+ 1k (10.0%,22s)  T 69.898  fA 0.351  pBad 0.7694  MEC 870.00 0->98
+ 2k (20.0%,22s)  T 38.147  fA 0.338  pBad 0.7204  MEC 934.00 0->98
+ 3k (30.0%,22s)  T 20.818  fA 0.238  pBad 0.4166  MEC 891.00 0->98
+ 4k (40.0%,22s)  T 11.362  fA 0.071  pBad 0.0861  MEC 483.00 0->98
+ 5k (50.0%,22s)  T 6.201  fA 0.023  pBad 0.0274  MEC 483.00 0->98
+ 6k (60.0%,22s)  T 3.384  fA 0.023  pBad 0.0224  MEC 491.00 0->98
+ 7k (70.0%,22s)  T 1.847  fA 0.010  pBad 0.0069  MEC 482.00 0->98
+ 8k (80.0%,22s)  T 1.008  fA 0.008  pBad 0.0080  MEC 482.00 0->98
+ 9k (90.0%,22s)  T 0.550  fA 0.006  pBad 0.0082  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.45632(56.9988, 1338)
+ 1k (10.0%,22s)  T 69.898  fA 0.369  pBad 0.8065  MEC 1057.00 0->98
+ 2k (20.0%,22s)  T 38.147  fA 0.354  pBad 0.7307  MEC 952.00 0->98
+ 3k (30.0%,22s)  T 20.818  fA 0.304  pBad 0.5186  MEC 792.00 0->98
+ 4k (40.0%,22s)  T 11.362  fA 0.119  pBad 0.1558  MEC 491.00 0->98
+ 5k (50.0%,22s)  T 6.201  fA 0.026  pBad 0.0254  MEC 482.00 0->98
+ 6k (60.0%,22s)  T 3.384  fA 0.014  pBad 0.0149  MEC 483.00 0->98
+ 7k (70.0%,22s)  T 1.847  fA 0.008  pBad 0.0063  MEC 482.00 0->98
+ 8k (80.0%,22s)  T 1.008  fA 0.006  pBad 0.0070  MEC 483.00 0->98
+ 9k (90.0%,22s)  T 0.550  fA 0.004  pBad 0.0050  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.35822(57.6678, 1338)
+ 1k (10.0%,22s)  T 69.898  fA 0.376  pBad 0.7999  MEC 915.00 0->98
+ 2k (20.0%,22s)  T 38.147  fA 0.312  pBad 0.6960  MEC 1062.00 0->98
+ 3k (30.0%,23s)  T 20.818  fA 0.229  pBad 0.3717  MEC 631.00 0->98
+ 4k (40.0%,23s)  T 11.362  fA 0.069  pBad 0.0757  MEC 544.00 0->98
+ 5k (50.0%,23s)  T 6.201  fA 0.033  pBad 0.0303  MEC 491.00 0->98
+ 6k (60.0%,23s)  T 3.384  fA 0.019  pBad 0.0191  MEC 483.00 0->98
+ 7k (70.0%,23s)  T 1.847  fA 0.011  pBad 0.0154  MEC 483.00 0->98
+ 8k (80.0%,23s)  T 1.008  fA 0.011  pBad 0.0079  MEC 482.00 0->98
+ 9k (90.0%,23s)  T 0.550  fA 0.008  pBad 0.0056  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.26237(58.3368, 1338)
+ 1k (10.0%,23s)  T 69.898  fA 0.346  pBad 0.7725  MEC 861.00 0->98
+ 2k (20.0%,23s)  T 38.147  fA 0.330  pBad 0.6698  MEC 907.00 0->98
+ 3k (30.0%,23s)  T 20.818  fA 0.201  pBad 0.2984  MEC 620.00 0->98
+ 4k (40.0%,23s)  T 11.362  fA 0.072  pBad 0.0796  MEC 543.00 0->98
+ 5k (50.0%,23s)  T 6.201  fA 0.032  pBad 0.0285  MEC 483.00 0->98
+ 6k (60.0%,23s)  T 3.384  fA 0.019  pBad 0.0132  MEC 491.00 0->98
+ 7k (70.0%,23s)  T 1.847  fA 0.013  pBad 0.0142  MEC 483.00 0->98
+ 8k (80.0%,23s)  T 1.008  fA 0.010  pBad 0.0115  MEC 482.00 0->98
+ 9k (90.0%,23s)  T 0.550  fA 0.006  pBad 0.0069  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 8.18564(59.0058, 1338)
+ 1k (10.0%,23s)  T 69.898  fA 0.357  pBad 0.7877  MEC 906.00 0->98
+ 2k (20.0%,23s)  T 38.147  fA 0.351  pBad 0.7024  MEC 988.00 0->98
+ 3k (30.0%,23s)  T 20.818  fA 0.216  pBad 0.3810  MEC 779.00 0->98
+ 4k (40.0%,23s)  T 11.362  fA 0.063  pBad 0.0692  MEC 537.00 0->98
+ 5k (50.0%,23s)  T 6.201  fA 0.031  pBad 0.0291  MEC 483.00 0->98
+ 6k (60.0%,23s)  T 3.384  fA 0.019  pBad 0.0151  MEC 483.00 0->98
+ 7k (70.0%,23s)  T 1.847  fA 0.016  pBad 0.0152  MEC 483.00 0->98
+ 8k (80.0%,24s)  T 1.008  fA 0.008  pBad 0.0061  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,24s)  T 0.550  fA 0.007  pBad 0.0076  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 8.07711(59.6748, 1338)
+ 1k (10.0%,24s)  T 69.898  fA 0.367  pBad 0.7811  MEC 931.00 0->98
+ 2k (20.0%,24s)  T 38.147  fA 0.344  pBad 0.6994  MEC 767.00 0->98
+ 3k (30.0%,24s)  T 20.818  fA 0.206  pBad 0.3294  MEC 637.00 0->98
+ 4k (40.0%,24s)  T 11.362  fA 0.082  pBad 0.0814  MEC 482.00 0->98
+ 5k (50.0%,24s)  T 6.201  fA 0.024  pBad 0.0271  MEC 491.00 0->98
+ 6k (60.0%,24s)  T 3.384  fA 0.019  pBad 0.0213  MEC 483.00 0->98
+ 7k (70.0%,24s)  T 1.847  fA 0.013  pBad 0.0124  MEC 483.00 0->98
+ 8k (80.0%,24s)  T 1.008  fA 0.006  pBad 0.0108  MEC 482.00 0->98
+ 9k (90.0%,24s)  T 0.550  fA 0.006  pBad 0.0047  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.98756(60.3438, 1338)
+ 1k (10.0%,24s)  T 69.898  fA 0.349  pBad 0.8134  MEC 992.00 0->98
+ 2k (20.0%,24s)  T 38.147  fA 0.334  pBad 0.6720  MEC 735.00 0->98
+ 3k (30.0%,24s)  T 20.818  fA 0.226  pBad 0.3693  MEC 625.00 0->98
+ 4k (40.0%,24s)  T 11.362  fA 0.070  pBad 0.0794  MEC 532.00 0->98
+ 5k (50.0%,24s)  T 6.201  fA 0.027  pBad 0.0279  MEC 483.00 0->98
+ 6k (60.0%,24s)  T 3.384  fA 0.017  pBad 0.0184  MEC 483.00 0->98
+ 7k (70.0%,24s)  T 1.847  fA 0.014  pBad 0.0137  MEC 482.00 0->98
+ 8k (80.0%,24s)  T 1.008  fA 0.008  pBad 0.0088  MEC 483.00 0->98
+ 9k (90.0%,24s)  T 0.550  fA 0.006  pBad 0.0069  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.89998(61.0128, 1338)
+ 1k (10.0%,24s)  T 69.898  fA 0.354  pBad 0.7764  MEC 1044.00 0->98
+ 2k (20.0%,24s)  T 38.147  fA 0.327  pBad 0.7151  MEC 969.00 0->98
+ 3k (30.0%,25s)  T 20.818  fA 0.248  pBad 0.4301  MEC 673.00 0->98
+ 4k (40.0%,25s)  T 11.362  fA 0.070  pBad 0.0774  MEC 538.00 0->98
+ 5k (50.0%,25s)  T 6.201  fA 0.026  pBad 0.0256  MEC 482.00 0->98
+ 6k (60.0%,25s)  T 3.384  fA 0.025  pBad 0.0227  MEC 482.00 0->98
+ 7k (70.0%,25s)  T 1.847  fA 0.015  pBad 0.0150  MEC 483.00 0->98
+ 8k (80.0%,25s)  T 1.008  fA 0.007  pBad 0.0129  MEC 483.00 0->98
+ 9k (90.0%,25s)  T 0.550  fA 0.007  pBad 0.0050  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.8143(61.6818, 1338)
+ 1k (10.0%,25s)  T 69.898  fA 0.364  pBad 0.7907  MEC 1021.00 0->98
+ 2k (20.0%,25s)  T 38.147  fA 0.336  pBad 0.7166  MEC 939.00 0->98
+ 3k (30.0%,25s)  T 20.818  fA 0.206  pBad 0.3461  MEC 643.00 0->98
+ 4k (40.0%,25s)  T 11.362  fA 0.074  pBad 0.0867  MEC 544.00 0->98
+ 5k (50.0%,25s)  T 6.201  fA 0.022  pBad 0.0250  MEC 483.00 0->98
+ 6k (60.0%,25s)  T 3.384  fA 0.017  pBad 0.0206  MEC 483.00 0->98
+ 7k (70.0%,25s)  T 1.847  fA 0.014  pBad 0.0105  MEC 482.00 0->98
+ 8k (80.0%,25s)  T 1.008  fA 0.009  pBad 0.0129  MEC 482.00 0->98
+ 9k (90.0%,25s)  T 0.550  fA 0.007  pBad 0.0062  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 7.74649(62.3508, 1338)
+ 1k (10.0%,25s)  T 69.898  fA 0.384  pBad 0.8161  MEC 971.00 0->98
+ 2k (20.0%,25s)  T 38.147  fA 0.348  pBad 0.7331  MEC 941.00 0->98
+ 3k (30.0%,25s)  T 20.818  fA 0.199  pBad 0.3337  MEC 643.00 0->98
+ 4k (40.0%,25s)  T 11.362  fA 0.079  pBad 0.0711  MEC 490.00 0->98
+ 5k (50.0%,25s)  T 6.201  fA 0.023  pBad 0.0238  MEC 482.00 0->98
+ 6k (60.0%,25s)  T 3.384  fA 0.017  pBad 0.0170  MEC 482.00 0->98
+ 7k (70.0%,25s)  T 1.847  fA 0.011  pBad 0.0124  MEC 483.00 0->98
+ 8k (80.0%,26s)  T 1.008  fA 0.009  pBad 0.0067  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,26s)  T 0.550  fA 0.005  pBad 0.0078  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.64839(63.0198, 1338)
+ 1k (10.0%,26s)  T 69.898  fA 0.360  pBad 0.7681  MEC 1047.00 0->98
+ 2k (20.0%,26s)  T 38.147  fA 0.349  pBad 0.7287  MEC 911.00 0->98
+ 3k (30.0%,26s)  T 20.818  fA 0.229  pBad 0.4068  MEC 813.00 0->98
+ 4k (40.0%,26s)  T 11.362  fA 0.065  pBad 0.0783  MEC 483.00 0->98
+ 5k (50.0%,26s)  T 6.201  fA 0.031  pBad 0.0283  MEC 483.00 0->98
+ 6k (60.0%,26s)  T 3.384  fA 0.013  pBad 0.0144  MEC 483.00 0->98
+ 7k (70.0%,26s)  T 1.847  fA 0.011  pBad 0.0111  MEC 482.00 0->98
+ 8k (80.0%,26s)  T 1.008  fA 0.012  pBad 0.0097  MEC 483.00 0->98
+ 9k (90.0%,26s)  T 0.550  fA 0.007  pBad 0.0074  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.56805(63.6888, 1338)
+ 1k (10.0%,26s)  T 69.898  fA 0.351  pBad 0.7433  MEC 867.00 0->98
+ 2k (20.0%,26s)  T 38.147  fA 0.327  pBad 0.6732  MEC 837.00 0->98
+ 3k (30.0%,26s)  T 20.818  fA 0.175  pBad 0.2920  MEC 585.00 0->98
+ 4k (40.0%,26s)  T 11.362  fA 0.066  pBad 0.0806  MEC 491.00 0->98
+ 5k (50.0%,26s)  T 6.201  fA 0.024  pBad 0.0210  MEC 483.00 0->98
+ 6k (60.0%,26s)  T 3.384  fA 0.015  pBad 0.0159  MEC 483.00 0->98
+ 7k (70.0%,26s)  T 1.847  fA 0.011  pBad 0.0123  MEC 482.00 0->98
+ 8k (80.0%,26s)  T 1.008  fA 0.013  pBad 0.0133  MEC 482.00 0->98
+ 9k (90.0%,26s)  T 0.550  fA 0.006  pBad 0.0043  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.48938(64.3578, 1338)
+ 1k (10.0%,26s)  T 69.898  fA 0.362  pBad 0.7641  MEC 1022.00 0->98
+ 2k (20.0%,26s)  T 38.147  fA 0.305  pBad 0.6681  MEC 980.00 0->98
+ 3k (30.0%,26s)  T 20.818  fA 0.229  pBad 0.3435  MEC 647.00 0->98
+ 4k (40.0%,27s)  T 11.362  fA 0.076  pBad 0.0743  MEC 592.00 0->98
+ 5k (50.0%,27s)  T 6.201  fA 0.028  pBad 0.0291  MEC 483.00 0->98
+ 6k (60.0%,27s)  T 3.384  fA 0.025  pBad 0.0216  MEC 490.00 0->98
+ 7k (70.0%,27s)  T 1.847  fA 0.015  pBad 0.0152  MEC 482.00 0->98
+ 8k (80.0%,27s)  T 1.008  fA 0.012  pBad 0.0105  MEC 482.00 0->98
+ 9k (90.0%,27s)  T 0.550  fA 0.004  pBad 0.0087  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.41233(65.0268, 1338)
+ 1k (10.0%,27s)  T 69.898  fA 0.368  pBad 0.7487  MEC 889.00 0->98
+ 2k (20.0%,27s)  T 38.147  fA 0.349  pBad 0.6845  MEC 908.00 0->98
+ 3k (30.0%,27s)  T 20.818  fA 0.203  pBad 0.3485  MEC 640.00 0->98
+ 4k (40.0%,27s)  T 11.362  fA 0.073  pBad 0.0720  MEC 540.00 0->98
+ 5k (50.0%,27s)  T 6.201  fA 0.029  pBad 0.0311  MEC 491.00 0->98
+ 6k (60.0%,27s)  T 3.384  fA 0.022  pBad 0.0207  MEC 483.00 0->98
+ 7k (70.0%,27s)  T 1.847  fA 0.009  pBad 0.0141  MEC 483.00 0->98
+ 8k (80.0%,27s)  T 1.008  fA 0.006  pBad 0.0087  MEC 482.00 0->98
+ 9k (90.0%,27s)  T 0.550  fA 0.007  pBad 0.0075  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 7.35207(65.6958, 1338)
+ 1k (10.0%,27s)  T 69.898  fA 0.356  pBad 0.7976  MEC 868.00 0->98
+ 2k (20.0%,27s)  T 38.147  fA 0.351  pBad 0.7109  MEC 715.00 0->98
+ 3k (30.0%,27s)  T 20.818  fA 0.195  pBad 0.2903  MEC 895.00 0->98
+ 4k (40.0%,27s)  T 11.362  fA 0.082  pBad 0.0834  MEC 535.00 0->98
+ 5k (50.0%,27s)  T 6.201  fA 0.022  pBad 0.0219  MEC 490.00 0->98
+ 6k (60.0%,27s)  T 3.384  fA 0.020  pBad 0.0172  MEC 482.00 0->98
+ 7k (70.0%,27s)  T 1.847  fA 0.010  pBad 0.0137  MEC 483.00 0->98
+ 8k (80.0%,28s)  T 1.008  fA 0.013  pBad 0.0140  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,28s)  T 0.550  fA 0.009  pBad 0.0085  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.26289(66.3648, 1338)
+ 1k (10.0%,28s)  T 69.898  fA 0.353  pBad 0.7766  MEC 1090.00 0->98
+ 2k (20.0%,28s)  T 38.147  fA 0.346  pBad 0.7212  MEC 948.00 0->98
+ 3k (30.0%,28s)  T 20.818  fA 0.293  pBad 0.5018  MEC 822.00 0->98
+ 4k (40.0%,28s)  T 11.362  fA 0.081  pBad 0.0928  MEC 490.00 0->98
+ 5k (50.0%,28s)  T 6.201  fA 0.028  pBad 0.0258  MEC 541.00 0->98
+ 6k (60.0%,28s)  T 3.384  fA 0.015  pBad 0.0152  MEC 482.00 0->98
+ 7k (70.0%,28s)  T 1.847  fA 0.016  pBad 0.0168  MEC 483.00 0->98
+ 8k (80.0%,28s)  T 1.008  fA 0.011  pBad 0.0099  MEC 483.00 0->98
+ 9k (90.0%,28s)  T 0.550  fA 0.009  pBad 0.0057  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.1904(67.0338, 1338)
+ 1k (10.0%,28s)  T 69.898  fA 0.352  pBad 0.7892  MEC 979.00 0->98
+ 2k (20.0%,28s)  T 38.147  fA 0.327  pBad 0.6899  MEC 818.00 0->98
+ 3k (30.0%,28s)  T 20.818  fA 0.298  pBad 0.4992  MEC 875.00 0->98
+ 4k (40.0%,28s)  T 11.362  fA 0.099  pBad 0.1262  MEC 529.00 0->98
+ 5k (50.0%,28s)  T 6.201  fA 0.034  pBad 0.0315  MEC 483.00 0->98
+ 6k (60.0%,28s)  T 3.384  fA 0.021  pBad 0.0216  MEC 491.00 0->98
+ 7k (70.0%,28s)  T 1.847  fA 0.015  pBad 0.0114  MEC 483.00 0->98
+ 8k (80.0%,28s)  T 1.008  fA 0.012  pBad 0.0112  MEC 482.00 0->98
+ 9k (90.0%,28s)  T 0.550  fA 0.005  pBad 0.0039  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 7.11935(67.7028, 1338)
+ 1k (10.0%,28s)  T 69.898  fA 0.372  pBad 0.7823  MEC 980.00 0->98
+ 2k (20.0%,28s)  T 38.147  fA 0.347  pBad 0.7253  MEC 1028.00 0->98
+ 3k (30.0%,28s)  T 20.818  fA 0.251  pBad 0.4361  MEC 584.00 0->98
+ 4k (40.0%,29s)  T 11.362  fA 0.072  pBad 0.0693  MEC 491.00 0->98
+ 5k (50.0%,29s)  T 6.201  fA 0.029  pBad 0.0248  MEC 490.00 0->98
+ 6k (60.0%,29s)  T 3.384  fA 0.023  pBad 0.0219  MEC 482.00 0->98
+ 7k (70.0%,29s)  T 1.847  fA 0.013  pBad 0.0133  MEC 482.00 0->98
+ 8k (80.0%,29s)  T 1.008  fA 0.010  pBad 0.0103  MEC 482.00 0->98
+ 9k (90.0%,29s)  T 0.550  fA 0.005  pBad 0.0046  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 7.06432(68.3718, 1338)
+ 1k (10.0%,29s)  T 69.898  fA 0.351  pBad 0.7978  MEC 1063.00 0->98
+ 2k (20.0%,29s)  T 38.147  fA 0.360  pBad 0.7143  MEC 964.00 0->98
+ 3k (30.0%,29s)  T 20.818  fA 0.245  pBad 0.3831  MEC 585.00 0->98
+ 4k (40.0%,29s)  T 11.362  fA 0.059  pBad 0.0770  MEC 482.00 0->98
+ 5k (50.0%,29s)  T 6.201  fA 0.027  pBad 0.0273  MEC 483.00 0->98
+ 6k (60.0%,29s)  T 3.384  fA 0.014  pBad 0.0183  MEC 483.00 0->98
+ 7k (70.0%,29s)  T 1.847  fA 0.014  pBad 0.0110  MEC 482.00 0->98
+ 8k (80.0%,29s)  T 1.008  fA 0.005  pBad 0.0109  MEC 482.00 0->98
+ 9k (90.0%,29s)  T 0.550  fA 0.004  pBad 0.0039  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.98138(69.0408, 1338)
+ 1k (10.0%,29s)  T 69.898  fA 0.362  pBad 0.7825  MEC 981.00 0->98
+ 2k (20.0%,29s)  T 38.147  fA 0.351  pBad 0.7241  MEC 976.00 0->98
+ 3k (30.0%,29s)  T 20.818  fA 0.209  pBad 0.3660  MEC 646.00 0->98
+ 4k (40.0%,29s)  T 11.362  fA 0.067  pBad 0.0706  MEC 491.00 0->98
+ 5k (50.0%,29s)  T 6.201  fA 0.023  pBad 0.0252  MEC 483.00 0->98
+ 6k (60.0%,29s)  T 3.384  fA 0.016  pBad 0.0161  MEC 483.00 0->98
+ 7k (70.0%,29s)  T 1.847  fA 0.015  pBad 0.0174  MEC 483.00 0->98
+ 8k (80.0%,29s)  T 1.008  fA 0.012  pBad 0.0119  MEC 482.00 0->98
+ 9k (90.0%,30s)  T 0.550  fA 0.007  pBad 0.0064  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.91438(69.7098, 1338)
+ 1k (10.0%,30s)  T 69.898  fA 0.362  pBad 0.7938  MEC 1033.00 0->98
+ 2k (20.0%,30s)  T 38.147  fA 0.331  pBad 0.6886  MEC 904.00 0->98
+ 3k (30.0%,30s)  T 20.818  fA 0.199  pBad 0.3021  MEC 681.00 0->98
+ 4k (40.0%,30s)  T 11.362  fA 0.069  pBad 0.0700  MEC 491.00 0->98
+ 5k (50.0%,30s)  T 6.201  fA 0.023  pBad 0.0242  MEC 491.00 0->98
+ 6k (60.0%,30s)  T 3.384  fA 0.018  pBad 0.0217  MEC 483.00 0->98
+ 7k (70.0%,30s)  T 1.847  fA 0.008  pBad 0.0086  MEC 482.00 0->98
+ 8k (80.0%,30s)  T 1.008  fA 0.009  pBad 0.0100  MEC 482.00 0->98
+ 9k (90.0%,30s)  T 0.550  fA 0.004  pBad 0.0061  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.84865(70.3788, 1338)
+ 1k (10.0%,30s)  T 69.898  fA 0.349  pBad 0.7542  MEC 860.00 0->98
+ 2k (20.0%,30s)  T 38.147  fA 0.349  pBad 0.7149  MEC 1052.00 0->98
+ 3k (30.0%,30s)  T 20.818  fA 0.238  pBad 0.4280  MEC 883.00 0->98
+ 4k (40.0%,30s)  T 11.362  fA 0.092  pBad 0.1000  MEC 625.00 0->98
+ 5k (50.0%,30s)  T 6.201  fA 0.034  pBad 0.0273  MEC 483.00 0->98
+ 6k (60.0%,30s)  T 3.384  fA 0.022  pBad 0.0226  MEC 483.00 0->98
+ 7k (70.0%,30s)  T 1.847  fA 0.011  pBad 0.0113  MEC 483.00 0->98
+ 8k (80.0%,30s)  T 1.008  fA 0.010  pBad 0.0078  MEC 483.00 0->98
+ 9k (90.0%,30s)  T 0.550  fA 0.004  pBad 0.0074  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.78417(71.0478, 1338)
+ 1k (10.0%,30s)  T 69.898  fA 0.349  pBad 0.8101  MEC 1086.00 0->98
+ 2k (20.0%,30s)  T 38.147  fA 0.323  pBad 0.6737  MEC 879.00 0->98
+ 3k (30.0%,30s)  T 20.818  fA 0.229  pBad 0.3425  MEC 581.00 0->98
+ 4k (40.0%,31s)  T 11.362  fA 0.050  pBad 0.0719  MEC 491.00 0->98
+ 5k (50.0%,31s)  T 6.201  fA 0.025  pBad 0.0239  MEC 483.00 0->98
+ 6k (60.0%,31s)  T 3.384  fA 0.020  pBad 0.0195  MEC 483.00 0->98
+ 7k (70.0%,31s)  T 1.847  fA 0.011  pBad 0.0138  MEC 482.00 0->98
+ 8k (80.0%,31s)  T 1.008  fA 0.010  pBad 0.0096  MEC 482.00 0->98
+ 9k (90.0%,31s)  T 0.550  fA 0.005  pBad 0.0069  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.72088(71.7168, 1338)
+ 1k (10.0%,31s)  T 69.898  fA 0.374  pBad 0.8214  MEC 1085.00 0->98
+ 2k (20.0%,31s)  T 38.147  fA 0.341  pBad 0.7350  MEC 963.00 0->98
+ 3k (30.0%,31s)  T 20.818  fA 0.259  pBad 0.4566  MEC 1012.00 0->98
+ 4k (40.0%,31s)  T 11.362  fA 0.124  pBad 0.1418  MEC 491.00 0->98
+ 5k (50.0%,31s)  T 6.201  fA 0.037  pBad 0.0317  MEC 491.00 0->98
+ 6k (60.0%,31s)  T 3.384  fA 0.018  pBad 0.0183  MEC 482.00 0->98
+ 7k (70.0%,31s)  T 1.847  fA 0.014  pBad 0.0138  MEC 483.00 0->98
+ 8k (80.0%,31s)  T 1.008  fA 0.008  pBad 0.0100  MEC 482.00 0->98
+ 9k (90.0%,31s)  T 0.550  fA 0.005  pBad 0.0063  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.65876(72.3858, 1338)
+ 1k (10.0%,31s)  T 69.898  fA 0.356  pBad 0.7803  MEC 969.00 0->98
+ 2k (20.0%,31s)  T 38.147  fA 0.341  pBad 0.6754  MEC 829.00 0->98
+ 3k (30.0%,31s)  T 20.818  fA 0.245  pBad 0.3727  MEC 620.00 0->98
+ 4k (40.0%,31s)  T 11.362  fA 0.078  pBad 0.0791  MEC 491.00 0->98
+ 5k (50.0%,31s)  T 6.201  fA 0.034  pBad 0.0260  MEC 483.00 0->98
+ 6k (60.0%,31s)  T 3.384  fA 0.022  pBad 0.0206  MEC 483.00 0->98
+ 7k (70.0%,31s)  T 1.847  fA 0.013  pBad 0.0162  MEC 483.00 0->98
+ 8k (80.0%,32s)  T 1.008  fA 0.011  pBad 0.0110  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,32s)  T 0.550  fA 0.009  pBad 0.0102  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.59779(73.0548, 1338)
+ 1k (10.0%,32s)  T 69.898  fA 0.356  pBad 0.8019  MEC 1047.00 0->98
+ 2k (20.0%,32s)  T 38.147  fA 0.367  pBad 0.7382  MEC 998.00 0->98
+ 3k (30.0%,32s)  T 20.818  fA 0.261  pBad 0.4647  MEC 541.00 0->98
+ 4k (40.0%,32s)  T 11.362  fA 0.075  pBad 0.0750  MEC 491.00 0->98
+ 5k (50.0%,32s)  T 6.201  fA 0.036  pBad 0.0314  MEC 483.00 0->98
+ 6k (60.0%,32s)  T 3.384  fA 0.016  pBad 0.0161  MEC 483.00 0->98
+ 7k (70.0%,32s)  T 1.847  fA 0.011  pBad 0.0135  MEC 483.00 0->98
+ 8k (80.0%,32s)  T 1.008  fA 0.009  pBad 0.0089  MEC 483.00 0->98
+ 9k (90.0%,32s)  T 0.550  fA 0.005  pBad 0.0061  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.53792(73.7238, 1338)
+ 1k (10.0%,32s)  T 69.898  fA 0.356  pBad 0.7332  MEC 922.00 0->98
+ 2k (20.0%,32s)  T 38.147  fA 0.338  pBad 0.6734  MEC 979.00 0->98
+ 3k (30.0%,32s)  T 20.818  fA 0.224  pBad 0.3705  MEC 928.00 0->98
+ 4k (40.0%,32s)  T 11.362  fA 0.105  pBad 0.0970  MEC 483.00 0->98
+ 5k (50.0%,32s)  T 6.201  fA 0.023  pBad 0.0209  MEC 483.00 0->98
+ 6k (60.0%,32s)  T 3.384  fA 0.017  pBad 0.0180  MEC 483.00 0->98
+ 7k (70.0%,32s)  T 1.847  fA 0.018  pBad 0.0194  MEC 483.00 0->98
+ 8k (80.0%,32s)  T 1.008  fA 0.007  pBad 0.0072  MEC 483.00 0->98
+ 9k (90.0%,32s)  T 0.550  fA 0.006  pBad 0.0085  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.47912(74.3928, 1338)
+ 1k (10.0%,32s)  T 69.898  fA 0.360  pBad 0.7437  MEC 1003.00 0->98
+ 2k (20.0%,32s)  T 38.147  fA 0.336  pBad 0.7005  MEC 1014.00 0->98
+ 3k (30.0%,32s)  T 20.818  fA 0.200  pBad 0.3525  MEC 585.00 0->98
+ 4k (40.0%,33s)  T 11.362  fA 0.069  pBad 0.0725  MEC 543.00 0->98
+ 5k (50.0%,33s)  T 6.201  fA 0.031  pBad 0.0311  MEC 490.00 0->98
+ 6k (60.0%,33s)  T 3.384  fA 0.018  pBad 0.0212  MEC 490.00 0->98
+ 7k (70.0%,33s)  T 1.847  fA 0.013  pBad 0.0162  MEC 483.00 0->98
+ 8k (80.0%,33s)  T 1.008  fA 0.008  pBad 0.0100  MEC 482.00 0->98
+ 9k (90.0%,33s)  T 0.550  fA 0.006  pBad 0.0068  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 6.4347(75.0618, 1338)
+ 1k (10.0%,33s)  T 69.898  fA 0.369  pBad 0.7742  MEC 1003.00 0->98
+ 2k (20.0%,33s)  T 38.147  fA 0.321  pBad 0.6414  MEC 926.00 0->98
+ 3k (30.0%,33s)  T 20.818  fA 0.217  pBad 0.3318  MEC 582.00 0->98
+ 4k (40.0%,33s)  T 11.362  fA 0.070  pBad 0.0723  MEC 491.00 0->98
+ 5k (50.0%,33s)  T 6.201  fA 0.026  pBad 0.0214  MEC 483.00 0->98
+ 6k (60.0%,33s)  T 3.384  fA 0.017  pBad 0.0187  MEC 483.00 0->98
+ 7k (70.0%,33s)  T 1.847  fA 0.009  pBad 0.0088  MEC 483.00 0->98
+ 8k (80.0%,33s)  T 1.008  fA 0.012  pBad 0.0097  MEC 482.00 0->98
+ 9k (90.0%,33s)  T 0.550  fA 0.008  pBad 0.0111  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.36465(75.7308, 1338)
+ 1k (10.0%,33s)  T 69.898  fA 0.360  pBad 0.7613  MEC 1061.00 0->98
+ 2k (20.0%,33s)  T 38.147  fA 0.362  pBad 0.7030  MEC 919.00 0->98
+ 3k (30.0%,33s)  T 20.818  fA 0.225  pBad 0.3744  MEC 747.00 0->98
+ 4k (40.0%,33s)  T 11.362  fA 0.092  pBad 0.0915  MEC 589.00 0->98
+ 5k (50.0%,33s)  T 6.201  fA 0.024  pBad 0.0204  MEC 537.00 0->98
+ 6k (60.0%,33s)  T 3.384  fA 0.019  pBad 0.0167  MEC 483.00 0->98
+ 7k (70.0%,33s)  T 1.847  fA 0.014  pBad 0.0115  MEC 482.00 0->98
+ 8k (80.0%,34s)  T 1.008  fA 0.008  pBad 0.0078  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,34s)  T 0.550  fA 0.008  pBad 0.0085  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.30892(76.3998, 1338)
+ 1k (10.0%,34s)  T 69.898  fA 0.373  pBad 0.7995  MEC 965.00 0->98
+ 2k (20.0%,34s)  T 38.147  fA 0.344  pBad 0.7001  MEC 886.00 0->98
+ 3k (30.0%,34s)  T 20.818  fA 0.208  pBad 0.3667  MEC 585.00 0->98
+ 4k (40.0%,34s)  T 11.362  fA 0.081  pBad 0.0849  MEC 527.00 0->98
+ 5k (50.0%,34s)  T 6.201  fA 0.026  pBad 0.0253  MEC 491.00 0->98
+ 6k (60.0%,34s)  T 3.384  fA 0.018  pBad 0.0158  MEC 483.00 0->98
+ 7k (70.0%,34s)  T 1.847  fA 0.016  pBad 0.0152  MEC 483.00 0->98
+ 8k (80.0%,34s)  T 1.008  fA 0.015  pBad 0.0096  MEC 483.00 0->98
+ 9k (90.0%,34s)  T 0.550  fA 0.006  pBad 0.0048  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.25415(77.0688, 1338)
+ 1k (10.0%,34s)  T 69.898  fA 0.350  pBad 0.8043  MEC 1066.00 0->98
+ 2k (20.0%,34s)  T 38.147  fA 0.349  pBad 0.7322  MEC 1007.00 0->98
+ 3k (30.0%,34s)  T 20.818  fA 0.251  pBad 0.4316  MEC 728.00 0->98
+ 4k (40.0%,34s)  T 11.362  fA 0.066  pBad 0.0725  MEC 483.00 0->98
+ 5k (50.0%,34s)  T 6.201  fA 0.027  pBad 0.0229  MEC 491.00 0->98
+ 6k (60.0%,34s)  T 3.384  fA 0.014  pBad 0.0152  MEC 490.00 0->98
+ 7k (70.0%,34s)  T 1.847  fA 0.018  pBad 0.0203  MEC 483.00 0->98
+ 8k (80.0%,34s)  T 1.008  fA 0.009  pBad 0.0139  MEC 482.00 0->98
+ 9k (90.0%,34s)  T 0.550  fA 0.006  pBad 0.0092  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 6.21319(77.7378, 1338)
+ 1k (10.0%,34s)  T 69.898  fA 0.361  pBad 0.7809  MEC 936.00 0->98
+ 2k (20.0%,34s)  T 38.147  fA 0.319  pBad 0.7073  MEC 829.00 0->98
+ 3k (30.0%,35s)  T 20.818  fA 0.268  pBad 0.4828  MEC 842.00 0->98
+ 4k (40.0%,35s)  T 11.362  fA 0.100  pBad 0.1187  MEC 531.00 0->98
+ 5k (50.0%,35s)  T 6.201  fA 0.028  pBad 0.0314  MEC 482.00 0->98
+ 6k (60.0%,35s)  T 3.384  fA 0.022  pBad 0.0213  MEC 482.00 0->98
+ 7k (70.0%,35s)  T 1.847  fA 0.011  pBad 0.0135  MEC 483.00 0->98
+ 8k (80.0%,35s)  T 1.008  fA 0.017  pBad 0.0144  MEC 482.00 0->98
+ 9k (90.0%,35s)  T 0.550  fA 0.007  pBad 0.0080  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.14743(78.4068, 1338)
+ 1k (10.0%,35s)  T 69.898  fA 0.367  pBad 0.8142  MEC 1000.00 0->98
+ 2k (20.0%,35s)  T 38.147  fA 0.340  pBad 0.7108  MEC 912.00 0->98
+ 3k (30.0%,35s)  T 20.818  fA 0.261  pBad 0.4336  MEC 829.00 0->98
+ 4k (40.0%,35s)  T 11.362  fA 0.133  pBad 0.1698  MEC 638.00 0->98
+ 5k (50.0%,35s)  T 6.201  fA 0.063  pBad 0.0690  MEC 595.00 0->98
+ 6k (60.0%,35s)  T 3.384  fA 0.028  pBad 0.0283  MEC 602.00 0->98
+ 7k (70.0%,35s)  T 1.847  fA 0.016  pBad 0.0151  MEC 591.00 0->98
+ 8k (80.0%,35s)  T 1.008  fA 0.010  pBad 0.0084  MEC 591.00 0->98
+ 9k (90.0%,35s)  T 0.550  fA 0.007  pBad 0.0047  MEC 591.00 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 7.47384(79.0758, 1338)
+ 1k (10.0%,35s)  T 69.898  fA 0.387  pBad 0.7672  MEC 981.00 0->98
+ 2k (20.0%,35s)  T 38.147  fA 0.351  pBad 0.6819  MEC 940.00 0->98
+ 3k (30.0%,35s)  T 20.818  fA 0.253  pBad 0.4158  MEC 891.00 0->98
+ 4k (40.0%,35s)  T 11.362  fA 0.088  pBad 0.1031  MEC 491.00 0->98
+ 5k (50.0%,35s)  T 6.201  fA 0.030  pBad 0.0280  MEC 491.00 0->98
+ 6k (60.0%,35s)  T 3.384  fA 0.022  pBad 0.0199  MEC 483.00 0->98
+ 7k (70.0%,35s)  T 1.847  fA 0.017  pBad 0.0133  MEC 483.00 0->98
+ 8k (80.0%,36s)  T 1.008  fA 0.015  pBad 0.0164  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 9k (90.0%,36s)  T 0.550  fA 0.007  pBad 0.0084  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 6.04428(79.7448, 1338)
+ 1k (10.0%,36s)  T 69.898  fA 0.348  pBad 0.8022  MEC 1055.00 0->98
+ 2k (20.0%,36s)  T 38.147  fA 0.353  pBad 0.7158  MEC 914.00 0->98
+ 3k (30.0%,36s)  T 20.818  fA 0.197  pBad 0.3281  MEC 643.00 0->98
+ 4k (40.0%,36s)  T 11.362  fA 0.063  pBad 0.0741  MEC 483.00 0->98
+ 5k (50.0%,36s)  T 6.201  fA 0.027  pBad 0.0266  MEC 483.00 0->98
+ 6k (60.0%,36s)  T 3.384  fA 0.021  pBad 0.0213  MEC 482.00 0->98
+ 7k (70.0%,36s)  T 1.847  fA 0.016  pBad 0.0140  MEC 482.00 0->98
+ 8k (80.0%,36s)  T 1.008  fA 0.009  pBad 0.0096  MEC 482.00 0->98
+ 9k (90.0%,36s)  T 0.550  fA 0.004  pBad 0.0053  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.994(80.4138, 1338)
+ 1k (10.0%,36s)  T 69.898  fA 0.366  pBad 0.7968  MEC 996.00 0->98
+ 2k (20.0%,36s)  T 38.147  fA 0.388  pBad 0.7317  MEC 863.00 0->98
+ 3k (30.0%,36s)  T 20.818  fA 0.222  pBad 0.3774  MEC 724.00 0->98
+ 4k (40.0%,36s)  T 11.362  fA 0.089  pBad 0.0939  MEC 528.00 0->98
+ 5k (50.0%,36s)  T 6.201  fA 0.024  pBad 0.0270  MEC 483.00 0->98
+ 6k (60.0%,36s)  T 3.384  fA 0.019  pBad 0.0160  MEC 482.00 0->98
+ 7k (70.0%,36s)  T 1.847  fA 0.012  pBad 0.0125  MEC 483.00 0->98
+ 8k (80.0%,36s)  T 1.008  fA 0.012  pBad 0.0141  MEC 482.00 0->98
+ 9k (90.0%,36s)  T 0.550  fA 0.007  pBad 0.0074  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.94454(81.0828, 1338)
+ 1k (10.0%,36s)  T 69.898  fA 0.354  pBad 0.7768  MEC 1081.00 0->98
+ 2k (20.0%,36s)  T 38.147  fA 0.335  pBad 0.6881  MEC 981.00 0->98
+ 3k (30.0%,37s)  T 20.818  fA 0.202  pBad 0.3114  MEC 734.00 0->98
+ 4k (40.0%,37s)  T 11.362  fA 0.077  pBad 0.0792  MEC 483.00 0->98
+ 5k (50.0%,37s)  T 6.201  fA 0.026  pBad 0.0269  MEC 483.00 0->98
+ 6k (60.0%,37s)  T 3.384  fA 0.021  pBad 0.0195  MEC 483.00 0->98
+ 7k (70.0%,37s)  T 1.847  fA 0.012  pBad 0.0101  MEC 483.00 0->98
+ 8k (80.0%,37s)  T 1.008  fA 0.009  pBad 0.0076  MEC 482.00 0->98
+ 9k (90.0%,37s)  T 0.550  fA 0.005  pBad 0.0083  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 5.90813(81.7518, 1338)
+ 1k (10.0%,37s)  T 69.898  fA 0.364  pBad 0.7896  MEC 944.00 0->98
+ 2k (20.0%,37s)  T 38.147  fA 0.331  pBad 0.6900  MEC 933.00 0->98
+ 3k (30.0%,37s)  T 20.818  fA 0.220  pBad 0.3531  MEC 880.00 0->98
+ 4k (40.0%,37s)  T 11.362  fA 0.084  pBad 0.0979  MEC 491.00 0->98
+ 5k (50.0%,37s)  T 6.201  fA 0.025  pBad 0.0287  MEC 483.00 0->98
+ 6k (60.0%,37s)  T 3.384  fA 0.015  pBad 0.0151  MEC 490.00 0->98
+ 7k (70.0%,37s)  T 1.847  fA 0.016  pBad 0.0113  MEC 482.00 0->98
+ 8k (80.0%,37s)  T 1.008  fA 0.009  pBad 0.0130  MEC 482.00 0->98
+ 9k (90.0%,37s)  T 0.550  fA 0.007  pBad 0.0046  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.84804(82.4208, 1338)
+ 1k (10.0%,37s)  T 69.898  fA 0.381  pBad 0.7888  MEC 1007.00 0->98
+ 2k (20.0%,37s)  T 38.147  fA 0.326  pBad 0.6950  MEC 907.00 0->98
+ 3k (30.0%,37s)  T 20.818  fA 0.215  pBad 0.3642  MEC 526.00 0->98
+ 4k (40.0%,37s)  T 11.362  fA 0.056  pBad 0.0685  MEC 542.00 0->98
+ 5k (50.0%,37s)  T 6.201  fA 0.025  pBad 0.0262  MEC 491.00 0->98
+ 6k (60.0%,37s)  T 3.384  fA 0.021  pBad 0.0220  MEC 491.00 0->98
+ 7k (70.0%,38s)  T 1.847  fA 0.008  pBad 0.0096  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,38s)  T 1.008  fA 0.012  pBad 0.0110  MEC 482.00 0->98
+ 9k (90.0%,38s)  T 0.550  fA 0.007  pBad 0.0077  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.80095(83.0898, 1338)
+ 1k (10.0%,38s)  T 69.898  fA 0.361  pBad 0.7372  MEC 855.00 0->98
+ 2k (20.0%,38s)  T 38.147  fA 0.355  pBad 0.6876  MEC 843.00 0->98
+ 3k (30.0%,38s)  T 20.818  fA 0.246  pBad 0.3971  MEC 588.00 0->98
+ 4k (40.0%,38s)  T 11.362  fA 0.060  pBad 0.0703  MEC 577.00 0->98
+ 5k (50.0%,38s)  T 6.201  fA 0.027  pBad 0.0258  MEC 483.00 0->98
+ 6k (60.0%,38s)  T 3.384  fA 0.022  pBad 0.0235  MEC 482.00 0->98
+ 7k (70.0%,38s)  T 1.847  fA 0.014  pBad 0.0167  MEC 483.00 0->98
+ 8k (80.0%,38s)  T 1.008  fA 0.011  pBad 0.0111  MEC 482.00 0->98
+ 9k (90.0%,38s)  T 0.550  fA 0.005  pBad 0.0068  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.75462(83.7588, 1338)
+ 1k (10.0%,38s)  T 69.898  fA 0.377  pBad 0.7859  MEC 1044.00 0->98
+ 2k (20.0%,38s)  T 38.147  fA 0.340  pBad 0.6986  MEC 920.00 0->98
+ 3k (30.0%,38s)  T 20.818  fA 0.183  pBad 0.2985  MEC 736.00 0->98
+ 4k (40.0%,38s)  T 11.362  fA 0.073  pBad 0.0742  MEC 539.00 0->98
+ 5k (50.0%,38s)  T 6.201  fA 0.031  pBad 0.0265  MEC 483.00 0->98
+ 6k (60.0%,38s)  T 3.384  fA 0.013  pBad 0.0124  MEC 491.00 0->98
+ 7k (70.0%,38s)  T 1.847  fA 0.007  pBad 0.0067  MEC 483.00 0->98
+ 8k (80.0%,38s)  T 1.008  fA 0.009  pBad 0.0109  MEC 482.00 0->98
+ 9k (90.0%,38s)  T 0.550  fA 0.005  pBad 0.0050  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.70902(84.4278, 1338)
+ 1k (10.0%,38s)  T 69.898  fA 0.377  pBad 0.7580  MEC 1023.00 0->98
+ 2k (20.0%,38s)  T 38.147  fA 0.324  pBad 0.6570  MEC 927.00 0->98
+ 3k (30.0%,39s)  T 20.818  fA 0.225  pBad 0.3685  MEC 681.00 0->98
+ 4k (40.0%,39s)  T 11.362  fA 0.072  pBad 0.0719  MEC 528.00 0->98
+ 5k (50.0%,39s)  T 6.201  fA 0.028  pBad 0.0258  MEC 482.00 0->98
+ 6k (60.0%,39s)  T 3.384  fA 0.017  pBad 0.0203  MEC 482.00 0->98
+ 7k (70.0%,39s)  T 1.847  fA 0.012  pBad 0.0141  MEC 490.00 0->98
+ 8k (80.0%,39s)  T 1.008  fA 0.011  pBad 0.0109  MEC 482.00 0->98
+ 9k (90.0%,39s)  T 0.550  fA 0.007  pBad 0.0088  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 5.67589(85.0968, 1338)
+ 1k (10.0%,39s)  T 69.898  fA 0.352  pBad 0.7512  MEC 969.00 0->98
+ 2k (20.0%,39s)  T 38.147  fA 0.320  pBad 0.6299  MEC 838.00 0->98
+ 3k (30.0%,39s)  T 20.818  fA 0.210  pBad 0.3164  MEC 537.00 0->98
+ 4k (40.0%,39s)  T 11.362  fA 0.066  pBad 0.0701  MEC 491.00 0->98
+ 5k (50.0%,39s)  T 6.201  fA 0.024  pBad 0.0205  MEC 483.00 0->98
+ 6k (60.0%,39s)  T 3.384  fA 0.017  pBad 0.0151  MEC 483.00 0->98
+ 7k (70.0%,39s)  T 1.847  fA 0.013  pBad 0.0117  MEC 483.00 0->98
+ 8k (80.0%,39s)  T 1.008  fA 0.011  pBad 0.0149  MEC 482.00 0->98
+ 9k (90.0%,39s)  T 0.550  fA 0.009  pBad 0.0120  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.61996(85.7658, 1338)
+ 1k (10.0%,39s)  T 69.898  fA 0.343  pBad 0.7927  MEC 1065.00 0->98
+ 2k (20.0%,39s)  T 38.147  fA 0.320  pBad 0.6558  MEC 904.00 0->98
+ 3k (30.0%,39s)  T 20.818  fA 0.212  pBad 0.3238  MEC 730.00 0->98
+ 4k (40.0%,39s)  T 11.362  fA 0.085  pBad 0.0869  MEC 542.00 0->98
+ 5k (50.0%,39s)  T 6.201  fA 0.031  pBad 0.0301  MEC 491.00 0->98
+ 6k (60.0%,39s)  T 3.384  fA 0.022  pBad 0.0220  MEC 483.00 0->98
+ 7k (70.0%,40s)  T 1.847  fA 0.014  pBad 0.0110  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,40s)  T 1.008  fA 0.012  pBad 0.0095  MEC 483.00 0->98
+ 9k (90.0%,40s)  T 0.550  fA 0.004  pBad 0.0064  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.57646(86.4348, 1338)
+ 1k (10.0%,40s)  T 69.898  fA 0.372  pBad 0.7868  MEC 981.00 0->98
+ 2k (20.0%,40s)  T 38.147  fA 0.337  pBad 0.6551  MEC 1001.00 0->98
+ 3k (30.0%,40s)  T 20.818  fA 0.239  pBad 0.3913  MEC 734.00 0->98
+ 4k (40.0%,40s)  T 11.362  fA 0.062  pBad 0.0732  MEC 483.00 0->98
+ 5k (50.0%,40s)  T 6.201  fA 0.023  pBad 0.0253  MEC 482.00 0->98
+ 6k (60.0%,40s)  T 3.384  fA 0.019  pBad 0.0213  MEC 483.00 0->98
+ 7k (70.0%,40s)  T 1.847  fA 0.011  pBad 0.0130  MEC 482.00 0->98
+ 8k (80.0%,40s)  T 1.008  fA 0.009  pBad 0.0116  MEC 483.00 0->98
+ 9k (90.0%,40s)  T 0.550  fA 0.007  pBad 0.0107  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.53363(87.1038, 1338)
+ 1k (10.0%,40s)  T 69.898  fA 0.353  pBad 0.7589  MEC 1019.00 0->98
+ 2k (20.0%,40s)  T 38.147  fA 0.346  pBad 0.6941  MEC 970.00 0->98
+ 3k (30.0%,40s)  T 20.818  fA 0.217  pBad 0.3762  MEC 534.00 0->98
+ 4k (40.0%,40s)  T 11.362  fA 0.057  pBad 0.0743  MEC 491.00 0->98
+ 5k (50.0%,40s)  T 6.201  fA 0.018  pBad 0.0230  MEC 483.00 0->98
+ 6k (60.0%,40s)  T 3.384  fA 0.020  pBad 0.0172  MEC 483.00 0->98
+ 7k (70.0%,40s)  T 1.847  fA 0.014  pBad 0.0136  MEC 482.00 0->98
+ 8k (80.0%,40s)  T 1.008  fA 0.006  pBad 0.0096  MEC 483.00 0->98
+ 9k (90.0%,40s)  T 0.550  fA 0.010  pBad 0.0082  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.49145(87.7728, 1338)
+ 1k (10.0%,40s)  T 69.898  fA 0.369  pBad 0.7806  MEC 903.00 0->98
+ 2k (20.0%,41s)  T 38.147  fA 0.319  pBad 0.6772  MEC 884.00 0->98
+ 3k (30.0%,41s)  T 20.818  fA 0.281  pBad 0.4586  MEC 909.00 0->98
+ 4k (40.0%,41s)  T 11.362  fA 0.100  pBad 0.1168  MEC 490.00 0->98
+ 5k (50.0%,41s)  T 6.201  fA 0.024  pBad 0.0270  MEC 482.00 0->98
+ 6k (60.0%,41s)  T 3.384  fA 0.020  pBad 0.0209  MEC 482.00 0->98
+ 7k (70.0%,41s)  T 1.847  fA 0.013  pBad 0.0124  MEC 483.00 0->98
+ 8k (80.0%,41s)  T 1.008  fA 0.008  pBad 0.0121  MEC 483.00 0->98
+ 9k (90.0%,41s)  T 0.550  fA 0.006  pBad 0.0076  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.44991(88.4418, 1338)
+ 1k (10.0%,41s)  T 69.898  fA 0.339  pBad 0.7396  MEC 974.00 0->98
+ 2k (20.0%,41s)  T 38.147  fA 0.320  pBad 0.6752  MEC 968.00 0->98
+ 3k (30.0%,41s)  T 20.818  fA 0.268  pBad 0.4272  MEC 578.00 0->98
+ 4k (40.0%,41s)  T 11.362  fA 0.080  pBad 0.0821  MEC 531.00 0->98
+ 5k (50.0%,41s)  T 6.201  fA 0.030  pBad 0.0269  MEC 482.00 0->98
+ 6k (60.0%,41s)  T 3.384  fA 0.022  pBad 0.0202  MEC 483.00 0->98
+ 7k (70.0%,41s)  T 1.847  fA 0.013  pBad 0.0157  MEC 482.00 0->98
+ 8k (80.0%,41s)  T 1.008  fA 0.013  pBad 0.0118  MEC 483.00 0->98
+ 9k (90.0%,41s)  T 0.550  fA 0.008  pBad 0.0073  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.409(89.1108, 1338)
+ 1k (10.0%,41s)  T 69.898  fA 0.362  pBad 0.7988  MEC 1037.00 0->98
+ 2k (20.0%,41s)  T 38.147  fA 0.329  pBad 0.6788  MEC 936.00 0->98
+ 3k (30.0%,41s)  T 20.818  fA 0.236  pBad 0.3861  MEC 757.00 0->98
+ 4k (40.0%,41s)  T 11.362  fA 0.090  pBad 0.1123  MEC 534.00 0->98
+ 5k (50.0%,41s)  T 6.201  fA 0.029  pBad 0.0330  MEC 491.00 0->98
+ 6k (60.0%,41s)  T 3.384  fA 0.022  pBad 0.0194  MEC 483.00 0->98
+ 7k (70.0%,42s)  T 1.847  fA 0.014  pBad 0.0147  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,42s)  T 1.008  fA 0.010  pBad 0.0097  MEC 483.00 0->98
+ 9k (90.0%,42s)  T 0.550  fA 0.007  pBad 0.0042  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.36869(89.7798, 1338)
+ 1k (10.0%,42s)  T 69.898  fA 0.374  pBad 0.7980  MEC 927.00 0->98
+ 2k (20.0%,42s)  T 38.147  fA 0.323  pBad 0.6781  MEC 883.00 0->98
+ 3k (30.0%,42s)  T 20.818  fA 0.259  pBad 0.4002  MEC 771.00 0->98
+ 4k (40.0%,42s)  T 11.362  fA 0.069  pBad 0.0770  MEC 491.00 0->98
+ 5k (50.0%,42s)  T 6.201  fA 0.021  pBad 0.0228  MEC 482.00 0->98
+ 6k (60.0%,42s)  T 3.384  fA 0.018  pBad 0.0224  MEC 491.00 0->98
+ 7k (70.0%,42s)  T 1.847  fA 0.014  pBad 0.0157  MEC 482.00 0->98
+ 8k (80.0%,42s)  T 1.008  fA 0.014  pBad 0.0109  MEC 483.00 0->98
+ 9k (90.0%,42s)  T 0.550  fA 0.007  pBad 0.0056  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.32898(90.4488, 1338)
+ 1k (10.0%,42s)  T 69.898  fA 0.383  pBad 0.7802  MEC 1048.00 0->98
+ 2k (20.0%,42s)  T 38.147  fA 0.333  pBad 0.6634  MEC 746.00 0->98
+ 3k (30.0%,42s)  T 20.818  fA 0.288  pBad 0.4704  MEC 902.00 0->98
+ 4k (40.0%,42s)  T 11.362  fA 0.198  pBad 0.2552  MEC 635.00 0->98
+ 5k (50.0%,42s)  T 6.201  fA 0.074  pBad 0.0777  MEC 602.00 0->98
+ 6k (60.0%,42s)  T 3.384  fA 0.034  pBad 0.0348  MEC 603.00 0->98
+ 7k (70.0%,42s)  T 1.847  fA 0.013  pBad 0.0140  MEC 591.00 0->98
+ 8k (80.0%,42s)  T 1.008  fA 0.005  pBad 0.0107  MEC 592.00 0->98
+ 9k (90.0%,42s)  T 0.550  fA 0.009  pBad 0.0070  MEC 592.00 0->98
+Retreat 94% from 95% to 1% because MEC is 591, too big by a factor of 6.48611(91.1178, 1338)
+ 1k (10.0%,42s)  T 69.898  fA 0.370  pBad 0.7837  MEC 956.00 0->98
+ 2k (20.0%,43s)  T 38.147  fA 0.330  pBad 0.7098  MEC 807.00 0->98
+ 3k (30.0%,43s)  T 20.818  fA 0.252  pBad 0.4295  MEC 586.00 0->98
+ 4k (40.0%,43s)  T 11.362  fA 0.070  pBad 0.0727  MEC 588.00 0->98
+ 5k (50.0%,43s)  T 6.201  fA 0.026  pBad 0.0319  MEC 483.00 0->98
+ 6k (60.0%,43s)  T 3.384  fA 0.016  pBad 0.0190  MEC 483.00 0->98
+ 7k (70.0%,43s)  T 1.847  fA 0.014  pBad 0.0139  MEC 483.00 0->98
+ 8k (80.0%,43s)  T 1.008  fA 0.010  pBad 0.0083  MEC 482.00 0->98
+ 9k (90.0%,43s)  T 0.550  fA 0.009  pBad 0.0066  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.2513(91.7868, 1338)
+ 1k (10.0%,43s)  T 69.898  fA 0.347  pBad 0.7896  MEC 940.00 0->98
+ 2k (20.0%,43s)  T 38.147  fA 0.337  pBad 0.6686  MEC 881.00 0->98
+ 3k (30.0%,43s)  T 20.818  fA 0.265  pBad 0.4134  MEC 675.00 0->98
+ 4k (40.0%,43s)  T 11.362  fA 0.062  pBad 0.0669  MEC 491.00 0->98
+ 5k (50.0%,43s)  T 6.201  fA 0.025  pBad 0.0230  MEC 491.00 0->98
+ 6k (60.0%,43s)  T 3.384  fA 0.019  pBad 0.0141  MEC 483.00 0->98
+ 7k (70.0%,43s)  T 1.847  fA 0.013  pBad 0.0101  MEC 483.00 0->98
+ 8k (80.0%,43s)  T 1.008  fA 0.012  pBad 0.0104  MEC 483.00 0->98
+ 9k (90.0%,43s)  T 0.550  fA 0.006  pBad 0.0059  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.2133(92.4558, 1338)
+ 1k (10.0%,43s)  T 69.898  fA 0.369  pBad 0.7967  MEC 1000.00 0->98
+ 2k (20.0%,43s)  T 38.147  fA 0.324  pBad 0.6881  MEC 1057.00 0->98
+ 3k (30.0%,43s)  T 20.818  fA 0.298  pBad 0.4755  MEC 978.00 0->98
+ 4k (40.0%,43s)  T 11.362  fA 0.099  pBad 0.1254  MEC 545.00 0->98
+ 5k (50.0%,43s)  T 6.201  fA 0.027  pBad 0.0271  MEC 483.00 0->98
+ 6k (60.0%,43s)  T 3.384  fA 0.012  pBad 0.0198  MEC 482.00 0->98
+ 7k (70.0%,44s)  T 1.847  fA 0.015  pBad 0.0173  MEC 483.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 8k (80.0%,44s)  T 1.008  fA 0.011  pBad 0.0087  MEC 482.00 0->98
+ 9k (90.0%,44s)  T 0.550  fA 0.005  pBad 0.0053  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 5.18659(93.1248, 1338)
+ 1k (10.0%,44s)  T 69.898  fA 0.356  pBad 0.7968  MEC 982.00 0->98
+ 2k (20.0%,44s)  T 38.147  fA 0.364  pBad 0.7407  MEC 905.00 0->98
+ 3k (30.0%,44s)  T 20.818  fA 0.203  pBad 0.3916  MEC 765.00 0->98
+ 4k (40.0%,44s)  T 11.362  fA 0.090  pBad 0.0957  MEC 490.00 0->98
+ 5k (50.0%,44s)  T 6.201  fA 0.026  pBad 0.0291  MEC 483.00 0->98
+ 6k (60.0%,44s)  T 3.384  fA 0.017  pBad 0.0191  MEC 482.00 0->98
+ 7k (70.0%,44s)  T 1.847  fA 0.016  pBad 0.0168  MEC 483.00 0->98
+ 8k (80.0%,44s)  T 1.008  fA 0.010  pBad 0.0107  MEC 483.00 0->98
+ 9k (90.0%,44s)  T 0.550  fA 0.006  pBad 0.0053  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.13893(93.7938, 1338)
+ 1k (10.0%,44s)  T 69.898  fA 0.368  pBad 0.7627  MEC 995.00 0->98
+ 2k (20.0%,44s)  T 38.147  fA 0.337  pBad 0.6509  MEC 777.00 0->98
+ 3k (30.0%,44s)  T 20.818  fA 0.227  pBad 0.3689  MEC 545.00 0->98
+ 4k (40.0%,44s)  T 11.362  fA 0.067  pBad 0.0843  MEC 483.00 0->98
+ 5k (50.0%,44s)  T 6.201  fA 0.020  pBad 0.0283  MEC 483.00 0->98
+ 6k (60.0%,44s)  T 3.384  fA 0.021  pBad 0.0197  MEC 490.00 0->98
+ 7k (70.0%,44s)  T 1.847  fA 0.011  pBad 0.0116  MEC 483.00 0->98
+ 8k (80.0%,44s)  T 1.008  fA 0.013  pBad 0.0090  MEC 483.00 0->98
+ 9k (90.0%,44s)  T 0.550  fA 0.006  pBad 0.0060  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.10254(94.4628, 1338)
+ 1k (10.0%,44s)  T 69.898  fA 0.362  pBad 0.7765  MEC 978.00 0->98
+ 2k (20.0%,45s)  T 38.147  fA 0.358  pBad 0.7014  MEC 918.00 0->98
+ 3k (30.0%,45s)  T 20.818  fA 0.211  pBad 0.3671  MEC 734.00 0->98
+ 4k (40.0%,45s)  T 11.362  fA 0.070  pBad 0.0740  MEC 490.00 0->98
+ 5k (50.0%,45s)  T 6.201  fA 0.023  pBad 0.0264  MEC 483.00 0->98
+ 6k (60.0%,45s)  T 3.384  fA 0.016  pBad 0.0215  MEC 482.00 0->98
+ 7k (70.0%,45s)  T 1.847  fA 0.018  pBad 0.0130  MEC 482.00 0->98
+ 8k (80.0%,45s)  T 1.008  fA 0.007  pBad 0.0101  MEC 483.00 0->98
+ 9k (90.0%,45s)  T 0.550  fA 0.006  pBad 0.0053  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.06665(95.1318, 1338)
+ 1k (10.0%,45s)  T 69.898  fA 0.374  pBad 0.7642  MEC 1092.00 0->98
+ 2k (20.0%,45s)  T 38.147  fA 0.337  pBad 0.6997  MEC 876.00 0->98
+ 3k (30.0%,45s)  T 20.818  fA 0.203  pBad 0.3293  MEC 629.00 0->98
+ 4k (40.0%,45s)  T 11.362  fA 0.076  pBad 0.0804  MEC 482.00 0->98
+ 5k (50.0%,45s)  T 6.201  fA 0.021  pBad 0.0254  MEC 483.00 0->98
+ 6k (60.0%,45s)  T 3.384  fA 0.022  pBad 0.0208  MEC 482.00 0->98
+ 7k (70.0%,45s)  T 1.847  fA 0.010  pBad 0.0114  MEC 482.00 0->98
+ 8k (80.0%,45s)  T 1.008  fA 0.010  pBad 0.0127  MEC 482.00 0->98
+ 9k (90.0%,45s)  T 0.550  fA 0.007  pBad 0.0068  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 5.03127(95.8008, 1338)
+ 1k (10.0%,45s)  T 69.898  fA 0.360  pBad 0.7663  MEC 1037.00 0->98
+ 2k (20.0%,45s)  T 38.147  fA 0.349  pBad 0.7047  MEC 1002.00 0->98
+ 3k (30.0%,45s)  T 20.818  fA 0.196  pBad 0.3581  MEC 636.00 0->98
+ 4k (40.0%,45s)  T 11.362  fA 0.061  pBad 0.0808  MEC 482.00 0->98
+ 5k (50.0%,45s)  T 6.201  fA 0.025  pBad 0.0283  MEC 483.00 0->98
+ 6k (60.0%,46s)  T 3.384  fA 0.017  pBad 0.0144  MEC 491.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 7k (70.0%,46s)  T 1.847  fA 0.014  pBad 0.0114  MEC 482.00 0->98
+ 8k (80.0%,46s)  T 1.008  fA 0.012  pBad 0.0130  MEC 482.00 0->98
+ 9k (90.0%,46s)  T 0.550  fA 0.008  pBad 0.0063  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.99638(96.4698, 1338)
+ 1k (10.0%,46s)  T 69.898  fA 0.340  pBad 0.7846  MEC 946.00 0->98
+ 2k (20.0%,46s)  T 38.147  fA 0.326  pBad 0.6814  MEC 935.00 0->98
+ 3k (30.0%,46s)  T 20.818  fA 0.218  pBad 0.3620  MEC 731.00 0->98
+ 4k (40.0%,46s)  T 11.362  fA 0.072  pBad 0.0781  MEC 528.00 0->98
+ 5k (50.0%,46s)  T 6.201  fA 0.025  pBad 0.0295  MEC 490.00 0->98
+ 6k (60.0%,46s)  T 3.384  fA 0.019  pBad 0.0204  MEC 483.00 0->98
+ 7k (70.0%,46s)  T 1.847  fA 0.014  pBad 0.0150  MEC 482.00 0->98
+ 8k (80.0%,46s)  T 1.008  fA 0.012  pBad 0.0149  MEC 482.00 0->98
+ 9k (90.0%,46s)  T 0.550  fA 0.008  pBad 0.0057  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.96197(97.1388, 1338)
+ 1k (10.0%,46s)  T 69.898  fA 0.328  pBad 0.7476  MEC 878.00 0->98
+ 2k (20.0%,46s)  T 38.147  fA 0.335  pBad 0.6754  MEC 812.00 0->98
+ 3k (30.0%,46s)  T 20.818  fA 0.226  pBad 0.3764  MEC 594.00 0->98
+ 4k (40.0%,46s)  T 11.362  fA 0.058  pBad 0.0688  MEC 483.00 0->98
+ 5k (50.0%,46s)  T 6.201  fA 0.024  pBad 0.0259  MEC 483.00 0->98
+ 6k (60.0%,46s)  T 3.384  fA 0.019  pBad 0.0201  MEC 483.00 0->98
+ 7k (70.0%,46s)  T 1.847  fA 0.012  pBad 0.0174  MEC 483.00 0->98
+ 8k (80.0%,46s)  T 1.008  fA 0.007  pBad 0.0110  MEC 482.00 0->98
+ 9k (90.0%,46s)  T 0.550  fA 0.009  pBad 0.0102  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.92803(97.8078, 1338)
+ 1k (10.0%,47s)  T 69.898  fA 0.357  pBad 0.7751  MEC 1023.00 0->98
+ 2k (20.0%,47s)  T 38.147  fA 0.345  pBad 0.7190  MEC 1023.00 0->98
+ 3k (30.0%,47s)  T 20.818  fA 0.209  pBad 0.3600  MEC 781.00 0->98
+ 4k (40.0%,47s)  T 11.362  fA 0.071  pBad 0.0754  MEC 527.00 0->98
+ 5k (50.0%,47s)  T 6.201  fA 0.028  pBad 0.0274  MEC 483.00 0->98
+ 6k (60.0%,47s)  T 3.384  fA 0.019  pBad 0.0174  MEC 483.00 0->98
+ 7k (70.0%,47s)  T 1.847  fA 0.009  pBad 0.0076  MEC 483.00 0->98
+ 8k (80.0%,47s)  T 1.008  fA 0.006  pBad 0.0100  MEC 483.00 0->98
+ 9k (90.0%,47s)  T 0.550  fA 0.008  pBad 0.0067  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 4.90471(98.4768, 1338)
+ 1k (10.0%,47s)  T 69.898  fA 0.357  pBad 0.7733  MEC 905.00 0->98
+ 2k (20.0%,47s)  T 38.147  fA 0.352  pBad 0.6877  MEC 786.00 0->98
+ 3k (30.0%,47s)  T 20.818  fA 0.215  pBad 0.3220  MEC 534.00 0->98
+ 4k (40.0%,47s)  T 11.362  fA 0.062  pBad 0.0712  MEC 534.00 0->98
+ 5k (50.0%,47s)  T 6.201  fA 0.022  pBad 0.0216  MEC 491.00 0->98
+ 6k (60.0%,47s)  T 3.384  fA 0.016  pBad 0.0143  MEC 490.00 0->98
+ 7k (70.0%,47s)  T 1.847  fA 0.012  pBad 0.0124  MEC 483.00 0->98
+ 8k (80.0%,47s)  T 1.008  fA 0.009  pBad 0.0072  MEC 482.00 0->98
+ 9k (90.0%,47s)  T 0.550  fA 0.005  pBad 0.0072  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 4.87161(99.1458, 1338)
+ 1k (10.0%,47s)  T 69.898  fA 0.346  pBad 0.7907  MEC 981.00 0->98
+ 2k (20.0%,47s)  T 38.147  fA 0.314  pBad 0.6814  MEC 819.00 0->98
+ 3k (30.0%,47s)  T 20.818  fA 0.253  pBad 0.4059  MEC 856.00 0->98
+ 4k (40.0%,47s)  T 11.362  fA 0.103  pBad 0.1046  MEC 541.00 0->98
+ 5k (50.0%,47s)  T 6.201  fA 0.024  pBad 0.0242  MEC 483.00 0->98
+ 6k (60.0%,48s)  T 3.384  fA 0.016  pBad 0.0160  MEC 482.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 7k (70.0%,48s)  T 1.847  fA 0.014  pBad 0.0136  MEC 490.00 0->98
+ 8k (80.0%,48s)  T 1.008  fA 0.009  pBad 0.0099  MEC 483.00 0->98
+ 9k (90.0%,48s)  T 0.550  fA 0.007  pBad 0.0094  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.82894(99.8148, 1338)
+ 1k (10.0%,48s)  T 69.898  fA 0.377  pBad 0.8217  MEC 1062.00 0->98
+ 2k (20.0%,48s)  T 38.147  fA 0.344  pBad 0.7095  MEC 871.00 0->98
+ 3k (30.0%,48s)  T 20.818  fA 0.217  pBad 0.3324  MEC 679.00 0->98
+ 4k (40.0%,48s)  T 11.362  fA 0.086  pBad 0.0855  MEC 528.00 0->98
+ 5k (50.0%,48s)  T 6.201  fA 0.022  pBad 0.0296  MEC 483.00 0->98
+ 6k (60.0%,48s)  T 3.384  fA 0.015  pBad 0.0193  MEC 491.00 0->98
+ 7k (70.0%,48s)  T 1.847  fA 0.016  pBad 0.0172  MEC 483.00 0->98
+ 8k (80.0%,48s)  T 1.008  fA 0.008  pBad 0.0093  MEC 482.00 0->98
+ 9k (90.0%,48s)  T 0.550  fA 0.003  pBad 0.0056  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.79679(100.484, 1338)
+ 1k (10.0%,48s)  T 69.898  fA 0.357  pBad 0.7950  MEC 983.00 0->98
+ 2k (20.0%,48s)  T 38.147  fA 0.331  pBad 0.6827  MEC 817.00 0->98
+ 3k (30.0%,48s)  T 20.818  fA 0.218  pBad 0.3279  MEC 728.00 0->98
+ 4k (40.0%,48s)  T 11.362  fA 0.076  pBad 0.0838  MEC 535.00 0->98
+ 5k (50.0%,48s)  T 6.201  fA 0.032  pBad 0.0366  MEC 532.00 0->98
+ 6k (60.0%,48s)  T 3.384  fA 0.024  pBad 0.0258  MEC 482.00 0->98
+ 7k (70.0%,48s)  T 1.847  fA 0.015  pBad 0.0144  MEC 483.00 0->98
+ 8k (80.0%,48s)  T 1.008  fA 0.008  pBad 0.0089  MEC 483.00 0->98
+ 9k (90.0%,48s)  T 0.550  fA 0.009  pBad 0.0076  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.76507(101.153, 1338)
+ 1k (10.0%,49s)  T 69.898  fA 0.362  pBad 0.7910  MEC 994.00 0->98
+ 2k (20.0%,49s)  T 38.147  fA 0.356  pBad 0.7032  MEC 845.00 0->98
+ 3k (30.0%,49s)  T 20.818  fA 0.245  pBad 0.3837  MEC 684.00 0->98
+ 4k (40.0%,49s)  T 11.362  fA 0.073  pBad 0.0770  MEC 535.00 0->98
+ 5k (50.0%,49s)  T 6.201  fA 0.026  pBad 0.0260  MEC 491.00 0->98
+ 6k (60.0%,49s)  T 3.384  fA 0.018  pBad 0.0177  MEC 483.00 0->98
+ 7k (70.0%,49s)  T 1.847  fA 0.008  pBad 0.0076  MEC 483.00 0->98
+ 8k (80.0%,49s)  T 1.008  fA 0.007  pBad 0.0124  MEC 483.00 0->98
+ 9k (90.0%,49s)  T 0.550  fA 0.007  pBad 0.0076  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.73376(101.822, 1338)
+ 1k (10.0%,49s)  T 69.898  fA 0.370  pBad 0.7779  MEC 1019.00 0->98
+ 2k (20.0%,49s)  T 38.147  fA 0.337  pBad 0.6882  MEC 1006.00 0->98
+ 3k (30.0%,49s)  T 20.818  fA 0.217  pBad 0.3956  MEC 696.00 0->98
+ 4k (40.0%,49s)  T 11.362  fA 0.065  pBad 0.0758  MEC 491.00 0->98
+ 5k (50.0%,49s)  T 6.201  fA 0.025  pBad 0.0286  MEC 491.00 0->98
+ 6k (60.0%,49s)  T 3.384  fA 0.021  pBad 0.0190  MEC 490.00 0->98
+ 7k (70.0%,49s)  T 1.847  fA 0.014  pBad 0.0144  MEC 483.00 0->98
+ 8k (80.0%,49s)  T 1.008  fA 0.012  pBad 0.0115  MEC 482.00 0->98
+ 9k (90.0%,49s)  T 0.550  fA 0.004  pBad 0.0071  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 4.71262(102.491, 1338)
+ 1k (10.0%,49s)  T 69.898  fA 0.370  pBad 0.7600  MEC 1027.00 0->98
+ 2k (20.0%,49s)  T 38.147  fA 0.331  pBad 0.6650  MEC 945.00 0->98
+ 3k (30.0%,49s)  T 20.818  fA 0.214  pBad 0.3472  MEC 527.00 0->98
+ 4k (40.0%,49s)  T 11.362  fA 0.077  pBad 0.0770  MEC 491.00 0->98
+ 5k (50.0%,50s)  T 6.201  fA 0.029  pBad 0.0317  MEC 491.00  ( Err_vs_truth   136 Err_Pct 13.99% [486 486]) 0->98
+ 6k (60.0%,50s)  T 3.384  fA 0.016  pBad 0.0158  MEC 482.00 0->98
+ 7k (70.0%,50s)  T 1.847  fA 0.015  pBad 0.0152  MEC 482.00 0->98
+ 8k (80.0%,50s)  T 1.008  fA 0.009  pBad 0.0082  MEC 482.00 0->98
+ 9k (90.0%,50s)  T 0.550  fA 0.006  pBad 0.0096  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.67236(103.16, 1338)
+ 1k (10.0%,50s)  T 69.898  fA 0.361  pBad 0.7976  MEC 986.00 0->98
+ 2k (20.0%,50s)  T 38.147  fA 0.309  pBad 0.6696  MEC 860.00 0->98
+ 3k (30.0%,50s)  T 20.818  fA 0.237  pBad 0.3799  MEC 818.00 0->98
+ 4k (40.0%,50s)  T 11.362  fA 0.085  pBad 0.1004  MEC 536.00 0->98
+ 5k (50.0%,50s)  T 6.201  fA 0.033  pBad 0.0354  MEC 483.00 0->98
+ 6k (60.0%,50s)  T 3.384  fA 0.010  pBad 0.0117  MEC 482.00 0->98
+ 7k (70.0%,50s)  T 1.847  fA 0.014  pBad 0.0139  MEC 483.00 0->98
+ 8k (80.0%,50s)  T 1.008  fA 0.012  pBad 0.0098  MEC 482.00 0->98
+ 9k (90.0%,50s)  T 0.550  fA 0.007  pBad 0.0084  MEC 483.00 0->98
+Retreat 94% from 95% to 1% because MEC is 482, too big by a factor of 4.64226(103.829, 1338)
+ 1k (10.0%,50s)  T 69.898  fA 0.347  pBad 0.7647  MEC 1008.00 0->98
+ 2k (20.0%,50s)  T 38.147  fA 0.364  pBad 0.6942  MEC 791.00 0->98
+ 3k (30.0%,50s)  T 20.818  fA 0.214  pBad 0.3533  MEC 627.00 0->98
+ 4k (40.0%,50s)  T 11.362  fA 0.061  pBad 0.0787  MEC 530.00 0->98
+ 5k (50.0%,50s)  T 6.201  fA 0.020  pBad 0.0291  MEC 483.00 0->98
+ 6k (60.0%,50s)  T 3.384  fA 0.017  pBad 0.0183  MEC 483.00 0->98
+ 7k (70.0%,50s)  T 1.847  fA 0.015  pBad 0.0119  MEC 483.00 0->98
+ 8k (80.0%,50s)  T 1.008  fA 0.008  pBad 0.0069  MEC 483.00 0->98
+ 9k (90.0%,50s)  T 0.550  fA 0.009  pBad 0.0083  MEC 482.00 0->98
+Retreat 94% from 95% to 1% because MEC is 483, too big by a factor of 4.62211(104.498, 1338)
+ 1k (10.0%,51s)  T 69.898  fA 0.359  pBad 0.7375  MEC 1016.00 0->98
+ 1k (10.0%,51s)  T 69.898  fA 0.359  pBad 0.7375  MEC 1016.00  ( Err_vs_truth   194 Err_Pct 19.96% [486 486])
+Ending ground truth Fail! 0->98
+Finished optimizing 486 sites using MEC cost function
+MEC: 1016
+BLOCK 1
+1001101001000010010001011011110011000100010110000110111010101100000110110011010010110001000110111101011010011000100100110101011001110100000000101100100011100111001100010100000101100111011000001000010111000111010100000101000000100111011000000011101110011000010110010000011000101101000011100010110100011001110111011000011000110011011001110001000111101010101001011010001010010011001010111110011X1011101000101100001000100101010011110001011011100101110010101010001011010010010010011111111111
+01100101100000100100011001000011001110111010011110010001010100111110010010110100101100011001101111011001011001110110110010101001100010111111110100110111000110001100111010111110100110001001111101111010001110001010111110101100011001110110111111000100011001111010011011111001110100101111000111010010111101100010001001X110011100110010011000111011100001010101011010010101010110110011010100000110000100010111010011110111011000101100001110100100011010001101010101110100001100000001011111111111

@@ -70,7 +70,6 @@ dnaweight_t Genome::TotalCost() {
 }
 
 
-//FIXME: NOT BEING CALLED AT ALL
 double Genome::MeanCoverage() {
     double coverage = 0;
     for (size_t i = 0; i < haplotypes.size(); i++)
@@ -400,7 +399,7 @@ void Genome::Report(int cpuSeconds, bool final) {
     if (this->file.hasGroundTruth && ((cpuSeconds-lastCpuTime>1 || lastErrorRate > .25) || final || this->curIteration>=this->maxIterations)) {
 	    auto gt = this->CompareGroundTruth();
 	    auto ploidy = this->haplotypes.size();
-	    assert(ploidy==2); // the below code only orks with 2 haplotypes
+	    assert(ploidy==2); // the below code only works with 2 haplotypes
 	    int hapSize0=this->haplotypes[0].NumSites(),hapSize1=this->haplotypes[1].NumSites();
 	    assert(hapSize0==hapSize1); // don't multiply by this->haplotypes.size()
 	    double he = (double)gt / (this->haplotypes[0].NumSites() * haplotypes.size());
