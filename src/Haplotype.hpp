@@ -17,80 +17,68 @@ public:
 	Haplotype(const Haplotype& ch);
 	~Haplotype();
 
-	double meanCoverage();
+	double MeanCoverage();
 
-	/**
-	 * Returns the size of the solution
-	 */
-	dnapos_t size() const;
+	dnapos_t NumSites() const;
 
 	/**
 	 * Returns the number of reads in the Haplotype
 	 */
-	size_t numReads() const;
+	size_t NumReads() const;
 
 	/**
-	 * Compute the total MEC
+	 * Compute the total Cost across all sites.
 	 */
-	double mec();
+	dnaweight_t TotalCost();
 
 	/**
-	 * Compute partial MEC 
+	 * Compute cost across a window
 	 */ 
-	double mec(dnapos_t start, dnapos_t end);
+	dnaweight_t WindowCost(dnapos_t start, dnapos_t end);
 
-	/**
-	 * Compute current window's MEC
-	 */
-	double windowMec();
-
+	dnaweight_t SiteCost(const Site &s);
 	/**
 	 * Compute average coverage of SNPs within the Window
 	 */
-	double windowTotalCoverage();
-
-	/**
-	 * Compute the site-based cost
-	 */
-	double siteCost();
+	double WindowTotalCoverage();
 
 	/**
 	 * Add a Read to this haplotype
 	 */
-	void add(Read * r);
+	void AddRead(Read * r);
 
 	/**
 	 * Remove a Read to this haplotype
 	 */
-	void remove(Read * r);
+	void RemoveRead(Read * r);
 
 	/**
 	 * Randomly pick a Read
 	 */
-	Read * randomRead();
-	Read * randomRead(mt19937& engine);
+	Read * RandomRead();
+	Read * RandomRead(mt19937& engine);
 
 	/**
 	 * Print chromosome
 	 */
-	void print(ostream& stream, bool verbose=false);
+	void Print(ostream& stream, bool verbose=false);
 
 	/**
 	 * Initializes range of the window and how much it advances each turn
 	 */ 
-	void initializeWindow(unsigned windowSize, unsigned incrementBy);
+	void InitializeWindow(unsigned windowSize, unsigned incrementBy);
 
 	/**
-	 * Increments the current window that the program is trying to solve by incrementBy
+	 * Increments the current window that the program is trying to solve by incrementBy .... what?
 	 */
-	void incrementWindow();
+	void IncrementWindow();
 
 	vector<int> solution; // FIXME: is this a list of reads and which side they're on, or a list of sites with expected letter?
 
 	friend ostream & operator << (ostream& stream, Haplotype& ch);
 
 	// void print_mec(); // Only for debugging
-	void printCoverages();
+	void PrintCoverages();
 protected:
 	struct VoteInfo {
 		dnacnt_t ref_c = 0;
@@ -98,11 +86,12 @@ protected:
 		int ref_w = 0;
 		int alt_w = 0;
 
-		dnacnt_t& vote(Allele allele);
-		int& weight(Allele allele);
+		dnacnt_t& Vote(Allele allele);
+		int& Weight(Allele allele);
 	};
 
-	dnapos_t length;
+	// Why is this needed? Isn't the number of sites a global, the same for all Haplotypes and also for the whole Genome?
+	dnapos_t numSites; // number of sites
 	// vector<VoteInfo> votes;
 	vector<vector<int>> weights;
 	vector<dnacnt_t> siteCoverages;
@@ -119,17 +108,17 @@ protected:
 	Range window;
 	unsigned increment_window_by;
 
-	void findSolution(dnapos_t site);
-	void vote(Read& read, bool retract=false);
-	void saveReads();
-	void pickReads(unsigned overlap);
+	void FindSolution(dnapos_t site);
+	void Vote(Read& read, bool retract=false);
+	void SaveReads();
+	void PickReads(unsigned overlap);
 
-	bool isInRangeOf(Range r, dnapos_t pos);
+	bool IsInRangeOf(Range r, dnapos_t pos);
 
-	void subtractMECValuesAt(dnapos_t pos);
-	void addMECValuesAt(dnapos_t pos);
-	void addSite(const Site &s);
-	void removeSite(const Site &s);
+	void SubtractMECValuesAt(dnapos_t pos);
+	void AddMECValuesAt(dnapos_t pos);
+	void AddSite(const Site &s);
+	void RemoveSite(const Site &s);
 };
 
 ostream & operator << (ostream& stream, Haplotype& ch);
