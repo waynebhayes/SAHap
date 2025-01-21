@@ -13,7 +13,7 @@
 
 typedef struct _read {
     int id; // the "id" is just the subscript in the _read[] array.
-    int start, top; // this read runs from start to (top-1), ie., top is NOT included
+    int start, top; // this read runs from start to (top-1), ie., top is NOT incl uded
     char *let; // the array of READ_LEN letters
     char hap; // which haplotype are we currently assigned to? (initially -1)
 #if KNOWN_TRUTH
