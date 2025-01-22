@@ -24,27 +24,29 @@ class Genome {
 public:
 	Genome(InputFile file);
 	~Genome();
-	dnaweight_t WindowCost(dnapos_t start, dnapos_t end);
-	double TotalCost();
-	double Score();
-	double Score(dnaweight_t mec);
-	double MeanCoverage();
-	double WindowTotalCoverage();
-	double FracTime();
+	dnaweight_t mec();
+	dnaweight_t windowMEC();
+	double mecScore();
+	double windowMec();
+	double score();
+	double score(dnaweight_t mec);
+	double meanCoverage();
+	double windowTotalCoverage();
+	double fracTime();
 
-	void Shuffle();
-	bool Done();
-	void SetParameters(double tInitial, double tEnd, iteration_t maxIterations);
-	void SetTemperature(double t);
-	void Move();
-	void RevertMove();
-	void Iteration();
-	void Optimize(bool debug);
+	void shuffle();
+	bool done();
+	void setParameters(double tInitial, double tEnd, iteration_t maxIterations);
+	void setTemperature(double t);
+	void move();
+	void revertMove();
+	void iteration();
+	void optimize(bool debug);
 	void DynamicSchedule(double pBad, double TARGET_MEC);
 
 	void Report(int seconds, bool final=false);
-	double FindPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
-	void AutoSchedule(iteration_t iterations);
+	double findPbad(double temperature, iteration_t iterations = REPORT_INTERVAL);
+	void autoSchedule(iteration_t iterations);
 
 	// fAccept = alpha = fraction of moves accepted "recently"
 	struct AcceptBuffer {
@@ -54,8 +56,8 @@ public:
 		size_t pos = 0;
 		int sum = 0.0;
 
-		void Record(char good);
-		double GetAverage();
+		void record(char good);
+		double getAverage();
 	};
 	AcceptBuffer fAccept;
 	int totalGood = 0;
@@ -68,8 +70,8 @@ public:
 		size_t pos = 0;
 		double sum = 0.0;
 
-		void Record(double acceptance);
-		double GetAverage();
+		void record(double acceptance);
+		double getAverage();
 	};
 	PbadBuffer pBad;
 	int totalBad = 0;
@@ -78,8 +80,8 @@ public:
 
 
 	vector<Haplotype> haplotypes;
-	void GenerateOutput();
-	dnacnt_t CompareGroundTruth();
+	void generateOutput();
+	dnacnt_t compareGroundTruth();
 
 protected:
 	InputFile file;
@@ -110,20 +112,20 @@ protected:
 		size_t to;
 		Read * read;
 	};
-	struct Move lastMove;
+	Move lastMove;
 
-	double Acceptance(double newScore, double curScore);
-	double GetTemperature(iteration_t iteration);
-	dnacnt_t CompareGroundTruth(const Haplotype& ch, const vector<int>& truth);
+	double acceptance(double newScore, double curScore);
+	double getTemperature(iteration_t iteration);
+	dnacnt_t compareGroundTruth(const Haplotype& ch, const vector<int>& truth);
 	
 	friend ostream& operator << (ostream& stream, const Genome& ge);
 
 private:
 	vector<Range> blocks;
 
-	void CreateBlocks();
-	bool Intersects(Range a, Range b);
-	Range CombineBlocks(Range a, Range b);
+	void createBlocks();
+	bool intersects(Range a, Range b);
+	Range combineBlocks(Range a, Range b);
 };
 
 }
