@@ -170,9 +170,9 @@ int ComputeSiteMEC(GENOME *G, SITE *site) {
     for(h=0;h<PLOIDY;h++) {
 	int maxCount=-1, maxLet=-1;
 	for(i=0;i<NUM_LETTERS;i++) if(count[h][i] >= maxCount) {maxCount=count[h][i]; maxLet=i;}
-	G->haps[h].sol[site->globalLoc] = maxLet;
-	G->haps[h].MEC[site->globalLoc] = not[h][maxLet];
-	siteMEC += G->haps[h].MEC[site->globalLoc];
+	G->haps[h].sol[site-_site] = maxLet;
+	G->haps[h].MEC[site-_site] = not[h][maxLet];
+	siteMEC += G->haps[h].MEC[site-_site];
     }
     return siteMEC;
 }
