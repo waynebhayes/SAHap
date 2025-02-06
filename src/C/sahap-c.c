@@ -3,12 +3,12 @@
 #include "rand48.h"
 
 #define VERBOSE 1
-#define MAX_NUM_SITES 500
-#define MAX_READ_LEN 70 // constant for now, for simplicity
+#define MAX_NUM_SITES 2000000
+#define MAX_READ_LEN 400 // constant for now, for simplicity
 #define COVERAGE 20
 #define PLOIDY 2
 #define NUM_LETTERS 2 // number of possible letters in the solution
-#define MAX_NUM_READS 150
+#define MAX_NUM_READS 15000
 
 typedef struct _site {
     int globalLoc; // NEVER use this global location except when reading in a WIF file--use the WhichSite instead
