@@ -1,0 +1,3 @@
+[submodule "src/C/libwayne"]
+	path = src/C/libwayne
+	url = https://waynebhayes@github.com/waynebhayes/libwayne
