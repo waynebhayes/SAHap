@@ -5,7 +5,7 @@
 #define VERBOSE 1
 #define MAX_NUM_SITES 2000000
 #define MAX_READ_LEN 400 // constant for now, for simplicity
-#define COVERAGE 20
+#define COVERAGE 30
 #define PLOIDY 2
 #define NUM_LETTERS 2 // number of possible letters in the solution
 #define MAX_NUM_READS 15000
@@ -39,6 +39,7 @@ typedef struct _read {
 static READ _read[MAX_NUM_READS]; // the global list of reads
 static SITE _site[MAX_NUM_SITES]; // we know which reads touch each site
 static int _numReads; // number of reads actually read in
+static float _coverage; // the mean coverage
 
 static int _numSites;
 
@@ -53,7 +54,7 @@ static int WhichSite(int loc) {
 
 void ReadWIF(char filename[]) {
     FILE *fp = fopen(filename, "r");
-    int readSite=0, siteLoc, conf;
+    int readSite=0, siteLoc, conf, totalReadSites=0;
     char nuc, bit;
     char siteLocStr[20]; // integer locations in a genome have at most... 10? characters
     while(fscanf(fp, "%s ", siteLocStr)==1) {
@@ -63,6 +64,7 @@ void ReadWIF(char filename[]) {
 	    char junk[1000]; char *foo = fgets(junk, sizeof(junk), fp); assert(foo); // read through the comment
 	    if(VERBOSE>1) printf("Finished reading Read %d (%d sites)\n", _numReads, readSite);
 	    _read[_numReads].numSites = readSite;
+	    totalReadSites += readSite;
 	    assert(_numReads < MAX_NUM_READS);
 	    _numReads++; readSite=0;
 	}
@@ -87,7 +89,10 @@ void ReadWIF(char filename[]) {
 	    _read[_numReads].let[readSite++]=bit-'0';
 	}
     }
-    printf("Read %d reads across %d sites\n", _numReads, _numSites);
+    double meanReadLength = totalReadSites*1.0/_numReads;
+    _coverage = 1.0*totalReadSites/_numSites;
+    printf("Read %d reads, total letters %d (mean length %g); %d genomic sites (coverage %g)\n",
+	_numReads, totalReadSites, meanReadLength, _numSites, _coverage);
     fclose(fp);
 }
 
@@ -128,6 +133,8 @@ static void CreateRandomReads(void) {
 	}
 	if(VERBOSE>1) printf("]\n");
     }
+    int totalReadSites = _numReads * MAX_READ_LEN;
+    _coverage = 1.0*totalReadSites/_numSites;
 }
 
 static void InitializeSystem(void) {
@@ -193,14 +200,10 @@ void Report(int iter, GENOME *G) {
 	    }
 	}
     }
-    printf(" total genomeMEC %d\n", genomeMEC);
+    printf(" total genomeMEC %d (%.2f%%)\n", genomeMEC, 100.0*genomeMEC/_numSites/_coverage);
 }
 
-void FlipRead(READ *r) {
-
-}
-
-#define MAX_TRIES 1000
+#define MAX_TRIES (_numSites*_coverage)
 void HillClimb(GENOME *G) {
     int maxMEC=0, iter=0, numTries=MAX_TRIES;
     // Note: the "stagnant" variable isn't needed in SA, it's only needed in Hill Climbing, because if we've
