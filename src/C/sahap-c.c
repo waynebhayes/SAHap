@@ -51,7 +51,7 @@ static int WhichSite(int loc) {
 }
 
 
-int ReadWIF(char filename[]) {
+void ReadWIF(char filename[]) {
     FILE *fp = fopen(filename, "r");
     int readSite=0, siteLoc, conf;
     char nuc, bit;
@@ -61,7 +61,7 @@ int ReadWIF(char filename[]) {
 	if(siteLoc == 0) { // we've reached the end of a read
 	    assert(siteLocStr[0] != '0'); // oops, the siteLoc REALLY IS zero... FIXME
 	    char junk[1000]; char *foo = fgets(junk, sizeof(junk), fp); assert(foo); // read through the comment
-	    printf("Finished reading Read %d (%d sites)\n", _numReads, readSite);
+	    if(VERBOSE>1) printf("Finished reading Read %d (%d sites)\n", _numReads, readSite);
 	    _read[_numReads].numSites = readSite;
 	    assert(_numReads < MAX_NUM_READS);
 	    _numReads++; readSite=0;
@@ -75,9 +75,9 @@ int ReadWIF(char filename[]) {
 		_numSites++;
 	    }
 	    int n = fscanf(fp, "%c %c %d : ", &nuc, &bit, &conf);
-	    //printf("n=%d, siteLoc=%d, nuc=%c, bit=%c conf=%d\n", n, siteLoc, nuc, bit, conf);
+	    if(VERBOSE>1) printf("n=%d, siteLoc=%d, nuc=%c, bit=%c conf=%d\n", n, siteLoc, nuc, bit, conf);
 	    if(readSite==0) { // this is the first site of a new read
-		printf("Found beginning of read %d (line %d), siteLoc %d\n", _numReads, _numReads+1, siteLoc);
+		if(VERBOSE>1) printf("Found beginning of read %d (line %d), siteLoc %d\n", _numReads, _numReads+1, siteLoc);
 		_read[_numReads].id = _numReads;
 		_read[_numReads].firstSite = whichSite;
 		_read[_numReads].let = Malloc(MAX_READ_LEN);
@@ -120,19 +120,13 @@ static void CreateRandomReads(void) {
 	_read[r].let = Calloc(MAX_READ_LEN, sizeof(_read[r].let[0]));
 	int hap = PLOIDY*drand48(); // the TRUE haplotype this read is from
         _read[r].trueHap = hap;
-#if VERBOSE>1
-	printf("R%d[%d=%d]<-H%d[",r,_read[r].firstSite,_read[r].numSites,hap);
-#endif
+	if(VERBOSE>1) printf("R%d[%d=%d]<-H%d[",r,_read[r].firstSite,_read[r].numSites,hap);
 	for(int i=0; i<MAX_READ_LEN; i++) {
 	    int site = _read[r].firstSite + i;
 	    _read[r].let[i] = trueHap[hap].sol[site];
-#if VERBOSE>1
-	    printf("%d",_read[r].let[i]);
-#endif
+	    if(VERBOSE>1) printf("%d",_read[r].let[i]);
 	}
-#if VERBOSE>1
-	printf("]\n");
-#endif
+	if(VERBOSE>1) printf("]\n");
     }
 }
 
@@ -178,25 +172,28 @@ int ComputeSiteMEC(GENOME *G, SITE *site) {
 }
 
 
-void Report(GENOME *G) {
-#if VERBOSE>1
-    for(int h=0; h<PLOIDY; h++) printf("Haplotype %d currently has %d reads\n", h, SetCardinality(G->haps[h].readSet));
-#endif
+void Report(int iter, GENOME *G) {
+    if(VERBOSE) {
+	printf("iter %d; Read counts:", iter);
+	for(int h=0; h<PLOIDY; h++)
+	    printf(" H%d=%d", h, SetCardinality(G->haps[h].readSet));
+    }
+
     int genomeMEC=0;
     for(int i=0; i<_numSites; i++) {
 	genomeMEC += ComputeSiteMEC(G, &_site[i]);
-#if VERBOSE>1
-	printf("site %d touches %d reads\n", i, SetCardinality(_site[i].readsThatTouch));
-	for(int h=0;h<PLOIDY;h++) {
-	    static SET *intersect;
-	    if(!intersect) intersect=SetAlloc(MAX_NUM_READS); else SetReset(intersect);
-	    SetIntersect(intersect, G->haps[h].readSet, _site[i].readsThatTouch);
-	    printf("\thap[%d] touches %d reads, is majority %d, with MEC %d\n", h, SetCardinality(intersect),
-		G->haps[h].sol[i], G->haps[h].MEC[i]);
+	if(VERBOSE>1) {
+	    printf("site %d touches %d reads\n", i, SetCardinality(_site[i].readsThatTouch));
+	    for(int h=0;h<PLOIDY;h++) {
+		static SET *intersect;
+		if(!intersect) intersect=SetAlloc(MAX_NUM_READS); else SetReset(intersect);
+		SetIntersect(intersect, G->haps[h].readSet, _site[i].readsThatTouch);
+		printf("\thap[%d] touches %d reads, is majority %d, with MEC %d\n", h, SetCardinality(intersect),
+		    G->haps[h].sol[i], G->haps[h].MEC[i]);
+	    }
 	}
-#endif
     }
-    printf("\ngenomeMEC %d", genomeMEC);
+    printf(" total genomeMEC %d\n", genomeMEC);
 }
 
 void FlipRead(READ *r) {
@@ -209,38 +206,40 @@ void HillClimb(GENOME *G) {
     // Note: the "stagnant" variable isn't needed in SA, it's only needed in Hill Climbing, because if we've
     // tried 1000 moves without any improvement, it's probably time to give up because we're at a local minimum.
     while(numTries) { // for SA, this "while" will be replace with a loop over the temperature range estimated first by SA
+	if(iter % 1000 == 0) Report(iter, G);
 	++iter;
-	Report(G);
+
 	int r=drand48()*MAX_NUM_READS; // pick a read at random
+	foint f; f.i = r; // pass this foint f into the "move" function below. It will look like this:
+	// foint Move(foint f) { int r = f.i; // this is the read to move....
+	// compute score (before move)
+	int beforeMEC=0, afterMEC=0;
+	for(int i=0; i<_read[r].numSites;i++) beforeMEC += ComputeSiteMEC(G, &_site[_read[r].firstSite+i]);
+
+	// compute new location
 	int hap=_read[r].hap, hapShift = drand48()*(PLOIDY-1)+1, newHap = (hap+hapShift)%PLOIDY;
 	assert(0 <= newHap && newHap < PLOIDY && newHap != hap);
-#if VERBOSE
-	printf(" iter %d Read %d is current in H%d, about to move it to H%d...", iter, r, hap, newHap);
-#endif
-	int beforeMEC=0, afterMEC=0;
-	for(int i=0; i<_read[r].numSites;i++)
-	    beforeMEC += ComputeSiteMEC(G, &_site[_read[r].firstSite+i]);
-	// Now flip it and recompute the MEC along its sites (assumes PLOIDY==1)
+	if(VERBOSE>1) printf(" iter %d Read %d is current in H%d, about to move it to H%d...", iter, r, hap, newHap);
+	// Now ACTUALLY do the move and recompute the MEC along its sites (assumes PLOIDY==1)
 	SetDelete(G->haps[hap].readSet, r);
 	SetAdd  (G->haps[newHap].readSet, r);
 	_read[r].hap=newHap;
+
+	// compute score (after move--exact same calculation as "before" above)
 	for(int i=0; i<_read[r].numSites;i++) afterMEC += ComputeSiteMEC(G, &_site[_read[r].firstSite+i]);
+
+	// SA code will make this decision, NOT you
 	if(beforeMEC>maxMEC || afterMEC>maxMEC) maxMEC=MAX(beforeMEC,afterMEC);
-#if VERBOSE
-	printf("before %d, after %d...", beforeMEC, afterMEC);
-#endif
-	// Here is where SA might choose to accept a bad move rather than rejecting all bad moves.
-	if(afterMEC < beforeMEC) {
+	if(VERBOSE>1) printf("before %d, after %d...", beforeMEC, afterMEC);
+	// Here is where SA might tell you to accept or reject: your AcceptReject function will look at the first argument
+	// (a Boolean) and simply do the accept, or reject, as instructed.
+	if(afterMEC < beforeMEC) { // do this if told to accept
 	    numTries=MAX_TRIES;
-#if VERBOSE
-	    printf("accept ") ; // accept the move (do nothing, it's already moved)
-#endif
+	    if(VERBOSE>1) printf("accept ") ; // accept the move (do nothing, it's already moved)
 	}
-	else { // reject
+	else { // do this if told to reject
 	    numTries--;
-#if VERBOSE
-	    printf("reject(%d) ", numTries);
-#endif
+	    if(VERBOSE>1) printf("reject(%d) ", numTries);
 	    afterMEC=0;
 	    _read[r].hap=hap;
 	    SetDelete(G->haps[!hap].readSet, r);
