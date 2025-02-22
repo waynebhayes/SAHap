@@ -1,6 +1,7 @@
 #include "misc.h"
 #include "sets.h"
 #include "rand48.h"
+#include "libwayne/src/sim_anneal.h"
 
 #define VERBOSE 1
 #define MAX_NUM_SITES 2000000
@@ -203,7 +204,56 @@ void Report(int iter, GENOME *G) {
     printf(" total genomeMEC %d (%.2f%%)\n", genomeMEC, 100.0*genomeMEC/_numSites/_coverage);
 }
 
+double ComputeScore(GENOME *G, foint f) {
+	int r = f.i;
+	int beforeMEC=0, afterMEC=0;
+	for(int i=0; i<_read[r].numSites;i++) beforeMEC += ComputeSiteMEC(G, &_site[_read[r].firstSite+i]);
+	return beforeMEC - afterMEC;
+}
+
+double Move(GENOME*G, int hap, int hapShift, int newHap, foint f) {
+	int r = f.i;
+	SetDelete(G->haps[hap].readSet, r);
+	SetAdd  (G->haps[newHap].readSet, r);
+	_read[r].hap=newHap;
+}
+
 #define MAX_TRIES (_numSites*_coverage)
+foint AcceptReject(GENOME*G, double beforeMEC, double afterMEC, int maxMEC, int numTries, foint f, int hap) {
+	int r = f.i;
+	if(beforeMEC>maxMEC || afterMEC>maxMEC) maxMEC=MAX(beforeMEC,afterMEC);
+	if(VERBOSE>1) printf("before %d, after %d...", beforeMEC, afterMEC);
+	// Here is where SA might tell you to accept or reject: your AcceptReject function will look at the first argument
+	// (a Boolean) and simply do the accept, or reject, as instructed.
+	if(afterMEC < beforeMEC) { // do this if told to accept
+	    numTries=MAX_TRIES;
+	    if(VERBOSE>1) printf("accept ") ; // accept the move (do nothing, it's already moved)
+	}
+	else { // do this if told to reject
+	    numTries--;
+	    if(VERBOSE>1) printf("reject(%d) ", numTries);
+	    afterMEC=0;
+	    _read[r].hap=hap;
+	    SetDelete(G->haps[!hap].readSet, r);
+	    SetAdd    (G->haps[hap].readSet, r);
+	    for(int i=0; i<_read[r].numSites;i++) afterMEC += ComputeSiteMEC(G, &_site[_read[r].firstSite+i]);
+	    assert(afterMEC == beforeMEC);
+	}
+}
+
+
+void SimmulatedAnnealing(GENOME *G) {
+	int maxMEC = 0, iter=0, numTries=MAX_TRIES;
+	
+	SIM_ANNEAL *sa = SimAnnealAlloc(-1, (foint)(void*)_array, SwapElements, ScoreGlobal, AcceptReject, maxIters);
+    SimAnnealAutoSchedule(sa);
+    int result = SimAnnealRun(sa);
+    printf("SimAnnealRun returned %d\n", result);
+    printf("%g\n", ScoreGlobal(f));
+
+
+}
+
 void HillClimb(GENOME *G) {
     int maxMEC=0, iter=0, numTries=MAX_TRIES;
     // Note: the "stagnant" variable isn't needed in SA, it's only needed in Hill Climbing, because if we've
@@ -253,7 +303,21 @@ void HillClimb(GENOME *G) {
     }
     printf("\nHill Climbing stagnated\n");
 }
+//SIM_ANNEAL *SimAnnealAlloc(double direction, foint initSol, pMoveFunc Move, pScoreFunc Score, pAcceptFunc Accept, unsigned long maxIters) {
+// int main(void) {
+//     int i;
+//     foint f;
+//     // srand48(GetFancySeed(false)); // comment out this line for reproducible results
+//     for(i=0;i<N;i++) _array[i] = drand48()*N;
 
+//     const unsigned long maxIters = SQR(N)*SQR(N*N);
+//     printf("%g\n", ScoreGlobal(f));
+//     SIM_ANNEAL *sa = SimAnnealAlloc(-1, (foint)(void*)_array, SwapElements, ScoreGlobal, AcceptReject, maxIters);
+//     SimAnnealAutoSchedule(sa);
+//     int result = SimAnnealRun(sa);
+//     printf("SimAnnealRun returned %d\n", result);
+//     printf("%g\n", ScoreGlobal(f));
+// }
 int main(int argc, char *argv[])
 {
     srand48(time(NULL)+getpid());
