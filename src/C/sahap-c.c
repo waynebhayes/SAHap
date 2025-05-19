@@ -3,6 +3,10 @@
 #include "rand48.h"
 #include "libwayne/include/sim_anneal.h"
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
 #define VERBOSE 1
 #define MAX_NUM_SITES 2000000
 #define MAX_READ_LEN 400 // constant for now, for simplicity
@@ -147,6 +151,188 @@ static void InitializeSystem(void) {
 	for(i=0; i<_read[r].numSites; i++) SetAdd(_site[_read[r].firstSite+i].readsThatTouch, r);
     }
 }
+
+
+// NEW CODE STARTS HERE: 
+
+
+// Extract k-mer from the tail of a read (null-terminated)
+char* tailKmer(const READ* r, int k) {
+    if (!r || !r->let || k > r->numSites) return NULL;
+
+    char* kmer = (char*)malloc((k + 1) * sizeof(char));
+    if (!kmer) return NULL;
+
+    int startIdx = r->numSites - k;
+    for (int i = 0; i < k; ++i) {
+        kmer[i] = r->let[startIdx + i];
+    }
+    kmer[k] = '\0';
+
+    return kmer;
+}
+
+// Extract k-mer from the head of a read (null-terminated)
+char* headKmer(const READ* r, int k) {
+    if (!r || !r->let || k > r->numSites) return NULL;
+
+    char* kmer = (char*)malloc((k + 1) * sizeof(char));
+    if (!kmer) return NULL;
+
+    for (int i = 0; i < k; ++i) {
+        kmer[i] = r->let[i];
+    }
+    kmer[k] = '\0';
+
+    return kmer;
+}
+
+// Check if two k-mers match (string compare)
+bool kmersMatch(const char* kmer1, const char* kmer2) {
+    if (!kmer1 || !kmer2) return false;
+    return strcmp(kmer1, kmer2) == 0;
+}
+
+// Compare two reads for equality
+bool readsEqual(const READ* a, const READ* b) {
+    if (a->numSites != b->numSites) return false;
+    if (a->firstSite != b->firstSite) return false;
+    for (int i = 0; i < a->numSites; ++i) {
+        if (a->let[i] != b->let[i]) return false;
+    }
+    return true;
+}
+
+// Append one base to the right of a read
+READ addReadsRight(const READ* base, char a) {
+    READ out = *base; 
+    out.numSites = base->numSites + 1;
+
+    char* newLet = (char*)malloc(out.numSites * sizeof(char));
+    if (!newLet) {
+        out.let = NULL;
+        return out;
+    }
+
+    for (int i = 0; i < base->numSites; ++i) {
+        newLet[i] = base->let[i];
+    }
+    newLet[out.numSites - 1] = a; 
+
+    out.let = newLet;
+    // firstSite stays the same when extending right
+
+    return out;
+}
+
+// Prepend one base to the left of a read
+READ addReadsLeft(const READ* base, char a) {
+    READ out = *base;
+    out.numSites = base->numSites + 1;
+    out.firstSite = base->firstSite - 1;
+
+    char* newLet = (char*)malloc(out.numSites * sizeof(char));
+    if (!newLet) {
+        out.let = NULL;
+        return out;
+    }
+
+    newLet[0] = a;
+    for (int i = 0; i < base->numSites; ++i) {
+        newLet[i + 1] = base->let[i];
+    }
+
+    out.let = newLet;
+    return out;
+}
+
+// Extend reads by matching k-mers and adding the next base from matching read
+void ExtendReadsUsingKmers(int k) {
+    bool extendedAny = true;
+
+    while (extendedAny) {
+        extendedAny = false;
+
+        for (int r = 0; r < _numReads; ++r) {
+            READ* current = &_read[r];
+            bool extendedThisRead = false;
+
+            // Extend RIGHT: get tail k-mer of current read
+            char* tailK = tailKmer(current, k);
+            if (!tailK) continue;
+
+            for (int j = 0; j < _numReads; ++j) {
+                if (j == r) continue;
+
+                READ* candidate = &_read[j];
+                char* headK = headKmer(candidate, k);
+                if (!headK) continue;
+
+                // If tail of current matches head of candidate, try to extend
+                if (kmersMatch(tailK, headK)) {
+                    // Check if candidate has a base after the k-mer to extend
+                    if (candidate->numSites > k) {
+                        char baseToAdd = candidate->let[k];
+                        READ extended = addReadsRight(current, baseToAdd);
+                        if (extended.let && !readsEqual(current, &extended)) {
+                            free(current->let);
+                            *current = extended;
+                            extendedThisRead = true;
+                            extendedAny = true;
+                            free(headK);
+                            break;  // Extend once per iteration per read
+                        } else {
+                            if (extended.let) free(extended.let);
+                        }
+                    }
+                }
+                free(headK);
+            }
+            free(tailK);
+
+            if (extendedThisRead) continue; // Skip left extension this iteration
+
+            // Extend LEFT: get head k-mer of current read
+            char* headK = headKmer(current, k);
+            if (!headK) continue;
+
+            for (int j = 0; j < _numReads; ++j) {
+                if (j == r) continue;
+
+                READ* candidate = &_read[j];
+                char* tailK = tailKmer(candidate, k);
+                if (!tailK) continue;
+
+                if (kmersMatch(tailK, headK)) {
+                    // Check if candidate has a base before the k-mer to extend left
+                    if (candidate->numSites > k) {
+                        char baseToAdd = candidate->let[candidate->numSites - k - 1];
+                        READ extended = addReadsLeft(current, baseToAdd);
+                        if (extended.let && !readsEqual(current, &extended)) {
+                            free(current->let);
+                            *current = extended;
+                            extendedAny = true;
+                            free(tailK);
+                            break;  // Extend once per iteration per read
+                        } else {
+                            if (extended.let) free(extended.let);
+                        }
+                    }
+                }
+                free(tailK);
+            }
+            free(headK);
+        }
+    }
+}
+
+
+// NEW CODE ENDS HERE
+
+
+
+
+
 
 // Computes the whole-genome MEC at a particular site by summing across the per-Haplotype MECs.
 // On the way we also compute and assign the solution at this site for each haplotpye
@@ -310,6 +496,51 @@ void SimulatedAnnealing(GENOME *G) {
     printf("%g\n", ComputeMEC(true, f));
 }
 
+// NEW MAIN FUNCTION
+
+int main(int argc, char *argv[])
+{
+    srand48(GetFancySeed(false));
+
+    if(argc>1) ReadWIF(argv[1]);
+    else CreateRandomReads();
+
+    // 🔁 Perform k-mer-based read extension
+    int k = 5; // adjust based on your data
+    ExtendReadsUsingKmers(k);
+
+    InitializeSystem();
+
+    GENOME G;
+
+    for(int h=0; h<PLOIDY; h++) {
+        G.haps[h].id = h;
+        G.haps[h].totalMEC = 0;
+        G.haps[h].readSet = SetAlloc(MAX_NUM_READS);
+        G.haps[h].sol = Calloc(MAX_NUM_SITES, sizeof(G.haps[h].sol[0]));
+        G.haps[h].MEC = Calloc(MAX_NUM_SITES, sizeof(G.haps[h].MEC[0]));
+    }
+
+    for(int r = 0; r < MAX_NUM_READS; r++) {
+        int hap = _read[r].hap = PLOIDY * drand48();
+        SetAdd(G.haps[hap].readSet, r);
+    }
+
+    printf("Global numSites %d, coverage %d, %d reads of length %d, numHap %d\n",
+           MAX_NUM_SITES, COVERAGE, MAX_NUM_READS, MAX_READ_LEN, PLOIDY);
+
+#if 0
+    HillClimb(&G);
+#else
+    SimulatedAnnealing(&G);
+#endif
+
+    for(int i = 0; i < _numSites; i++) {
+        printf("site %d has MEC %d\n", i, ComputeSiteMEC(&G, &_site[i]));
+    }
+}
+
+/*
 int main(int argc, char *argv[])
 {
     srand48(GetFancySeed(false));
@@ -343,3 +574,4 @@ int main(int argc, char *argv[])
 #endif
     for(int i=0; i<_numSites; i++) printf("site %d has MEC %d\n", i, ComputeSiteMEC(&G, &_site[i]));
 }
+*/
