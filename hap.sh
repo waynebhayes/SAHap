@@ -73,7 +73,8 @@ do
 		prevSL=$1" "$2; printf "%s %s\t%s",$1,$2,$3 # otherwise print new site, letter, and read
 	    }
 	}' | sort -n | tee $TMPDIR/slRs.txt | # sorted by "site letter {set of reads that have this letter at this site}"
-	hawk 'function SetLine(res,   i){delete res; for(i=3;i<=NF;i++)res[$i]=1}
+	hawk 'BEGIN{CLEAR_WIN_MULT=2; CLEAR_WIN_ADD=3} # if best match is 5x better or 5 more matches
+	function SetLine(res,   i){delete res; for(i=3;i<=NF;i++)res[$i]=1}
 	function PrintGroups(G,  g,r,p) {
 	    p=PROCINFO["sorted_in"];
 	    PROCINFO["sorted_in"]="@ind_num_asc";
@@ -112,30 +113,39 @@ do
 		SetCopy(H[bm[1]], res);
 		print "\tMatches only group", bm[1]
 	    } else {
-		printf "\tDo nothing because there is more than one match:";
-		for(i=1;i<=length(bm);i++) printf " %d has %d;",bm[i],numMatches[bm[i]];
-		print ""
-		PrintGroups(H);
-
-        ambigCount++
-        ambigReads[$3] = 1
+		printf "\tMore than one match, ";
+		if(numMatches[bm[1]] > CLEAR_WIN_ADD+numMatches[bm[2]] ||
+		    (numMatches[bm[2]] > 3 && # kinda arbitrary...
+			(numMatches[bm[1]] > CLEAR_WIN_MULT*numMatches[bm[2]])))
+		{
+		    printf "but top group %d (%d matches) clearly wins over 2nd best group %d (%d matches)\n",
+			bm[1], numMatches[bm[1]], bm[2], numMatches[bm[2]];
+		    SetUnion(res, H[bm[1]], L); # extend the Haplotype
+		    SetCopy(H[bm[1]], res);
+		} else {
+		    printf "but no clear winner. Do nothing:";
+		    for(i=1;i<=length(bm);i++) printf " %d has %d;",bm[i],numMatches[bm[i]];
+		    print ""
+		    PrintGroups(H);
+		    ambigCount++
+		    ambigReads[$3] = 1
+		}
+	    }
         }
-	}
 	END{
 	    print "FINAL GROUPS"
-        PrintGroups(H);
-        print ""
-        print "AMBIGUOUS READS"
+	    PrintGroups(H);
+	    print ""
+	    print "AMBIGUOUS READS"
 
-        PROCINFO["sorted_in"]="@ind_num_asc";
+	    PROCINFO["sorted_in"]="@ind_num_asc";
 
-        count = 0
-        for (read in ambigReads) {
-            count++
-            printf "Ambiguous[%d]: %s\n", count, read
-        }
-
-        print count " total ambiguous cases."
+	    count = 0
+	    for (read in ambigReads) {
+		count++
+		printf "Ambiguous[%d]: %s\n", count, read
+	    }
+	    print count " total ambiguous cases."
 	}'
 done
 
