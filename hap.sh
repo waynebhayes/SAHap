@@ -45,69 +45,113 @@ esac
 [ $# -eq 1 ] || die "expecting exactly 1 argument, a WIF file"
 [ -r "$1" ] || die "1st arg must be a file"
 
-# a WIF file is one read per line
-sed 's/ : #.*$//' "$1" | # remove the final colon and comment text
-    awk '{for(c=1;c<NF;c+=5)print $c,$(c+'$LETTER_COL'),FNR}' | # site, letter, and read, in the order seen in the WIF file
-    sort | tee $TMPDIR/slr.txt | # now sorted by site as a STRING--worry about sorting them numerically later
-    gawk '{ # prevSL = prev site+letter
-	if(prevSL==$1" "$2) printf " %d", $3; # print read number of the site if site+letter agree with previous line
-	else {
-	    sameSL=0; if(start++) print ""; # print newline except first time
-	    prevSL=$1" "$2; printf "%s %s\t%s",$1,$2,$3 # otherwise print new site, letter, and read
+# First, separate the WIF file into scaffolds, because there is no way to disambiguate haplotypes between scaffolds
+hawk -F: 'BEGIN{scaff=0; fmt="'$TMPDIR'/scaff%06d.wif"; outFile=sprintf(fmt,scaff)}
+    {sub(" : #.*","")} # nuke the useless colon and comment
+    NR==1{furthest=1*$NF}
+    NR>1{if(1*$1 > furthest) # the first site of this read is beyond the reach of all reads so far
+	    outFile=sprintf(fmt,++scaff);
+    }
+    {
+	print > outFile; reach=1*$NF; if(reach>furthest)furthest=reach
+    }' "$@"
+
+cd $TMPDIR || die "couldn't cd into '$TMPDIR'"
+echo There are `ls | wc -l` scaffolds
+
+for scaff in scaff*.wif;
+do
+    echo "Scaffold $scaff";
+    # a WIF file is one read per line
+    sed 's/ : #.*$//' "$scaff" | # remove the final colon and comment text
+	awk '{for(c=1;c<NF;c+=5)print $c,$(c+'$LETTER_COL'),FNR}' | # site, letter, and read, in the order seen in the WIF file
+	sort | tee $TMPDIR/slr.txt | # now sorted by site as a STRING--worry about sorting them numerically later
+	gawk '{ # prevSL = prev site+letter
+	    if(prevSL==$1" "$2) printf " %d", $3; # print read number of the site if site+letter agree with previous line
+	    else {
+		sameSL=0; if(start++) print ""; # print newline except first time
+		prevSL=$1" "$2; printf "%s %s\t%s",$1,$2,$3 # otherwise print new site, letter, and read
+	    }
+	}' | sort -n | tee $TMPDIR/slRs.txt | # sorted by "site letter {set of reads that have this letter at this site}"
+	hawk 'BEGIN{CLEAR_WIN_MULT=2; CLEAR_WIN_ADD=3} # if best match is 5x better or 5 more matches
+	function SetLine(res,   i){delete res; for(i=3;i<=NF;i++)res[$i]=1}
+	function PrintGroups(G,  g,r,p) {
+	    p=PROCINFO["sorted_in"];
+	    PROCINFO["sorted_in"]="@ind_num_asc";
+	    for(g in G){
+	    printf "G[%s]:", g;
+		for(r in G[g]) printf " %s", r;
+		print ""
+	    }
+	    PROCINFO["sorted_in"]=p;
 	}
-    }' | sort -n | tee $TMPDIR/slRs.txt | # sorted by "site letter {set of reads that have this letter at this site}"
-    hawk 'function SetLine(res,   i){delete res; for(i=3;i<=NF;i++)res[$i]=1}
-    function PrintGroups(G,  g,r,p) {
-	p=PROCINFO["sorted_in"];
-	PROCINFO["sorted_in"]="@ind_num_asc";
-	for(g in G){
-	printf "G[%s]:", g;
-	    for(r in G[g]) printf " %s", r;
+	{printf "%s", $0} # print every line
+	NR==1{ # first line is special: initialize H[1] (entire Haplotype 1)
+	    numGroups=1; H[1][0]=1;
+	    SetLine(H[1]);
 	    print ""
 	}
-	PROCINFO["sorted_in"]=p;
-    }
-    {printf "%s", $0} # print every line
-    NR==1{ # first line is special: initialize H[1] (entire Haplotype 1)
-	numGroups=1; H[1][0]=1;
-	SetLine(H[1]);
-	print ""
-    }
-    NR>1{
-	SetLine(L); # L becomes the set of reads that see this letter at this site
-	MakeEmptySet(numMatches);
-	for(g in H) {
-	    # number of matches = overlap between the reads seeing this letter at this site, and the haplotypes-so-far
-	    nm = SetIntersect(res,H[g],L);
-	    if(nm) numMatches[g] = nm;
-	}
-	nm=0; delete bm;
-	PROCINFO["sorted_in"]="@val_num_desc"; # force the next "for" loop to iterate through numMatches largest-to-smallest
-	for(g in numMatches) bm[++nm]=g; # bm[1] is the haplotype with the greatest number of reads that match this site.
-	ASSERT(length(numMatches) == length(bm));
-	if(length(numMatches)==0) { # this must be a new group
-	    print "\tNo match to existing groups:"; PrintGroups(H);
-	    printf "New group %d\n", ++numGroups;
-	    H[numGroups][0]=1;
-	    SetCopy(H[numGroups],L);
-	} else if(length(numMatches)==1) { # this line is a continuation of exactly one existing group
-	    SetUnion(res, H[bm[1]], L); # extend the Haplotype
-	    SetCopy(H[bm[1]], res);
-	    print "\tMatches only group", bm[1]
-	} else {
-	    printf "\tDo nothing because there is more than one match:";
-	    for(i=1;i<=length(bm);i++) printf " %d has %d;",bm[i],numMatches[bm[i]];
-	    print ""
+	NR>1{
+	    SetLine(L); # L becomes the set of reads that see this letter at this site
+	    MakeEmptySet(numMatches);
+	    for(g in H) {
+		# number of matches = overlap between the reads seeing this letter at this site, and the haplotypes-so-far
+		nm = SetIntersect(res,H[g],L);
+		if(nm) numMatches[g] = nm;
+	    }
+	    nm=0; delete bm;
+	    PROCINFO["sorted_in"]="@val_num_desc"; # force the next "for" loop to iterate through numMatches largest-to-smallest
+	    for(g in numMatches) bm[++nm]=g; # bm[1] is the haplotype with the greatest number of reads that match this site.
+	    ASSERT(length(numMatches) == length(bm));
+	    if(length(numMatches)==0) { # this must be a new group
+		print "\tNo match to existing groups:"; PrintGroups(H);
+		printf "New group %d\n", ++numGroups;
+		H[numGroups][0]=1;
+		SetCopy(H[numGroups],L);
+	    } else if(length(numMatches)==1) { # this line is a continuation of exactly one existing group
+		SetUnion(res, H[bm[1]], L); # extend the Haplotype
+		SetCopy(H[bm[1]], res);
+		print "\tMatches only group", bm[1]
+	    } else {
+		printf "\tMore than one match, ";
+		if(numMatches[bm[1]] > CLEAR_WIN_ADD+numMatches[bm[2]] ||
+		    (numMatches[bm[2]] > 3 && # kinda arbitrary...
+			(numMatches[bm[1]] > CLEAR_WIN_MULT*numMatches[bm[2]])))
+		{
+		    printf "but top group %d (%d matches) clearly wins over 2nd best group %d (%d matches)\n",
+			bm[1], numMatches[bm[1]], bm[2], numMatches[bm[2]];
+		    SetUnion(res, H[bm[1]], L); # extend the Haplotype
+		    SetCopy(H[bm[1]], res);
+		} else {
+		    printf "but no clear winner. Do nothing:";
+		    for(i=1;i<=length(bm);i++) printf " %d has %d;",bm[i],numMatches[bm[i]];
+		    print ""
+		    PrintGroups(H);
+		    ambigCount++
+		    ambigReads[$3] = 1
+		}
+	    }
+        }
+	END{
+	    print "FINAL GROUPS"
 	    PrintGroups(H);
-	}
-    }
-    END{
-	print "FINAL GROUPS"
-	PrintGroups(H);
-    }'
+	    print ""
+	    print "AMBIGUOUS READS"
+
+	    PROCINFO["sorted_in"]="@ind_num_asc";
+
+	    count = 0
+	    for (read in ambigReads) {
+		count++
+		printf "Ambiguous[%d]: %s\n", count, read
+	    }
+	    print count " total ambiguous cases."
+	}'
+done
 
 exit
 
+ *************************** OLD, PROBABLY USELESS CODE BELOW THIS LINE **********************************
     hawk '{for(i=3;i<NF;i++) for(j=i+1;j<=NF;j++) ++agree[MIN($i,$j)][MAX($i,$j)]} # accumulate #sites at which reads agree
 	END{for(i in agree)for(j in agree[i]) print agree[i][j],i,j}' |
     sort -nr | tee $TMPDIR/nrr.txt | # countAgree r1 r2
